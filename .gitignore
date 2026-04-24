@@ -1,0 +1,77 @@
+# Keep the repo product-focused by default.
+/*
+
+# Always keep repo metadata
+!/.gitignore
+
+# Application code
+!/frontend/
+!/frontend/**
+/frontend/node_modules/
+/frontend/.next/
+/frontend/next-dev.err.log
+/frontend/next-dev.out.log
+
+!/backend/
+!/backend/**
+
+!/api/
+!/api/**
+/api/__pycache__/
+
+# Minimal runtime data only
+!/ML/
+/ML/*
+!/ML/sample_predictions_with_tiers_20260423.csv
+!/ML/ml_predictions_summary_lgbm_bigwin25_calls_v1_20260423.xlsx
+
+!/data/
+/data/*
+
+!/data/macro/
+/data/macro/*
+!/data/macro/macro_regime_enriched.csv
+
+!/data/master/
+/data/master/*
+!/data/master/reports/
+/data/master/reports/*
+!/data/master/reports/dec25_jan26_strategy_uplift_20260424_104243.csv
+
+# General junk / caches / local-only artifacts
+.env
+.env.*
+!.env.example
+.venv*/
+__pycache__/
+*.pyc
+*.pyo
+*.tmp
+*.log
+*.sqlite
+*.duckdb
+*.duckdb-wal
+*.parquet
+*.pkl
+*.joblib
+*.pdf
+*.docx
+*.png
+~$*
+.DS_Store
+.vercel/
+.render/
+.python-version
+.pytest_cache/
+.mypy_cache/
+
+# Explicit research / archive clutter
+Archive/
+GPT/
+Potential Trades/
+wr_*/
+notebooks/
+experiments/
+old/
+tmp/
+.ipynb_checkpoints/
