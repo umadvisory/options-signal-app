@@ -49,7 +49,7 @@ function formatBackingLabel(stats: StrategyStats) {
     parts.push(`${formatNumber(stats.tickerCount)} tickers`);
   }
 
-  return parts.join(" • ") || "Benchmark backing";
+  return parts.join(" | ") || "Benchmark backing";
 }
 
 function Metric({

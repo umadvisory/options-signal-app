@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
 
-const DEFAULT_BACKEND_URL = "http://127.0.0.1:8019";
-
 export async function GET() {
-  const backendUrl = (
-    process.env.OPTIONS_API_URL ||
-    process.env.NEXT_PUBLIC_API_URL ||
-    DEFAULT_BACKEND_URL
-  ).replace(/\/$/, "");
+  const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+
+  if (!backendUrl) {
+    return NextResponse.json(
+      {
+        error: "NEXT_PUBLIC_API_URL is not configured."
+      },
+      { status: 500 }
+    );
+  }
 
   try {
     const response = await fetch(`${backendUrl}/top-trades`, {
@@ -35,11 +38,7 @@ export async function GET() {
       return NextResponse.json(payload, { status: 502 });
     }
 
-    return NextResponse.json(payload, {
-      headers: {
-        "Cache-Control": "no-store"
-      }
-    });
+    return NextResponse.json(payload, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown API connection error.";
 

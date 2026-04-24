@@ -51,6 +51,7 @@ export function DashboardClient() {
 
     try {
       const data = await fetchDashboardData(signal);
+      console.log("Dashboard API payload loaded", data);
       setSelectedTrade(null);
       setState({
         status: data.trades.length > 0 ? "ready" : "empty",
