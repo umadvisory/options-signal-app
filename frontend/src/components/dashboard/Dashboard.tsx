@@ -20,7 +20,9 @@ export function Dashboard({
   onToggleReview,
   onToggleWatchlist,
   onSelectTrade,
-  onRefresh
+  onRefresh,
+  userEmail,
+  onLogout
 }: {
   data: DashboardData;
   heroTrade?: TopTrade | null;
@@ -34,6 +36,8 @@ export function Dashboard({
   onToggleWatchlist?: (trade: TopTrade) => void;
   onSelectTrade?: (trade: TopTrade) => void;
   onRefresh?: () => void;
+  userEmail?: string | null;
+  onLogout?: () => void;
 }) {
   const enterCount = data.trades.filter((trade) => getDecisionState(trade).action === "ENTER").length;
   const watchCount = data.trades.filter((trade) => getDecisionState(trade).action === "WATCH").length;
@@ -52,6 +56,7 @@ export function Dashboard({
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+            {userEmail ? <TopChip label="User" value={userEmail} tone="slate" /> : null}
             <TopChip label="Priority" value={String(enterCount)} tone="green" />
             <TopChip label="Watch" value={String(watchCount)} tone="amber" />
             <TopChip label="Updated" value={formatGeneratedAt(data.generatedAt)} tone="slate" />
@@ -62,6 +67,15 @@ export function Dashboard({
                 className="inline-flex h-9 items-center justify-center rounded-md border border-slate-200 bg-slate-50 px-4 text-xs font-black text-ink transition hover:border-blue-300 hover:bg-white hover:text-blue-700"
               >
                 Refresh
+              </button>
+            ) : null}
+            {onLogout ? (
+              <button
+                type="button"
+                onClick={onLogout}
+                className="inline-flex h-9 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-xs font-black text-slate-700 transition hover:border-red-300 hover:text-red-700"
+              >
+                Logout
               </button>
             ) : null}
           </div>
