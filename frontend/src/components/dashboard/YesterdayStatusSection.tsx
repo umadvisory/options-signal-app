@@ -45,7 +45,7 @@ export function YesterdayStatusSection({ items, fallbackSignalDate }: { items: Y
               </p>
               {item.priceChangePct !== null ? (
                 <p className="mt-2 text-xs font-semibold text-muted">
-                  Price change vs yesterday snapshot: {item.priceChangePct > 0 ? "+" : ""}
+                  Change since signal snapshot: {item.priceChangePct > 0 ? "+" : ""}
                   {item.priceChangePct}%
                 </p>
               ) : (

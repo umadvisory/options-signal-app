@@ -95,15 +95,13 @@ export function Dashboard({
           <section className="rounded-lg border border-blue-300 bg-slate-950 px-6 py-4 text-white shadow-[0_18px_42px_rgba(15,23,42,0.18)]">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
-                <p className="text-xs font-bold tracking-[0.06em] text-blue-200">Top Trade Today</p>
+                <p className="text-xs font-bold tracking-[0.06em] text-blue-200">Best Entry Now</p>
                 <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <span className="inline-flex h-9 min-w-9 items-center justify-center rounded-full bg-blue-500 px-3 text-sm font-black text-white ring-4 ring-blue-500/20">
-                    #{resolvedHeroTrade.rank}
-                  </span>
                   <h2 className="text-[34px] font-black leading-none text-white">{resolvedHeroTrade.ticker}</h2>
                   <span className={heroGradeClass(resolvedHeroTrade.tier)}>{resolvedHeroTrade.tier}</span>
                   <span className={heroActionClass(heroDecision.action)}>{heroDecision.action}</span>
                 </div>
+                <p className="mt-2 text-xs font-semibold text-slate-400">Ranked #{resolvedHeroTrade.rank} overall</p>
                 {resolvedHeroTrade.companyName ? (
                   <p className="mt-2 text-base font-semibold text-slate-300">{resolvedHeroTrade.companyName}</p>
                 ) : null}
@@ -182,24 +180,15 @@ function HeroStat({ label, value }: { label: string; value: string }) {
 }
 
 function buildHeroTranslation(trade: TopTrade, action: "ENTER" | "WATCH" | "WAIT") {
-  const rsi = Number.isFinite(trade.context.rsi) ? trade.context.rsi : null;
-
   if (action === "ENTER") {
-    return `Best actionable setup today. Cleaner entry and less extended vs other top setups.${buildMomentumSuffix(rsi)}`;
+    return "Best timing-adjusted entry from today’s qualified setups. Cleaner entry and less extended versus higher-ranked names.";
   }
 
   if (action === "WATCH") {
-    return `Strong setup, but entry timing is less favorable vs other candidates.${buildMomentumSuffix(rsi)}`;
+    return "High-quality setup, but timing is not ideal yet. Watch for a cleaner entry.";
   }
 
-  return `Strong setup, but more extended than peers. Wait for better entry.${buildMomentumSuffix(rsi)}`;
-}
-
-function buildMomentumSuffix(rsi: number | null) {
-  if (rsi === null) return "";
-  if (rsi < 60) return " Momentum not extended.";
-  if (rsi <= 75) return " Momentum elevated.";
-  return " Momentum extended.";
+  return "High-quality setup, but momentum is extended. Wait for a reset before considering entry.";
 }
 
 function heroGradeClass(tier: TopTrade["tier"]) {
