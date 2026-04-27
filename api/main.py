@@ -597,11 +597,13 @@ def format_hold_window(hold_p25_days, hold_p75_days, median_hold_days):
     upper = max(lower + 1, int(round(median_hold_days + 2)))
     return f"{lower}-{upper} trading days"
 
-def classify_historical_support(win_rate, avg_r_multiple, sample_size):
+def classify_historical_support(win_rate, avg_r_multiple, sample_size, distinct_ticker_count=None):
     if sample_size is None or sample_size < 15 or win_rate is None or avg_r_multiple is None:
         return "Limited"
 
     if win_rate >= 75 and avg_r_multiple >= 1.0:
+        if distinct_ticker_count is not None and distinct_ticker_count < 3:
+            return "Limited breadth"
         return "Strong"
     if win_rate >= 65 and avg_r_multiple >= 0.75:
         return "Moderate"
@@ -707,11 +709,15 @@ def fetch_historical_context(con, latest_entry_time, sector, option_type, struct
         return {
             "windowDays": 365,
             "sampleSize": None,
+            "distinctTickerCount": None,
             "winRate": None,
             "avgRMultiple": None,
             "medianHoldDays": None,
+            "holdP25Days": None,
+            "holdP75Days": None,
             "cohortLabel": None,
-            "matchStrength": "none"
+            "matchStrength": "none",
+            "supportLabel": "Limited"
         }
 
     band_low, band_high, band_label = dte_band(dte)
@@ -784,6 +790,7 @@ def fetch_historical_context(con, latest_entry_time, sector, option_type, struct
     base_query = """
         WITH comp AS (
             SELECT
+                ticker,
                 pnl,
                 CASE
                     WHEN total_risked_usd IS NOT NULL AND total_risked_usd != 0 THEN pnl / total_risked_usd
@@ -798,6 +805,7 @@ def fetch_historical_context(con, latest_entry_time, sector, option_type, struct
         )
         SELECT
             count(*) AS sample_size,
+            count(DISTINCT ticker) AS distinct_ticker_count,
             avg(CASE WHEN pnl > 0 THEN 1.0 ELSE 0.0 END) AS win_rate,
             avg(r_multiple) AS avg_r_multiple,
             median(hold_days) AS median_hold_days,
@@ -813,14 +821,16 @@ def fetch_historical_context(con, latest_entry_time, sector, option_type, struct
         result = con.execute(query, [window_start, *cohort["params"]]).fetchone()
         sample_size = int(result[0]) if result and result[0] is not None else 0
         if sample_size >= 15:
-            win_rate = round(float(result[1]) * 100, 1) if result[1] is not None else None
-            avg_r = round(float(result[2]), 2) if result[2] is not None else None
-            median_hold = round(float(result[3]), 1) if result[3] is not None else None
-            hold_p25 = round(float(result[4]), 1) if result[4] is not None else None
-            hold_p75 = round(float(result[5]), 1) if result[5] is not None else None
+            distinct_ticker_count = int(result[1]) if result[1] is not None else None
+            win_rate = round(float(result[2]) * 100, 1) if result[2] is not None else None
+            avg_r = round(float(result[3]), 2) if result[3] is not None else None
+            median_hold = round(float(result[4]), 1) if result[4] is not None else None
+            hold_p25 = round(float(result[5]), 1) if result[5] is not None else None
+            hold_p75 = round(float(result[6]), 1) if result[6] is not None else None
             return {
                 "windowDays": 365,
                 "sampleSize": sample_size,
+                "distinctTickerCount": distinct_ticker_count,
                 "winRate": win_rate,
                 "avgRMultiple": avg_r,
                 "medianHoldDays": median_hold,
@@ -828,12 +838,13 @@ def fetch_historical_context(con, latest_entry_time, sector, option_type, struct
                 "holdP75Days": hold_p75,
                 "cohortLabel": cohort["label"],
                 "matchStrength": cohort["name"],
-                "supportLabel": classify_historical_support(win_rate, avg_r, sample_size)
+                "supportLabel": classify_historical_support(win_rate, avg_r, sample_size, distinct_ticker_count)
             }
 
     return {
         "windowDays": 365,
         "sampleSize": None,
+        "distinctTickerCount": None,
         "winRate": None,
         "avgRMultiple": None,
         "medianHoldDays": None,
@@ -1450,8 +1461,10 @@ def build_top_trades_payload(include_pass: bool = True):
             historical_con = None
 
         previous_file = get_previous_file(file)
+        signal_date = response[0]["provenance"]["signalDate"] if response else None
         return {
             "generatedAt": datetime.now(timezone.utc).isoformat(),
+            "signalDate": signal_date,
             "sourceFiles": {
                 "predictionCsv": os.path.basename(file),
                 "previousPredictionCsv": os.path.basename(previous_file) if previous_file else None,

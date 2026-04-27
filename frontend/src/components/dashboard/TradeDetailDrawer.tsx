@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ActionBadge, TierBadge } from "@/components/ui/Badge";
 import { formatCurrency, formatExpiry, formatNumber, formatPct } from "@/lib/format";
@@ -108,17 +108,22 @@ export function TradeDetailDrawer({
                   sublabel="Live rank inside today's qualified list"
                 />
                 <CutStat
-                  label="Historical Support"
+                  label="Similar Setup History"
                   value={decisionContext.historical.supportLabel || "Limited"}
                   sublabel={
                     decisionContext.historical.winRate !== null && decisionContext.historical.winRate !== undefined
-                      ? `${decisionContext.historical.winRate}% win rate · ${decisionContext.historical.sampleSize || 0} trades/${decisionContext.historical.windowDays || 365} days`
+                      ? buildHistorySublabel(
+                          decisionContext.historical.winRate,
+                          decisionContext.historical.sampleSize,
+                          decisionContext.historical.windowDays
+                        )
                       : "Not enough clean comparables yet"
                   }
+                  detail={buildHistoryBreadth(decisionContext.historical.sampleSize, decisionContext.historical.distinctTickerCount)}
                 />
                 <CutStat
                   label="Typical Hold"
-                  value={decisionContext.expectation.timeframe || "N/A"}
+                  value={decisionContext.expectation.timeframe ? `Typical hold for similar setups: ${decisionContext.expectation.timeframe}` : "Typical hold for similar setups: N/A"}
                   sublabel={
                     decisionContext.historical.avgRMultiple !== null && decisionContext.historical.avgRMultiple !== undefined
                       ? `Avg return ${decisionContext.historical.avgRMultiple > 0 ? "+" : ""}${decisionContext.historical.avgRMultiple}R (= ${decisionContext.historical.avgRMultiple > 0 ? "+" : ""}${Math.round(
@@ -174,7 +179,7 @@ export function TradeDetailDrawer({
                 <h3 className="text-sm font-black text-ink">View Trade Plan</h3>
                 <p className="mt-1 text-[11px] font-semibold text-muted">Lower-cost idea, execution notes, and risk checks.</p>
               </div>
-              <span className="text-xs font-black text-blue-700 transition group-open:rotate-180">⌄</span>
+              <span className="text-xs font-black text-blue-700 transition group-open:rotate-180">âŒ„</span>
             </summary>
 
             <div className="space-y-4 border-t border-slate-200 px-4 py-4">
@@ -440,7 +445,7 @@ function buildSpreadSketch(trade: TopTrade) {
     }
 
     if ((structure === "OTM" || structure === "FAR OTM") && distancePct > 5) {
-      caution = "Use cautiously — OTM spreads further reduce probability of payoff.";
+      caution = "Use cautiously â€” OTM spreads further reduce probability of payoff.";
     }
 
     const targetShort = spot * 1.03;
@@ -522,7 +527,7 @@ function getDecisionState(trade: TopTrade) {
   if (posture.label === "Wait") {
     return {
       action: "WAIT",
-      explanation: "Momentum extended — wait",
+      explanation: "Momentum extended â€” wait",
       tone: "red" as const
     } as const;
   }
@@ -614,13 +619,25 @@ function Metric({
     </div>
   );
 }
+function buildHistorySublabel(winRate: number, sampleSize: number | null, windowDays: number | null) {
+  return `${winRate}% win rate | ${sampleSize || 0} trades/${windowDays || 365} days`;
+}
 
-function CutStat({ label, value, sublabel }: { label: string; value: string; sublabel: string }) {
+function buildHistoryBreadth(sampleSize: number | null, distinctTickerCount: number | null) {
+  if (!sampleSize || distinctTickerCount === null || distinctTickerCount === undefined) {
+    return null;
+  }
+
+  return `Based on ${sampleSize} similar trades across ${distinctTickerCount} ${distinctTickerCount === 1 ? "ticker" : "tickers"}`;
+}
+
+function CutStat({ label, value, sublabel, detail }: { label: string; value: string; sublabel: string; detail?: string | null }) {
   return (
     <div className="rounded-md border border-emerald-200 bg-white/80 px-3 py-3">
       <p className="text-[10px] font-black uppercase tracking-[0.12em] text-muted">{label}</p>
       <p className="mt-2 text-lg font-black text-ink">{value}</p>
       <p className="mt-1 text-xs font-semibold leading-5 text-muted">{sublabel}</p>
+      {detail ? <p className="mt-2 text-[11px] font-semibold leading-5 text-slate-500">{detail}</p> : null}
     </div>
   );
 }

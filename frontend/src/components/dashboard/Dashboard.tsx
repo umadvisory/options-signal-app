@@ -1,3 +1,4 @@
+import { JoinBetaDialog } from "@/components/dashboard/JoinBetaDialog";
 import { MarketRegimeStrip } from "@/components/dashboard/MarketRegimeStrip";
 import { SectorContextCards } from "@/components/dashboard/SectorContextCards";
 import { SummaryCard } from "@/components/dashboard/SummaryCard";
@@ -59,7 +60,9 @@ export function Dashboard({
             {userEmail ? <TopChip label="User" value={userEmail} tone="slate" /> : null}
             <TopChip label="Priority" value={String(enterCount)} tone="green" />
             <TopChip label="Watch" value={String(watchCount)} tone="amber" />
+            {data.signalDate ? <TopChip label="Signal date" value={formatSignalDate(data.signalDate)} tone="slate" /> : null}
             <TopChip label="Updated" value={formatGeneratedAt(data.generatedAt)} tone="slate" />
+            <JoinBetaDialog />
             {onRefresh ? (
               <button
                 type="button"
@@ -69,7 +72,7 @@ export function Dashboard({
                 Refresh
               </button>
             ) : null}
-            {onLogout ? (
+            {onLogout && userEmail ? (
               <button
                 type="button"
                 onClick={onLogout}
@@ -155,7 +158,7 @@ export function Dashboard({
         </section>
 
         <footer className="pb-2 text-center text-[11px] font-semibold text-slate-400">
-          For informational purposes only. Not investment advice. Options involve risk.
+          Educational signals only. Not investment advice. Confirm prices, liquidity, and suitability before trading.
         </footer>
       </div>
     </main>
@@ -240,5 +243,15 @@ function formatGeneratedAt(value: string) {
     day: "numeric",
     hour: "numeric",
     minute: "2-digit"
+  }).format(parsed);
+}
+
+function formatSignalDate(value: string) {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric"
   }).format(parsed);
 }

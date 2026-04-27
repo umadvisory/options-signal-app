@@ -99,6 +99,7 @@ export type TopTrade = {
     historical: {
       windowDays: number | null;
       sampleSize: number | null;
+      distinctTickerCount: number | null;
       winRate: number | null;
       avgRMultiple: number | null;
       medianHoldDays: number | null;
@@ -201,6 +202,7 @@ export type MarketRegime = {
 
 export type DashboardData = {
   generatedAt: string;
+  signalDate?: string | null;
   marketRegime: MarketRegime | null;
   watchlist: WatchlistItem[];
   strategyStats: {

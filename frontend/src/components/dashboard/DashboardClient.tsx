@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Dashboard } from "@/components/dashboard/Dashboard";
 import { DashboardEmptyState, DashboardErrorState, DashboardLoadingState } from "@/components/dashboard/DashboardStates";
 import { TradeDetailDrawer } from "@/components/dashboard/TradeDetailDrawer";
@@ -18,7 +17,6 @@ type LoadState =
   | { status: "error"; data: null; error: string };
 
 export function DashboardClient() {
-  const router = useRouter();
   const [state, setState] = useState<LoadState>({ status: "loading", data: null, error: null });
   const [selectedTrade, setSelectedTrade] = useState<TopTrade | null>(null);
   const [filters, setFilters] = useState<TradeFiltersState>({
@@ -29,8 +27,6 @@ export function DashboardClient() {
   });
   const [showReview, setShowReview] = useState(false);
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
-  const [authChecked, setAuthChecked] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
@@ -55,47 +51,32 @@ export function DashboardClient() {
   useEffect(() => {
     let mounted = true;
 
-    async function checkSession() {
+    async function syncSession() {
       const { data } = await supabase.auth.getSession();
       if (!mounted) return;
 
-      if (!data.session) {
-        setIsAuthenticated(false);
-        setAuthChecked(true);
-        router.replace("/login");
-        return;
+      setUserEmail(data.session?.user?.email ?? null);
+      if (data.session?.user?.email) {
+        console.log("Logged in user:", data.session.user.email);
       }
-
-      setUserEmail(data.session.user?.email ?? null);
-      console.log("Logged in user:", data.session.user?.email);
-      setIsAuthenticated(true);
-      setAuthChecked(true);
     }
 
-    void checkSession();
+    void syncSession();
 
     const {
       data: { subscription }
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
-        setUserEmail(null);
-        setIsAuthenticated(false);
-        setAuthChecked(true);
-        router.replace("/login");
-        return;
+      setUserEmail(session?.user?.email ?? null);
+      if (session?.user?.email) {
+        console.log("Logged in user:", session.user.email);
       }
-
-      setUserEmail(session.user?.email ?? null);
-      console.log("Logged in user:", session.user?.email);
-      setIsAuthenticated(true);
-      setAuthChecked(true);
     });
 
     return () => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [router]);
+  }, []);
 
   async function loadDashboard(signal?: AbortSignal) {
     setState({ status: "loading", data: null, error: null });
@@ -121,21 +102,14 @@ export function DashboardClient() {
   }
 
   useEffect(() => {
-    if (!authChecked || !isAuthenticated) return;
-
     const controller = new AbortController();
     void loadDashboard(controller.signal);
 
     return () => controller.abort();
-  }, [authChecked, isAuthenticated]);
+  }, []);
 
   async function handleLogout() {
     await supabase.auth.signOut();
-    router.replace("/login");
-  }
-
-  if (!authChecked || !isAuthenticated) {
-    return <DashboardLoadingState />;
   }
 
   if (state.status === "loading") {

@@ -1,5 +1,6 @@
 {
-  "generatedAt": "2026-04-27T11:15:57.404488+00:00",
+  "generatedAt": "2026-04-27T13:47:03.055122+00:00",
+  "signalDate": "2026-04-24",
   "sourceFiles": {
     "predictionCsv": "sample_predictions_with_tiers_20260424.csv",
     "previousPredictionCsv": "sample_predictions_with_tiers_20260423.csv",
@@ -459,6 +460,7 @@
         "historical": {
           "windowDays": 365,
           "sampleSize": 16,
+          "distinctTickerCount": 1,
           "winRate": 100.0,
           "avgRMultiple": 3.2,
           "medianHoldDays": 8.0,
@@ -466,7 +468,7 @@
           "holdP75Days": 8.0,
           "cohortLabel": "Technology CALLs, ITM, 0-21 DTE, A-filtered",
           "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "supportLabel": "Limited breadth"
         },
         "translation": "Qualified setup, but entry quality matters more than signal strength here.",
         "executionEdge": [
@@ -593,6 +595,7 @@
         "historical": {
           "windowDays": 365,
           "sampleSize": 16,
+          "distinctTickerCount": 1,
           "winRate": 100.0,
           "avgRMultiple": 3.2,
           "medianHoldDays": 8.0,
@@ -600,7 +603,7 @@
           "holdP75Days": 8.0,
           "cohortLabel": "Technology CALLs, ITM, 0-21 DTE, A-filtered",
           "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "supportLabel": "Limited breadth"
         },
         "translation": "Qualified setup, but entry quality matters more than signal strength here.",
         "executionEdge": [
@@ -726,6 +729,7 @@
         "historical": {
           "windowDays": 365,
           "sampleSize": 37,
+          "distinctTickerCount": 5,
           "winRate": 54.1,
           "avgRMultiple": 0.23,
           "medianHoldDays": 8.0,
@@ -859,6 +863,7 @@
         "historical": {
           "windowDays": 365,
           "sampleSize": 24,
+          "distinctTickerCount": 4,
           "winRate": 20.8,
           "avgRMultiple": -0.22,
           "medianHoldDays": 8.0,
@@ -987,6 +992,7 @@
         "historical": {
           "windowDays": 365,
           "sampleSize": 74,
+          "distinctTickerCount": 14,
           "winRate": 91.9,
           "avgRMultiple": 1.85,
           "medianHoldDays": 8.0,
@@ -1117,6 +1123,7 @@
         "historical": {
           "windowDays": 365,
           "sampleSize": 16,
+          "distinctTickerCount": 1,
           "winRate": 100.0,
           "avgRMultiple": 3.2,
           "medianHoldDays": 8.0,
@@ -1124,7 +1131,7 @@
           "holdP75Days": 8.0,
           "cohortLabel": "Technology CALLs, ITM, 0-21 DTE, A-filtered",
           "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "supportLabel": "Limited breadth"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
@@ -1248,6 +1255,7 @@
         "historical": {
           "windowDays": 365,
           "sampleSize": 16,
+          "distinctTickerCount": 1,
           "winRate": 100.0,
           "avgRMultiple": 3.2,
           "medianHoldDays": 8.0,
@@ -1255,7 +1263,7 @@
           "holdP75Days": 8.0,
           "cohortLabel": "Technology CALLs, ITM, 0-21 DTE, A-filtered",
           "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "supportLabel": "Limited breadth"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
@@ -1379,6 +1387,7 @@
         "historical": {
           "windowDays": 365,
           "sampleSize": 16,
+          "distinctTickerCount": 1,
           "winRate": 100.0,
           "avgRMultiple": 3.2,
           "medianHoldDays": 8.0,
@@ -1386,7 +1395,7 @@
           "holdP75Days": 8.0,
           "cohortLabel": "Technology CALLs, ITM, 0-21 DTE, A-filtered",
           "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "supportLabel": "Limited breadth"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
@@ -1510,6 +1519,7 @@
         "historical": {
           "windowDays": 365,
           "sampleSize": 16,
+          "distinctTickerCount": 1,
           "winRate": 100.0,
           "avgRMultiple": 3.2,
           "medianHoldDays": 8.0,
@@ -1517,7 +1527,7 @@
           "holdP75Days": 8.0,
           "cohortLabel": "Technology CALLs, ITM, 0-21 DTE, A-filtered",
           "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "supportLabel": "Limited breadth"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
@@ -1640,6 +1650,7 @@
         "historical": {
           "windowDays": 365,
           "sampleSize": 76,
+          "distinctTickerCount": 18,
           "winRate": 86.8,
           "avgRMultiple": 1.83,
           "medianHoldDays": 8.0,
@@ -1770,6 +1781,7 @@
         "historical": {
           "windowDays": 365,
           "sampleSize": 16,
+          "distinctTickerCount": 1,
           "winRate": 100.0,
           "avgRMultiple": 3.2,
           "medianHoldDays": 8.0,
@@ -1777,7 +1789,7 @@
           "holdP75Days": 8.0,
           "cohortLabel": "Technology CALLs, ITM, 0-21 DTE, A-filtered",
           "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "supportLabel": "Limited breadth"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
@@ -1900,6 +1912,7 @@
         "historical": {
           "windowDays": 365,
           "sampleSize": 76,
+          "distinctTickerCount": 18,
           "winRate": 86.8,
           "avgRMultiple": 1.83,
           "medianHoldDays": 8.0,
@@ -2030,6 +2043,7 @@
         "historical": {
           "windowDays": 365,
           "sampleSize": 76,
+          "distinctTickerCount": 18,
           "winRate": 86.8,
           "avgRMultiple": 1.83,
           "medianHoldDays": 8.0,
@@ -2160,6 +2174,7 @@
         "historical": {
           "windowDays": 365,
           "sampleSize": 16,
+          "distinctTickerCount": 1,
           "winRate": 100.0,
           "avgRMultiple": 3.2,
           "medianHoldDays": 8.0,
@@ -2167,7 +2182,7 @@
           "holdP75Days": 8.0,
           "cohortLabel": "Technology CALLs, ITM, 0-21 DTE, A-filtered",
           "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "supportLabel": "Limited breadth"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
@@ -2291,6 +2306,7 @@
         "historical": {
           "windowDays": 365,
           "sampleSize": 16,
+          "distinctTickerCount": 1,
           "winRate": 100.0,
           "avgRMultiple": 3.2,
           "medianHoldDays": 8.0,
@@ -2298,7 +2314,7 @@
           "holdP75Days": 8.0,
           "cohortLabel": "Technology CALLs, ITM, 0-21 DTE, A-filtered",
           "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "supportLabel": "Limited breadth"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
@@ -2421,6 +2437,7 @@
         "historical": {
           "windowDays": 365,
           "sampleSize": 16,
+          "distinctTickerCount": 1,
           "winRate": 100.0,
           "avgRMultiple": 3.2,
           "medianHoldDays": 8.0,
@@ -2428,7 +2445,7 @@
           "holdP75Days": 8.0,
           "cohortLabel": "Technology CALLs, ITM, 0-21 DTE, A-filtered",
           "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "supportLabel": "Limited breadth"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
@@ -2550,6 +2567,7 @@
         "historical": {
           "windowDays": 365,
           "sampleSize": 33,
+          "distinctTickerCount": 3,
           "winRate": 100.0,
           "avgRMultiple": 2.47,
           "medianHoldDays": 8.0,
@@ -2679,6 +2697,7 @@
         "historical": {
           "windowDays": 365,
           "sampleSize": 33,
+          "distinctTickerCount": 3,
           "winRate": 100.0,
           "avgRMultiple": 2.47,
           "medianHoldDays": 8.0,
@@ -2809,6 +2828,7 @@
         "historical": {
           "windowDays": 365,
           "sampleSize": 76,
+          "distinctTickerCount": 18,
           "winRate": 86.8,
           "avgRMultiple": 1.83,
           "medianHoldDays": 8.0,

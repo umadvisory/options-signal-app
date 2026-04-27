@@ -3,6 +3,8 @@ import type { DashboardData, SectorOutlook, StrategyStats, TopTrade } from "@/ty
 const DASHBOARD_ENDPOINT = "/api/top-trades";
 
 type TopTradesApiResponse = {
+  generatedAt?: string;
+  signalDate?: string | null;
   marketRegime?: DashboardData["marketRegime"];
   strategyStats?: Partial<DashboardData["strategyStats"]>;
   sectorOutlook?: DashboardData["sectorOutlook"];
@@ -43,7 +45,8 @@ export async function fetchDashboardData(signal?: AbortSignal): Promise<Dashboar
   const trades = Array.isArray(payload.trades) ? payload.trades.map(normalizeTrade) : [];
 
   return {
-    generatedAt: new Date().toISOString(),
+    generatedAt: payload.generatedAt ?? new Date().toISOString(),
+    signalDate: payload.signalDate ?? trades[0]?.provenance?.signalDate ?? null,
     marketRegime: normalizeMarketRegime(payload.marketRegime),
     watchlist: [],
     strategyStats: {
@@ -194,6 +197,7 @@ function normalizeTrade(trade: TopTrade): TopTrade {
           historical: {
             windowDays: numberOrNull(trade.decisionContext.historical?.windowDays),
             sampleSize: numberOrNull(trade.decisionContext.historical?.sampleSize),
+            distinctTickerCount: numberOrNull((trade.decisionContext.historical as { distinctTickerCount?: unknown })?.distinctTickerCount),
             winRate: numberOrNull(trade.decisionContext.historical?.winRate),
             avgRMultiple: numberOrNull(trade.decisionContext.historical?.avgRMultiple),
             medianHoldDays: numberOrNull(trade.decisionContext.historical?.medianHoldDays),
