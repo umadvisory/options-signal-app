@@ -4,6 +4,8 @@ import pandas as pd
 import glob
 import os
 import math
+import json
+from datetime import datetime, timezone
 
 app = FastAPI()
 
@@ -38,6 +40,7 @@ ML_DIR = ROOT_DIR / "ML"
 REPORTS_DIR = ROOT_DIR / "data" / "master" / "reports"
 MACRO_DIR = ROOT_DIR / "data" / "macro"
 TRADES_DB_PATH = ROOT_DIR / "data" / "master" / "trades_master.duckdb"
+SNAPSHOT_PATH = ROOT_DIR / "backend" / "data" / "production_snapshot.json"
 ETF_SHEET_NAME = "ETF_Overlay_Summary"
 SECTOR_SUMMARY_SHEET = "Sector Summary"
 TICKER_SUMMARY_SHEET = "Ticker Summary"
@@ -931,8 +934,43 @@ def home():
     return {"message": "Options API is running"}
 
 
-@app.get("/top-trades")
-def top_trades(include_pass: bool = True):
+def load_production_snapshot():
+    if not SNAPSHOT_PATH.exists():
+        return None
+
+    try:
+        with SNAPSHOT_PATH.open("r", encoding="utf-8") as handle:
+            payload = json.load(handle)
+        if isinstance(payload, dict):
+            return payload
+    except Exception as e:
+        print(f"[SNAPSHOT] Failed to load production snapshot: {e}")
+
+    return None
+
+
+def apply_include_pass_to_payload(payload, include_pass: bool):
+    if include_pass or not isinstance(payload, dict):
+        return payload
+
+    trades = payload.get("trades")
+    if not isinstance(trades, list):
+        return payload
+
+    filtered_trades = [trade for trade in trades if trade.get("action") != "PASS"]
+    filtered_payload = dict(payload)
+    filtered_payload["trades"] = filtered_trades
+
+    record_counts = filtered_payload.get("recordCounts")
+    if isinstance(record_counts, dict):
+        updated_counts = dict(record_counts)
+        updated_counts["returnedTrades"] = len(filtered_trades)
+        filtered_payload["recordCounts"] = updated_counts
+
+    return filtered_payload
+
+
+def build_top_trades_payload(include_pass: bool = True):
     historical_con = None
     try:
         file = get_latest_file()
@@ -1411,7 +1449,23 @@ def top_trades(include_pass: bool = True):
             historical_con.close()
             historical_con = None
 
+        previous_file = get_previous_file(file)
         return {
+            "generatedAt": datetime.now(timezone.utc).isoformat(),
+            "sourceFiles": {
+                "predictionCsv": os.path.basename(file),
+                "previousPredictionCsv": os.path.basename(previous_file) if previous_file else None,
+                "strategyStats": strategy_stats.get("sourceFile"),
+                "sectorOutlookWorkbook": sector_outlook.get("sourceFile"),
+                "marketRegime": MACRO_DIR.joinpath("macro_regime_enriched.csv").name if (MACRO_DIR / "macro_regime_enriched.csv").exists() else None,
+                "tradesDb": TRADES_DB_PATH.name if TRADES_DB_PATH.exists() else None
+            },
+            "recordCounts": {
+                "candidateTrades": candidate_total,
+                "returnedTrades": len(response),
+                "yesterdayStatus": len(yesterday_status),
+                "sectorCount": len(sector_outlook.get("sectors", []))
+            },
             "marketRegime": market_regime,
             "strategyStats": {
                 "highConviction": strategy_stats.get("highConviction"),
@@ -1430,3 +1484,12 @@ def top_trades(include_pass: bool = True):
             "error": str(e),
             "trace": traceback.format_exc()
         }
+
+
+@app.get("/top-trades")
+def top_trades(include_pass: bool = True):
+    snapshot_payload = load_production_snapshot()
+    if snapshot_payload is not None:
+        return apply_include_pass_to_payload(snapshot_payload, include_pass)
+
+    return build_top_trades_payload(include_pass=include_pass)
