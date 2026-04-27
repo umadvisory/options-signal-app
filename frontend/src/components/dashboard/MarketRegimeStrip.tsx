@@ -98,8 +98,14 @@ function buildTradingPosture(regime: MarketRegime) {
 
 function MacroMetric({ label, value, sublabel, tooltip }: { label: string; value: string; sublabel: string; tooltip?: string }) {
   return (
-    <div className="rounded-md border border-slate-200 bg-slate-50 px-3.5 py-3" title={tooltip}>
-      <p className="text-[10px] font-bold tracking-[0.04em] text-muted">{label}</p>
+    <div className="rounded-md border border-slate-200 bg-slate-50 px-3.5 py-3" title={tooltip} aria-label={tooltip}>
+      <p
+        className={`text-[10px] font-bold tracking-[0.04em] text-muted ${tooltip ? "cursor-help underline decoration-dotted underline-offset-2" : ""}`}
+        title={tooltip}
+        aria-label={tooltip}
+      >
+        {label}
+      </p>
       <p className="mt-1.5 text-[28px] font-black leading-none text-ink">{value}</p>
       <p className="mt-1 text-[11px] font-semibold text-muted">{sublabel}</p>
     </div>
