@@ -171,6 +171,7 @@ export type SectorOutlook = {
 export type YesterdayTradeStatus = {
   ticker: string;
   grade: string | null;
+  signalDate?: string | null;
   yesterdayEntryPrice: number | null;
   currentPrice: number | null;
   priceChangePct: number | null;

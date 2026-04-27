@@ -32,10 +32,30 @@ export function MarketRegimeStrip({ regime }: { regime: MarketRegime | null }) {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 xl:min-w-[500px] xl:grid-cols-4">
-          <MacroMetric label="VIX" value={regime.vix.level?.toFixed(1) ?? "N/A"} sublabel={regime.vix.label} />
-          <MacroMetric label="SPY 5D" value={formatPct(regime.spy.trend5d, true)} sublabel={regime.spy.trendLabel} />
-          <MacroMetric label="Vol %ile" value={formatPct(regime.vix.percentile)} sublabel="Relative range" />
-          <MacroMetric label="As Of" value={formatDate(regime.date)} sublabel="Macro snapshot" />
+          <MacroMetric
+            label="VIX"
+            value={regime.vix.level?.toFixed(1) ?? "N/A"}
+            sublabel={regime.vix.label}
+            tooltip="Measures market volatility. Higher values usually imply higher option premiums and risk."
+          />
+          <MacroMetric
+            label="SPY 5D"
+            value={formatPct(regime.spy.trend5d, true)}
+            sublabel={regime.spy.trendLabel}
+            tooltip="Short-term S&P 500 trend over the last five trading days."
+          />
+          <MacroMetric
+            label="Vol %ile"
+            value={formatPct(regime.vix.percentile)}
+            sublabel="Relative range"
+            tooltip="Current volatility level compared with recent historical range."
+          />
+          <MacroMetric
+            label="As Of"
+            value={formatDate(regime.date)}
+            sublabel="Macro snapshot"
+            tooltip="Date of the market regime snapshot."
+          />
         </div>
       </div>
     </section>
@@ -76,9 +96,9 @@ function buildTradingPosture(regime: MarketRegime) {
   return { contextLine, actionLine };
 }
 
-function MacroMetric({ label, value, sublabel }: { label: string; value: string; sublabel: string }) {
+function MacroMetric({ label, value, sublabel, tooltip }: { label: string; value: string; sublabel: string; tooltip?: string }) {
   return (
-    <div className="rounded-md border border-slate-200 bg-slate-50 px-3.5 py-3">
+    <div className="rounded-md border border-slate-200 bg-slate-50 px-3.5 py-3" title={tooltip}>
       <p className="text-[10px] font-bold tracking-[0.04em] text-muted">{label}</p>
       <p className="mt-1.5 text-[28px] font-black leading-none text-ink">{value}</p>
       <p className="mt-1 text-[11px] font-semibold text-muted">{sublabel}</p>

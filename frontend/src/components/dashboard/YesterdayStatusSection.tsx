@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { YesterdayTradeStatus } from "@/types/dashboard";
 
-export function YesterdayStatusSection({ items }: { items: YesterdayTradeStatus[] }) {
+export function YesterdayStatusSection({ items, fallbackSignalDate }: { items: YesterdayTradeStatus[]; fallbackSignalDate?: string | null }) {
   const [showAll, setShowAll] = useState(false);
 
   if (!items.length) return null;
@@ -14,10 +14,8 @@ export function YesterdayStatusSection({ items }: { items: YesterdayTradeStatus[
     <section className="rounded-lg border border-slate-200 bg-white px-5 py-4 shadow-soft">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-black text-ink">Yesterday&apos;s Trades — What changed</h2>
-          <p className="mt-1 text-xs font-semibold text-muted">
-            Quick follow-up on yesterday&apos;s ranked names using current price versus yesterday&apos;s snapshot.
-          </p>
+          <h2 className="text-lg font-black text-ink">Recent Signals - Status Update</h2>
+          <p className="mt-1 text-xs font-semibold text-muted">Follow-up on recently ranked names versus latest price action.</p>
         </div>
         {items.length > 5 ? (
           <button
@@ -33,6 +31,7 @@ export function YesterdayStatusSection({ items }: { items: YesterdayTradeStatus[
       <div className="mt-4 grid gap-3 lg:grid-cols-3">
         {visibleItems.map((item) => {
           const tone = getStatusTone(item.status);
+          const signalDate = item.signalDate ?? fallbackSignalDate ?? null;
 
           return (
             <article key={item.ticker} className={`rounded-lg border p-4 ${tone.card}`}>
@@ -52,6 +51,7 @@ export function YesterdayStatusSection({ items }: { items: YesterdayTradeStatus[
               ) : (
                 <p className="mt-2 text-xs font-semibold text-muted">Current price comparison unavailable.</p>
               )}
+              {signalDate ? <p className="mt-2 text-[11px] font-semibold text-slate-500">Signal date: {formatSignalDate(signalDate)}</p> : null}
             </article>
           );
         })}
@@ -81,4 +81,14 @@ function getStatusTone(status: string) {
     card: "border-amber-200 bg-amber-50",
     text: "text-amber-700"
   };
+}
+
+function formatSignalDate(value: string) {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric"
+  }).format(parsed);
 }

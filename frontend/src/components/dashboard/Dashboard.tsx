@@ -55,6 +55,9 @@ export function Dashboard({
             <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-muted">
               A curated view of today&apos;s qualified options setups, with market regime context and trade-level decision support.
             </p>
+            <p className="mt-2 max-w-2xl text-xs font-semibold leading-5 text-slate-500">
+              Educational signals only. Not investment advice. Trades shown are model-generated and for research purposes.
+            </p>
           </div>
           <div className="flex flex-wrap items-center gap-2 lg:justify-end">
             {userEmail ? <TopChip label="User" value={userEmail} tone="slate" /> : null}
@@ -101,6 +104,9 @@ export function Dashboard({
                   <span className={heroGradeClass(resolvedHeroTrade.tier)}>{resolvedHeroTrade.tier}</span>
                   <span className={heroActionClass(heroDecision.action)}>{heroDecision.action}</span>
                 </div>
+                {resolvedHeroTrade.companyName ? (
+                  <p className="mt-2 text-base font-semibold text-slate-300">{resolvedHeroTrade.companyName}</p>
+                ) : null}
                 <p className="mt-3 text-base font-semibold leading-7 text-slate-200">{buildHeroTranslation(resolvedHeroTrade, heroDecision.action)}</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[320px] lg:max-w-[420px] lg:flex-1">
@@ -151,14 +157,15 @@ export function Dashboard({
           />
         </section>
 
-        <YesterdayStatusSection items={data.yesterdayStatus} />
+        <YesterdayStatusSection items={data.yesterdayStatus} fallbackSignalDate={data.signalDate ?? null} />
 
         <section className="pt-1">
           <SectorContextCards sectors={data.sectorOutlook} />
         </section>
 
-        <footer className="pb-2 text-center text-[11px] font-semibold text-slate-400">
-          Educational signals only. Not investment advice. Confirm prices, liquidity, and suitability before trading.
+        <footer className="pb-2 text-center text-[11px] font-semibold leading-5 text-slate-400">
+          This platform provides model-driven trade ideas for educational purposes only. We do not provide financial
+          advice. Always confirm prices, liquidity, and suitability before making trading decisions.
         </footer>
       </div>
     </main>
