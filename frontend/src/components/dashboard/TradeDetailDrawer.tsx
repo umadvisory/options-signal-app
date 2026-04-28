@@ -108,29 +108,31 @@ export function TradeDetailDrawer({
                   sublabel="Live rank inside today's qualified list"
                 />
                 <CutStat
-                  label="Similar Setup History"
+                  label="Similar Setup History (Last 90 Days)"
                   value={decisionContext.historical.supportLabel || "Limited"}
                   sublabel={
-                    decisionContext.historical.winRate !== null && decisionContext.historical.winRate !== undefined
-                      ? buildHistorySublabel(
-                          decisionContext.historical.winRate,
-                          decisionContext.historical.sampleSize,
-                          decisionContext.historical.windowDays
-                        )
-                      : "Not enough clean comparables yet"
+                    decisionContext.historical.sampleSize !== null && decisionContext.historical.sampleSize !== undefined
+                      ? buildHistoryStats(decisionContext.historical.winRate, decisionContext.historical.sampleSize)
+                      : "Insufficient sample size"
                   }
-                  detail={buildHistoryBreadth(decisionContext.historical.sampleSize, decisionContext.historical.distinctTickerCount)}
+                  detail={
+                    decisionContext.historical.sampleSize !== null && decisionContext.historical.sampleSize !== undefined
+                      ? buildHistoryBreadth(
+                          decisionContext.historical.sampleSize,
+                          decisionContext.historical.distinctTickerCount
+                        )
+                      : "Based on 0 similar trades (last 90 days)"
+                  }
                 />
                 <CutStat
                   label="Typical Hold"
-                  value={decisionContext.expectation.timeframe ? `Typical hold for similar setups: ${decisionContext.expectation.timeframe}` : "Typical hold for similar setups: N/A"}
+                  value={decisionContext.expectation.timeframe ? `Typical hold: ${decisionContext.expectation.timeframe}` : "Typical hold: N/A"}
                   sublabel={
-                    decisionContext.historical.avgRMultiple !== null && decisionContext.historical.avgRMultiple !== undefined
-                      ? `Avg return ${decisionContext.historical.avgRMultiple > 0 ? "+" : ""}${decisionContext.historical.avgRMultiple}R (= ${decisionContext.historical.avgRMultiple > 0 ? "+" : ""}${Math.round(
-                          decisionContext.historical.avgRMultiple * 100
-                        )}% of risk per trade)`
-                      : "Expectation frame"
+                    decisionContext.historical.medianHoldDays !== null && decisionContext.historical.medianHoldDays !== undefined
+                        ? `Median: ${Math.round(decisionContext.historical.medianHoldDays)} days`
+                        : "Based on similar setups over last 90 days"
                   }
+                  detail={decisionContext.historical.cohortLabel || buildHoldDetail(decisionContext.historical.holdP25Days, decisionContext.historical.holdP75Days)}
                 />
               </div>
 
@@ -260,17 +262,17 @@ export function TradeDetailDrawer({
             </div>
           </details>
 
-          <section className="grid gap-4 sm:grid-cols-2">
-            <InfoPanel
-              title="Market Context"
-              rows={[
-                ["Sector", trade.context.sector],
-                ["ETF", `${trade.etfOverlay.etf} / ${trade.etfOverlay.bias}`],
-                ["Macro", marketRegime?.regime || "N/A"],
-                ["Recent hit rate", formatPct(trade.etfOverlay.winRate4d)],
-                ["Participation", formatNumber(trade.etfOverlay.breadth)]
-              ]}
-            />
+            <section className="grid gap-4 sm:grid-cols-2">
+              <InfoPanel
+                title="Market Context"
+                rows={[
+                  ["Sector", trade.context.sector],
+                  ["ETF", `${trade.etfOverlay.etf} / ${trade.etfOverlay.bias}`],
+                  ["Macro", marketRegime?.regime || "N/A"],
+                  ["Sector Signal Strength", `Win Rate (4d): ${formatPct(trade.etfOverlay.winRate4d)}`],
+                  ["Participation", `${formatNumber(trade.etfOverlay.breadth)} stocks`]
+                ]}
+              />
             <InfoPanel
               title="Setup Profile"
               rows={[
@@ -619,16 +621,34 @@ function Metric({
     </div>
   );
 }
-function buildHistorySublabel(winRate: number, sampleSize: number | null, windowDays: number | null) {
-  return `${winRate}% win rate | ${sampleSize || 0} trades/${windowDays || 365} days`;
+function buildHistoryStats(winRate: number | null, sampleSize: number | null) {
+  if (sampleSize === null || sampleSize === undefined || sampleSize < 30) {
+    return "Insufficient sample size";
+  }
+
+  const trades = sampleSize ?? 0;
+  const rate = winRate === null || winRate === undefined ? "N/A" : `${winRate}%`;
+  return `Win Rate: ${rate} | Trades: ${trades}`;
 }
 
 function buildHistoryBreadth(sampleSize: number | null, distinctTickerCount: number | null) {
-  if (!sampleSize || distinctTickerCount === null || distinctTickerCount === undefined) {
-    return null;
+  const trades = sampleSize ?? 0;
+
+  if (distinctTickerCount === null || distinctTickerCount === undefined) {
+    return `Based on ${trades} similar trades (last 90 days)`;
   }
 
-  return `Based on ${sampleSize} similar trades across ${distinctTickerCount} ${distinctTickerCount === 1 ? "ticker" : "tickers"}`;
+  return `Based on ${trades} similar trades (last 90 days) | Across: ${distinctTickerCount} ${
+    distinctTickerCount === 1 ? "ticker" : "tickers"
+  }`;
+}
+
+function buildHoldDetail(holdP25Days: number | null, holdP75Days: number | null) {
+  if (holdP25Days === null || holdP25Days === undefined || holdP75Days === null || holdP75Days === undefined) {
+    return "Based on similar setups over last 90 days";
+  }
+
+  return "Based on similar setups over last 90 days";
 }
 
 function CutStat({ label, value, sublabel, detail }: { label: string; value: string; sublabel: string; detail?: string | null }) {
