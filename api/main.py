@@ -247,8 +247,7 @@ def load_latest_sector_outlook():
         }
 
 def load_latest_strategy_stats():
-    latest_csv = get_latest_matching_file(REPORTS_DIR, "*strategy_uplift*.csv")
-    if latest_csv is None:
+    if not TRADES_DB_PATH.exists():
         return {
             "highConviction": None,
             "broadBase": None,
@@ -256,37 +255,28 @@ def load_latest_strategy_stats():
         }
 
     try:
-        df = pd.read_csv(latest_csv)
-        df.columns = [str(c).strip().lower() for c in df.columns]
-
-        print("[STRATEGY STATS] Using file:", latest_csv.name)
-        print("[STRATEGY STATS] Columns:", df.columns.tolist())
-
-        if "section" not in df.columns:
-            return {
-                "highConviction": None,
-                "broadBase": None,
-                "sourceFile": latest_csv.name
-            }
-
-        df["section"] = df["section"].astype(str).str.strip().str.upper()
-
-        metric_cols = [
-            "win_rate",
-            "n_trades",
-            "avg_return_pct",
-            "median_return_pct",
-            "worst_drawdown_proxy"
-        ]
-
-        for col in metric_cols:
-            if col in df.columns:
-                df[col] = pd.to_numeric(df[col], errors="coerce")
-
-        def escape_sql_literal(value):
-            if value is None or pd.isna(value):
-                return None
-            return str(value).replace("'", "''")
+        return_expr = """
+            COALESCE(
+              CASE
+                WHEN pnl_pct IS NULL THEN NULL
+                ELSE
+                  CASE
+                    WHEN ABS(TRY_CAST(regexp_replace(CAST(pnl_pct AS VARCHAR), '[^0-9\\.-]', '', 'g') AS DOUBLE)) <= 1.5
+                      THEN TRY_CAST(regexp_replace(CAST(pnl_pct AS VARCHAR), '[^0-9\\.-]', '', 'g') AS DOUBLE) * 100.0
+                    ELSE
+                      TRY_CAST(regexp_replace(CAST(pnl_pct AS VARCHAR), '[^0-9\\.-]', '', 'g') AS DOUBLE)
+                  END
+              END,
+              CASE
+                WHEN total_risked_usd IS NULL OR TRY_CAST(total_risked_usd AS DOUBLE) = 0 THEN NULL
+                ELSE (TRY_CAST(pnl AS DOUBLE) / TRY_CAST(total_risked_usd AS DOUBLE)) * 100.0
+              END,
+              CASE
+                WHEN entry_price IS NULL OR TRY_CAST(entry_price AS DOUBLE) = 0 THEN NULL
+                ELSE (TRY_CAST(pnl AS DOUBLE) / TRY_CAST(entry_price AS DOUBLE)) * 100.0
+              END
+            )
+        """
 
         def format_date_value(value):
             if value is None or pd.isna(value):
@@ -296,163 +286,142 @@ def load_latest_strategy_stats():
             except Exception:
                 return str(value)
 
-        def fetch_strategy_backing_metadata(section_name: str, row):
-            if not TRADES_DB_PATH.exists():
-                return {
-                    "sampleSize": None,
-                    "tickerCount": None,
-                    "minDate": None,
-                    "maxDate": None
-                }
-
-            start_ts = escape_sql_literal(row.get("window_start"))
-            end_ts = escape_sql_literal(row.get("window_end"))
-
-            if not start_ts or not end_ts:
-                return {
-                    "sampleSize": None,
-                    "tickerCount": None,
-                    "minDate": None,
-                    "maxDate": None
-                }
-
-            valuation_rank_case = """
-                CASE upper(trim(valuation))
-                  WHEN 'A+' THEN 1 WHEN 'A' THEN 2 WHEN 'A-' THEN 3
-                  WHEN 'B+' THEN 4 WHEN 'B' THEN 5 WHEN 'B-' THEN 6
-                  WHEN 'C+' THEN 7 WHEN 'C' THEN 8 WHEN 'C-' THEN 9
-                  WHEN 'D+' THEN 10 WHEN 'D' THEN 11 WHEN 'D-' THEN 12
-                  WHEN 'F' THEN 13
-                  ELSE NULL
-                END
+        def fetch_cohort_stats(label: str, cohort_condition: str):
+            base_cte = f"""
+                WITH prepared AS (
+                    SELECT
+                        ticker,
+                        entry_time,
+                        {return_expr} AS return_pct
+                    FROM trades_master
+                    WHERE entry_time IS NOT NULL
+                      AND entry_time >= CURRENT_DATE - INTERVAL '30 days'
+                      AND {cohort_condition}
+                ),
+                cohort AS (
+                    SELECT *
+                    FROM prepared
+                    WHERE return_pct IS NOT NULL
+                )
             """
 
-            where_clauses = [
-                f"entry_time >= TIMESTAMP '{start_ts}'",
-                f"entry_time < TIMESTAMP '{end_ts}'",
-                "upper(trim(optiontype)) = 'CALL'"
-            ]
-
-            normalized = section_name.upper()
-            if normalized.startswith("S13"):
-                where_clauses.extend(
-                    [
-                        "predicted_tier_cal = 'A'",
-                        "filteredtier = 'A'",
-                        "adaptive_tier = 'A'",
-                        "upper(trim(momentum)) IN ('A+','A','A-','B+','B','B-')",
-                        f"({valuation_rank_case}) <= 10",
-                        "(is_tradeable = TRUE OR is_tradeable = 1)",
-                        "upper(trim(quant_rating)) IN ('BUY','STRONG BUY')"
-                    ]
-                )
-            elif normalized.startswith("S11"):
-                where_clauses.extend(
-                    [
-                        "predicted_tier_cal = 'A'",
-                        "filteredtier = 'A'",
-                        "adaptive_tier != 'A'"
-                    ]
-                )
-            else:
-                return {
-                    "sampleSize": None,
-                    "tickerCount": None,
-                    "minDate": None,
-                    "maxDate": None
-                }
-
-            query = f"""
+            query = base_cte + """
                 SELECT
                     COUNT(*) AS trade_count,
                     COUNT(DISTINCT ticker) AS ticker_count,
+                    AVG(CASE WHEN return_pct > 0 THEN 1.0 ELSE 0.0 END) AS win_rate,
+                    AVG(return_pct) AS avg_return_pct,
+                    quantile_cont(return_pct, 0.50) AS median_return_pct,
+                    AVG(CASE WHEN return_pct < 0 THEN 1.0 ELSE 0.0 END) AS loss_rate,
+                    AVG(CASE WHEN return_pct < -30 THEN 1.0 ELSE 0.0 END) AS large_loss_rate,
                     MIN(CAST(entry_time AS DATE)) AS min_date,
                     MAX(CAST(entry_time AS DATE)) AS max_date
-                FROM trades_master
-                WHERE {' AND '.join(where_clauses)}
+                FROM cohort
             """
 
-            try:
-                con = duckdb.connect(str(TRADES_DB_PATH), read_only=True)
-                result = con.execute(query).fetchone()
-                con.close()
-            except Exception as e:
-                print(f"[STRATEGY STATS] DuckDB metadata lookup failed for {section_name}: {e}")
-                return {
-                    "sampleSize": None,
-                    "tickerCount": None,
-                    "minDate": None,
-                    "maxDate": None
-                }
+            con = duckdb.connect(str(TRADES_DB_PATH), read_only=True)
+            result = con.execute(query).fetchone()
 
-            if not result:
-                return {
-                    "sampleSize": None,
-                    "tickerCount": None,
-                    "minDate": None,
-                    "maxDate": None
-                }
+            bucket_query = base_cte + """
+                SELECT
+                    bucket_range,
+                    COUNT(*) AS trade_count
+                FROM (
+                    SELECT
+                        CASE
+                            WHEN return_pct < -50 THEN '<-50%'
+                            WHEN return_pct >= -50 AND return_pct < 0 THEN '-50%–0%'
+                            WHEN return_pct >= 0 AND return_pct < 50 THEN '0–50%'
+                            WHEN return_pct >= 50 AND return_pct <= 150 THEN '50–150%'
+                            ELSE '>150%'
+                        END AS bucket_range
+                    FROM cohort
+                ) buckets
+                GROUP BY bucket_range
+            """
+            bucket_rows = con.execute(bucket_query).fetchall()
 
-            return {
-                "sampleSize": int(result[0]) if result[0] is not None else None,
-                "tickerCount": int(result[1]) if result[1] is not None else None,
-                "minDate": format_date_value(result[2]),
-                "maxDate": format_date_value(result[3])
-            }
+            equity_query = base_cte + """
+                , daily AS (
+                    SELECT
+                        CAST(entry_time AS DATE) AS entry_day,
+                        SUM(return_pct) AS daily_return
+                    FROM cohort
+                    GROUP BY 1
+                )
+                SELECT
+                    entry_day,
+                    SUM(daily_return) OVER (
+                        ORDER BY entry_day
+                        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+                    ) AS cumulative_return
+                FROM daily
+                ORDER BY entry_day
+            """
+            equity_rows = con.execute(equity_query).fetchall()
+            con.close()
 
-        def extract_section_stats(section_name: str):
-            section_name = section_name.upper()
-            df_sec = df[df["section"] == section_name].copy()
-
-            if df_sec.empty:
-                df_sec = df[df["section"].str.startswith(section_name)].copy()
-
-            if df_sec.empty:
+            if not result or result[0] is None:
                 return None
 
-            if "n_trades" in df_sec.columns:
-                df_sec = df_sec.sort_values(by="n_trades", ascending=False)
+            bucket_order = [
+                "<-50%",
+                "-50%–0%",
+                "0–50%",
+                "50–150%",
+                ">150%"
+            ]
+            bucket_map = {str(label): int(count) for label, count in bucket_rows}
+            return_distribution = [
+                {
+                    "range": bucket,
+                    "count": bucket_map.get(bucket, 0),
+                    "percentage": round((bucket_map.get(bucket, 0) / int(result[0])) * 100, 1) if result[0] else 0.0
+                }
+                for bucket in bucket_order
+            ]
 
-            row = df_sec.iloc[0]
-            backing = fetch_strategy_backing_metadata(section_name, row)
-
-            win_rate = row.get("win_rate")
-            if pd.notna(win_rate):
-                win_rate = round(float(win_rate) * 100, 1) if win_rate <= 1 else round(float(win_rate), 1)
-
-            avg_return_pct = row.get("avg_return_pct")
-            if pd.notna(avg_return_pct):
-                avg_return_pct = round(float(avg_return_pct), 1)
-
-            median_return_pct = row.get("median_return_pct")
-            if pd.notna(median_return_pct):
-                median_return_pct = round(float(median_return_pct), 1)
-
-            worst_drawdown_proxy = row.get("worst_drawdown_proxy")
-            if pd.notna(worst_drawdown_proxy):
-                worst_drawdown_proxy = round(float(worst_drawdown_proxy), 1)
-
-            sample_size = backing.get("sampleSize")
-            if sample_size is None:
-                sample_size = row.get("n_trades")
-                if pd.notna(sample_size):
-                    sample_size = int(sample_size)
+            equity_curve = [
+                {
+                    "date": format_date_value(day),
+                    "value": round(float(value), 1) if value is not None else None
+                }
+                for day, value in equity_rows
+            ]
 
             return {
-                "winRate": win_rate if pd.notna(row.get("win_rate")) else None,
-                "sampleSize": sample_size,
-                "tickerCount": backing.get("tickerCount"),
-                "minDate": backing.get("minDate"),
-                "maxDate": backing.get("maxDate"),
-                "avgReturnPct": avg_return_pct,
-                "medianReturnPct": median_return_pct,
-                "worstDrawdownProxy": worst_drawdown_proxy
+                "winRate": round(float(result[2]) * 100, 1) if result[2] is not None else None,
+                "sampleSize": int(result[0]) if result[0] is not None else None,
+                "tickerCount": int(result[1]) if result[1] is not None else None,
+                "minDate": format_date_value(result[7]),
+                "maxDate": format_date_value(result[8]),
+                "avgReturnPct": round(float(result[3]), 1) if result[3] is not None else None,
+                "medianReturnPct": round(float(result[4]), 1) if result[4] is not None else None,
+                "lossRate": round(float(result[5]) * 100, 1) if result[5] is not None else None,
+                "largeLossRate": round(float(result[6]) * 100, 1) if result[6] is not None else None,
+                "worstDrawdownProxy": None,
+                "returnDistribution": return_distribution,
+                "equityCurve": equity_curve,
+                "label": label
             }
 
+        cohort_a_condition = """
+            live_eligible = 1
+            AND predicted_tier_cal = 'A'
+            AND filteredtier = 'A'
+            AND adaptive_tier = 'A'
+        """
+
+        cohort_b_condition = """
+            predicted_tier_cal = 'A'
+            AND filteredtier = 'A'
+            AND (is_tradeable = TRUE OR is_tradeable = 1)
+        """
+
         return {
-            "highConviction": extract_section_stats("S13"),
-            "broadBase": extract_section_stats("S11"),
-            "sourceFile": latest_csv.name
+            "highConviction": fetch_cohort_stats("Cohort A", cohort_a_condition),
+            "broadBase": fetch_cohort_stats("Cohort B", cohort_b_condition),
+            "sourceFile": TRADES_DB_PATH.name
         }
 
     except Exception as e:
@@ -598,20 +567,13 @@ def format_hold_window(hold_p25_days, hold_p75_days, median_hold_days):
     return f"{lower}-{upper} trading days"
 
 def classify_historical_support(win_rate, avg_r_multiple, sample_size, distinct_ticker_count=None):
-    if sample_size is None or sample_size < 15 or win_rate is None or avg_r_multiple is None:
-        return "Limited"
-
-    if win_rate >= 75 and avg_r_multiple >= 1.0:
-        if distinct_ticker_count is not None and distinct_ticker_count < 3:
-            return "Limited breadth"
+    if sample_size is None or sample_size < 30 or win_rate is None:
+        return "Limited history"
+    if sample_size >= 75 and win_rate >= 60:
         return "Strong"
-    if win_rate >= 65 and avg_r_multiple >= 0.75:
+    if sample_size >= 40:
         return "Moderate"
-    if win_rate >= 65 and avg_r_multiple < 0.75:
-        return "Mixed"
-    if win_rate < 65 and avg_r_multiple >= 1.0:
-        return "Volatile"
-    return "Weak"
+    return "Limited"
 
 def build_translation(action, rsi, etf_bias):
     bias = (etf_bias or "Neutral").strip().lower()
@@ -636,7 +598,7 @@ def build_execution_edge_items(rsi, dte, etf_bias, risk_flags, option_type, etf,
         items.append("Use the live chain to confirm spread and depth before entry.")
 
     if etf and etf != "N/A" and etf_win_rate is not None and etf_breadth is not None:
-        items.append(f"{etf} overlay: {etf_win_rate}% recent hit rate across {int(etf_breadth)} names.")
+        items.append(f"{etf} sector signal strength: {etf_win_rate}% 4d win rate across {int(etf_breadth)} stocks.")
     elif (bias == "bullish" and option_side == "CALL") or (bias == "bearish" and option_side == "PUT"):
         items.append(f"{etf or 'Sector'} backdrop aligns with the trade direction.")
     elif bias == "no overlay":
@@ -704,155 +666,140 @@ def build_expectation_frame(action, dte, median_hold_days, hold_p25_days, hold_p
         "risk": risk
     }
 
-def fetch_historical_context(con, latest_entry_time, sector, option_type, structure_bucket, dte):
-    if con is None or latest_entry_time is None or not sector or not option_type:
+def fetch_historical_context(con, latest_entry_time, predicted_tier_cal, filtered_tier, option_type, structure_bucket, dte):
+    if con is None or not option_type or not predicted_tier_cal or not filtered_tier or dte is None:
         return {
-            "windowDays": 365,
+            "windowDays": 90,
             "sampleSize": None,
             "distinctTickerCount": None,
             "winRate": None,
+            "avgReturnPct": None,
             "avgRMultiple": None,
             "medianHoldDays": None,
             "holdP25Days": None,
             "holdP75Days": None,
             "cohortLabel": None,
             "matchStrength": "none",
-            "supportLabel": "Limited"
+            "supportLabel": "Limited history"
         }
 
-    band_low, band_high, band_label = dte_band(dte)
-    window_start = pd.Timestamp(latest_entry_time) - pd.Timedelta(days=365)
     structure_label = structure_bucket or "ATM"
 
-    cohorts = [
-        {
-            "name": "tight",
-            "label": f"{sector} {option_type.upper()}s, {structure_label}, {band_label}, A-filtered",
-            "where": """
-                AND sector = ?
-                AND lower(optionType) = ?
-                AND CASE
-                      WHEN upper(coalesce(itm_flag, '')) IN ('DEEP ITM', 'ITM') THEN 'ITM'
-                      WHEN upper(coalesce(itm_flag, '')) = 'ATM' THEN 'ATM'
-                      ELSE 'OTM'
-                    END = ?
-                AND dte BETWEEN ? AND ?
-                AND live_eligible = 1
-                AND upper(coalesce(predicted_tier_cal, '')) = 'A'
-                AND upper(coalesce(filteredtier, '')) = 'A'
-                AND upper(coalesce(adaptive_tier, '')) = 'A'
-            """,
-            "params": [sector, option_type.lower(), structure_label, band_low, band_high]
-        },
-        {
-            "name": "medium",
-            "label": f"{sector} {option_type.upper()}s, {structure_label}, {band_label}",
-            "where": """
-                AND sector = ?
-                AND lower(optionType) = ?
-                AND CASE
-                      WHEN upper(coalesce(itm_flag, '')) IN ('DEEP ITM', 'ITM') THEN 'ITM'
-                      WHEN upper(coalesce(itm_flag, '')) = 'ATM' THEN 'ATM'
-                      ELSE 'OTM'
-                    END = ?
-                AND dte BETWEEN ? AND ?
-                AND live_eligible = 1
-            """,
-            "params": [sector, option_type.lower(), structure_label, band_low, band_high]
-        },
-        {
-            "name": "broad",
-            "label": f"{sector} {option_type.upper()}s, {structure_label}",
-            "where": """
-                AND sector = ?
-                AND lower(optionType) = ?
-                AND CASE
-                      WHEN upper(coalesce(itm_flag, '')) IN ('DEEP ITM', 'ITM') THEN 'ITM'
-                      WHEN upper(coalesce(itm_flag, '')) = 'ATM' THEN 'ATM'
-                      ELSE 'OTM'
-                    END = ?
-                AND live_eligible = 1
-            """,
-            "params": [sector, option_type.lower(), structure_label]
-        },
-        {
-            "name": "sector",
-            "label": f"{sector} {option_type.upper()}s",
-            "where": """
-                AND sector = ?
-                AND lower(optionType) = ?
-                AND live_eligible = 1
-            """,
-            "params": [sector, option_type.lower()]
-        }
-    ]
-
     base_query = """
-        WITH comp AS (
+        WITH prepared AS (
             SELECT
                 ticker,
+                entry_time,
+                exit_time,
                 pnl,
+                optionSymbol,
                 CASE
-                    WHEN total_risked_usd IS NOT NULL AND total_risked_usd != 0 THEN pnl / total_risked_usd
-                    WHEN pnl_pct IS NOT NULL THEN pnl_pct
+                    WHEN total_risked_usd IS NOT NULL AND total_risked_usd != 0 THEN (pnl / total_risked_usd) * 100.0
+                    WHEN pnl_pct IS NOT NULL THEN
+                        CASE
+                            WHEN ABS(TRY_CAST(regexp_replace(CAST(pnl_pct AS VARCHAR), '[^0-9\\.-]', '', 'g') AS DOUBLE)) <= 1.5
+                                THEN TRY_CAST(regexp_replace(CAST(pnl_pct AS VARCHAR), '[^0-9\\.-]', '', 'g') AS DOUBLE) * 100.0
+                            ELSE TRY_CAST(regexp_replace(CAST(pnl_pct AS VARCHAR), '[^0-9\\.-]', '', 'g') AS DOUBLE)
+                        END
                     ELSE NULL
-                END AS r_multiple,
+                END AS return_pct,
                 datediff('day', entry_time, exit_time) AS hold_days
             FROM trades_master
-            WHERE entry_time >= ?
+            WHERE entry_time >= CURRENT_DATE - INTERVAL '90 days'
+              AND entry_time IS NOT NULL
               AND exit_time IS NOT NULL
-              {where_clause}
+              AND lower(optionType) = ?
+              AND upper(coalesce(predicted_tier_cal, '')) = ?
+              AND upper(coalesce(filteredtier, '')) = ?
+              AND (is_tradeable = TRUE OR is_tradeable = 1)
+              AND upper(coalesce(quant_rating, '')) IN ('BUY', 'STRONG BUY')
+              AND CASE
+                    WHEN upper(coalesce(itm_flag, '')) IN ('DEEP ITM', 'ITM') THEN 'ITM'
+                    WHEN upper(coalesce(itm_flag, '')) = 'ATM' THEN 'ATM'
+                    ELSE 'OTM'
+                  END = ?
+              AND dte BETWEEN ? AND ?
+        ),
+        deduped AS (
+            SELECT *
+            FROM (
+                SELECT
+                    *,
+                    row_number() OVER (
+                        PARTITION BY ticker, coalesce(optionSymbol, ''), entry_time, exit_time
+                        ORDER BY entry_time
+                    ) AS row_num
+                FROM prepared
+            )
+            WHERE row_num = 1
+        ),
+        comp AS (
+            SELECT
+                ticker,
+                return_pct,
+                hold_days
+            FROM deduped
+            WHERE return_pct IS NOT NULL
+              AND hold_days IS NOT NULL
         )
         SELECT
             count(*) AS sample_size,
             count(DISTINCT ticker) AS distinct_ticker_count,
-            avg(CASE WHEN pnl > 0 THEN 1.0 ELSE 0.0 END) AS win_rate,
-            avg(r_multiple) AS avg_r_multiple,
+            avg(CASE WHEN return_pct > 0 THEN 1.0 ELSE 0.0 END) AS win_rate,
+            avg(return_pct) AS avg_return_pct,
             median(hold_days) AS median_hold_days,
             quantile_cont(hold_days, 0.25) AS hold_p25_days,
             quantile_cont(hold_days, 0.75) AS hold_p75_days
         FROM comp
-        WHERE r_multiple IS NOT NULL
-          AND hold_days IS NOT NULL
     """
 
-    for cohort in cohorts:
-        query = base_query.format(where_clause=cohort["where"])
-        result = con.execute(query, [window_start, *cohort["params"]]).fetchone()
-        sample_size = int(result[0]) if result and result[0] is not None else 0
-        if sample_size >= 15:
-            distinct_ticker_count = int(result[1]) if result[1] is not None else None
-            win_rate = round(float(result[2]) * 100, 1) if result[2] is not None else None
-            avg_r = round(float(result[3]), 2) if result[3] is not None else None
-            median_hold = round(float(result[4]), 1) if result[4] is not None else None
-            hold_p25 = round(float(result[5]), 1) if result[5] is not None else None
-            hold_p75 = round(float(result[6]), 1) if result[6] is not None else None
-            return {
-                "windowDays": 365,
-                "sampleSize": sample_size,
-                "distinctTickerCount": distinct_ticker_count,
-                "winRate": win_rate,
-                "avgRMultiple": avg_r,
-                "medianHoldDays": median_hold,
-                "holdP25Days": hold_p25,
-                "holdP75Days": hold_p75,
-                "cohortLabel": cohort["label"],
-                "matchStrength": cohort["name"],
-                "supportLabel": classify_historical_support(win_rate, avg_r, sample_size, distinct_ticker_count)
-            }
+    result = con.execute(
+        base_query,
+        [
+            option_type.lower(),
+            str(predicted_tier_cal).strip().upper(),
+            str(filtered_tier).strip().upper(),
+            structure_label,
+            max(0, dte - 5),
+            dte + 5
+        ]
+    ).fetchone()
+    sample_size = int(result[0]) if result and result[0] is not None else 0
+    if sample_size > 0:
+        distinct_ticker_count = int(result[1]) if result[1] is not None else None
+        win_rate = round(float(result[2]) * 100, 1) if result[2] is not None else None
+        avg_return_pct = round(float(result[3]), 1) if result[3] is not None else None
+        median_hold = round(float(result[4]), 1) if result[4] is not None else None
+        hold_p25 = round(float(result[5]), 1) if result[5] is not None else None
+        hold_p75 = round(float(result[6]), 1) if result[6] is not None else None
+        return {
+            "windowDays": 90,
+            "sampleSize": sample_size,
+            "distinctTickerCount": distinct_ticker_count,
+            "winRate": win_rate,
+            "avgReturnPct": avg_return_pct,
+            "avgRMultiple": None,
+            "medianHoldDays": median_hold,
+            "holdP25Days": hold_p25,
+            "holdP75Days": hold_p75,
+            "cohortLabel": f"Based on similar setups over the last 90 days",
+            "matchStrength": "setup",
+            "supportLabel": classify_historical_support(win_rate, None, sample_size, distinct_ticker_count)
+        }
 
     return {
-        "windowDays": 365,
+        "windowDays": 90,
         "sampleSize": None,
         "distinctTickerCount": None,
         "winRate": None,
+        "avgReturnPct": None,
         "avgRMultiple": None,
         "medianHoldDays": None,
         "holdP25Days": None,
         "holdP75Days": None,
         "cohortLabel": None,
         "matchStrength": "none",
-        "supportLabel": "Limited"
+        "supportLabel": "Limited history"
     }
 
 def build_ranked_trade_slice(df: pd.DataFrame):
@@ -863,13 +810,13 @@ def build_ranked_trade_slice(df: pd.DataFrame):
     working["optiontype"] = working.get("optiontype", working.get("optionType")).astype(str).str.lower()
     working["adaptive_tier"] = working["adaptive_tier"].astype(str).str.strip()
     working["predicted_tier_cal"] = working["predicted_tier_cal"].astype(str).str.strip()
-    working["live_eligible"] = pd.to_numeric(working["live_eligible"], errors="coerce").fillna(0).astype(int)
+    working["filteredtier"] = working["filteredtier"].astype(str).str.strip()
+    working["is_tradeable"] = working["is_tradeable"].isin([True, 1]).astype(int)
 
     ranked = working[
-        (working["live_eligible"] == 1) &
         (working["predicted_tier_cal"] == "A") &
-        (working["adaptive_tier"] == "A") &
-        (working["optiontype"] == "call")
+        (working["filteredtier"] == "A") &
+        (working["is_tradeable"] == 1)
     ].copy()
 
     if ranked.empty:
@@ -878,6 +825,17 @@ def build_ranked_trade_slice(df: pd.DataFrame):
     ranked = ranked.sort_values(by="adaptive_score_final", ascending=False)
     ranked = ranked.drop_duplicates(subset=["ticker"])
     return ranked.head(25).copy()
+
+
+def build_trade_action_from_score(score):
+    score_value = pd.to_numeric(pd.Series([score]), errors="coerce").iloc[0]
+    if pd.isna(score_value):
+        return "WATCH"
+    if score_value >= 1.8:
+        return "ENTER"
+    if score_value >= 1.3:
+        return "WATCH"
+    return "WAIT"
 
 def classify_yesterday_status(price_change_pct):
     if price_change_pct is None:
@@ -888,7 +846,7 @@ def classify_yesterday_status(price_change_pct):
         return "Extended - avoid new entries"
     return "Weak - needs confirmation"
 
-def build_yesterday_status(today_df: pd.DataFrame, current_file: str | None):
+def build_yesterday_status(today_df: pd.DataFrame, current_file: str | None, historical_con=None):
     previous_file = get_previous_file(current_file)
     if previous_file is None or today_df is None or today_df.empty:
         return []
@@ -905,6 +863,12 @@ def build_yesterday_status(today_df: pd.DataFrame, current_file: str | None):
 
     today_prices = {}
     today_in_list = set()
+    current_signal_date = None
+    if "signal_date" in today_df.columns and not today_df.empty:
+        raw_signal_date = today_df.iloc[0].get("signal_date")
+        if pd.notna(raw_signal_date):
+            current_signal_date = str(raw_signal_date)
+
     for _, row in today_df.iterrows():
         ticker = str(row.get("ticker")).strip() if pd.notna(row.get("ticker")) else None
         if not ticker:
@@ -927,17 +891,35 @@ def build_yesterday_status(today_df: pd.DataFrame, current_file: str | None):
         if pd.notna(yesterday_price) and yesterday_price not in (0, None) and current_price is not None:
             price_change_pct = round((float(current_price) - float(yesterday_price)) / float(yesterday_price), 4)
 
+        dte_value = pd.to_numeric(pd.Series([row.get("dte")]), errors="coerce").iloc[0]
+        historical_context = fetch_historical_context(
+            con=historical_con,
+            latest_entry_time=None,
+            predicted_tier_cal=None if pd.isna(row.get("predicted_tier_cal")) else str(row.get("predicted_tier_cal")).strip(),
+            filtered_tier=None if pd.isna(row.get("filteredtier")) else str(row.get("filteredtier")).strip(),
+            option_type=None if pd.isna(row.get("optionType")) else str(row.get("optionType")).strip(),
+            structure_bucket=canonical_structure_bucket(None if pd.isna(row.get("itm_flag")) else str(row.get("itm_flag")).strip()),
+            dte=None if pd.isna(dte_value) else int(dte_value)
+        )
+        median_hold_days = historical_context.get("medianHoldDays")
+        typical_hold_days = int(round(median_hold_days)) if median_hold_days is not None else None
+
         items.append({
             "ticker": ticker,
             "grade": None if pd.isna(row.get("adaptive_tier")) else str(row.get("adaptive_tier")).strip(),
+            "signalDate": None if pd.isna(row.get("signal_date")) else str(row.get("signal_date")).strip(),
+            "currentDate": current_signal_date,
+            "originalAction": build_trade_action_from_score(row.get("adaptive_score_final")),
+            "snapshotPrice": round(float(yesterday_price), 2) if pd.notna(yesterday_price) else None,
             "yesterdayEntryPrice": round(float(yesterday_price), 2) if pd.notna(yesterday_price) else None,
             "currentPrice": round(float(current_price), 2) if current_price is not None else None,
             "priceChangePct": round(price_change_pct * 100, 1) if price_change_pct is not None else None,
+            "typicalHoldDays": typical_hold_days,
             "status": classify_yesterday_status(price_change_pct),
             "stillInTodayList": ticker in today_in_list
         })
 
-    return items[:10]
+    return items[:12]
 
 
 @app.get("/")
@@ -953,11 +935,83 @@ def load_production_snapshot():
         with SNAPSHOT_PATH.open("r", encoding="utf-8") as handle:
             payload = json.load(handle)
         if isinstance(payload, dict):
-            return payload
+            return hydrate_snapshot_payload(payload)
     except Exception as e:
         print(f"[SNAPSHOT] Failed to load production snapshot: {e}")
 
     return None
+
+
+def hydrate_snapshot_payload(payload):
+    if not isinstance(payload, dict):
+        return payload
+
+    hydrated = dict(payload)
+    strategy_stats = hydrated.get("strategyStats")
+    if not isinstance(strategy_stats, dict):
+        return hydrated
+
+    updated_stats = dict(strategy_stats)
+    for key in ("highConviction", "broadBase"):
+        stat_block = updated_stats.get(key)
+        if not isinstance(stat_block, dict):
+            continue
+
+        stat_copy = dict(stat_block)
+        distribution = stat_copy.get("returnDistribution")
+        if isinstance(distribution, list):
+            sample_size = stat_copy.get("sampleSize")
+            sample_size = int(sample_size) if sample_size not in (None, "") else 0
+            negative_count = 0
+            large_loss_count = 0
+            collapsed_buckets = {
+                "<-50%": 0,
+                "-50%–0%": 0,
+                "0–50%": 0,
+                "50–150%": 0,
+                ">150%": 0
+            }
+
+            for bucket in distribution:
+                if not isinstance(bucket, dict):
+                    continue
+                count = int(bucket.get("count") or 0)
+                range_label = str(bucket.get("range") or "")
+
+                if range_label in {"<-100%", "-100% to -50%"}:
+                    collapsed_buckets["<-50%"] += count
+                elif range_label in {"-50% to -20%", "-20% to 0%", "-50%–0%"}:
+                    collapsed_buckets["-50%–0%"] += count
+                elif range_label in {"0% to 50%", "0–50%"}:
+                    collapsed_buckets["0–50%"] += count
+                elif range_label in {"50% to 100%", "100% to 200%", "50–150%"}:
+                    collapsed_buckets["50–150%"] += count
+                elif range_label in {">200%", ">150%"}:
+                    collapsed_buckets[">150%"] += count
+
+                if range_label in {"<-100%", "-100% to -50%", "-50% to -20%", "-20% to 0%", "<-50%", "-50%–0%"}:
+                    negative_count += count
+                if range_label in {"<-100%", "-100% to -50%", "-50% to -20%"}:
+                    large_loss_count += count
+
+            stat_copy["returnDistribution"] = [
+                {
+                    "range": bucket_label,
+                    "count": bucket_count,
+                    "percentage": round((bucket_count / sample_size) * 100, 1) if sample_size else 0.0
+                }
+                for bucket_label, bucket_count in collapsed_buckets.items()
+            ]
+            if stat_copy.get("lossRate") is None:
+                stat_copy["lossRate"] = round((negative_count / sample_size) * 100, 1) if sample_size else 0.0
+            if stat_copy.get("largeLossRate") is None:
+                stat_copy["largeLossRate"] = round((large_loss_count / sample_size) * 100, 1) if sample_size else 0.0
+
+        stat_copy["worstDrawdownProxy"] = None
+        updated_stats[key] = stat_copy
+
+    hydrated["strategyStats"] = updated_stats
+    return hydrated
 
 
 def apply_include_pass_to_payload(payload, include_pass: bool):
@@ -1000,7 +1054,7 @@ def build_top_trades_payload(include_pass: bool = True):
         # --- FILTER / SORT ---
         df_filtered = build_ranked_trade_slice(df)
         candidate_total = len(df_filtered)
-        yesterday_status = build_yesterday_status(df_filtered, file)
+        yesterday_status = []
 
         cols = [
             "ticker",
@@ -1087,19 +1141,6 @@ def build_top_trades_payload(include_pass: bool = True):
             else:
                 return "B"
         
-        def build_action(row):
-            score = pd.to_numeric(row.get("adaptive_score_final"), errors="coerce")
-
-            if pd.isna(score):
-                return "UNKNOWN"
-            if score >= 1.8:
-                return "ENTER"
-            elif score >= 1.3:
-                return "WATCH"
-            else:
-                return "PASS"
-        
-
         # --- SAFE HELPERS ---
         def safe_int(val):
             v = pd.to_numeric(pd.Series([val]), errors="coerce").iloc[0]
@@ -1146,6 +1187,8 @@ def build_top_trades_payload(include_pass: bool = True):
                 print(f"[HISTORICAL CONTEXT] Failed to connect: {e}")
                 historical_con = None
                 latest_hist_entry_time = None
+
+        yesterday_status = build_yesterday_status(df_filtered, file, historical_con)
         
         def safe_pct_distance(strike, spot):
             strike_v = pd.to_numeric(pd.Series([strike]), errors="coerce").iloc[0]
@@ -1209,7 +1252,7 @@ def build_top_trades_payload(include_pass: bool = True):
                 favorable.append("Higher-priority candidate in today's list.")
             elif action == "WATCH":
                 caution.append("Qualified but needs cleaner confirmation.")
-            elif action == "PASS":
+            elif action == "WAIT":
                 unfavorable.append("Behind stronger names today; only revisit if conditions improve.")
 
             if strike_pos_label in {"DEEP ITM", "ITM"}:
@@ -1273,7 +1316,7 @@ def build_top_trades_payload(include_pass: bool = True):
             sector = sector_raw.strip() if sector_raw else None
             etf_info = etf_overlay_map.get(sector, {}) if sector else {}
             fallback_etf = SECTOR_TO_ETF_FALLBACK.get(sector) if sector else None
-            action = build_action(row)
+            action = build_trade_action_from_score(row.get("adaptive_score_final"))
             tier = build_tier(row)
             strike_distance = safe_pct_distance(row.get("strike"), row.get("underlyingPrice"))
             strike_pos_label = build_strike_position_label(row.get("itm_flag"), strike_distance)
@@ -1295,7 +1338,8 @@ def build_top_trades_payload(include_pass: bool = True):
             historical_context = fetch_historical_context(
                 con=historical_con,
                 latest_entry_time=latest_hist_entry_time,
-                sector=sector,
+                predicted_tier_cal=safe_str(row.get("predicted_tier_cal")),
+                filtered_tier=safe_str(row.get("filteredtier")),
                 option_type=option_type,
                 structure_bucket=structure_bucket,
                 dte=current_dte
@@ -1506,3 +1550,4 @@ def top_trades(include_pass: bool = True):
         return apply_include_pass_to_payload(snapshot_payload, include_pass)
 
     return build_top_trades_payload(include_pass=include_pass)
+

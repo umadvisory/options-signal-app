@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-28T13:28:42.772842+00:00",
+  "generatedAt": "2026-04-28T18:18:22.871742+00:00",
   "signalDate": "2026-04-27",
   "sourceFiles": {
     "predictionCsv": "sample_predictions_with_tiers_20260427.csv",
@@ -12,7 +12,7 @@
   "recordCounts": {
     "candidateTrades": 25,
     "returnedTrades": 25,
-    "yesterdayStatus": 10,
+    "yesterdayStatus": 12,
     "sectorCount": 6
   },
   "marketRegime": {
@@ -426,90 +426,168 @@
     {
       "ticker": "DELL",
       "grade": "A",
+      "signalDate": "2026-04-24",
+      "currentDate": "2026-04-27",
+      "originalAction": "WATCH",
+      "snapshotPrice": 216.09,
       "yesterdayEntryPrice": 216.09,
       "currentPrice": 215.97,
       "priceChangePct": -0.1,
+      "typicalHoldDays": 10,
       "status": "Still valid",
       "stillInTodayList": true
     },
     {
       "ticker": "CRDO",
       "grade": "A",
+      "signalDate": "2026-04-24",
+      "currentDate": "2026-04-27",
+      "originalAction": "WATCH",
+      "snapshotPrice": 195.04,
       "yesterdayEntryPrice": 195.04,
       "currentPrice": 180.5,
       "priceChangePct": -7.4,
+      "typicalHoldDays": 8,
       "status": "Weak - needs confirmation",
       "stillInTodayList": true
     },
     {
       "ticker": "NEM",
       "grade": "A",
+      "signalDate": "2026-04-24",
+      "currentDate": "2026-04-27",
+      "originalAction": "WATCH",
+      "snapshotPrice": 120.7,
       "yesterdayEntryPrice": 120.7,
       "currentPrice": 116.08,
       "priceChangePct": -3.8,
+      "typicalHoldDays": 8,
       "status": "Weak - needs confirmation",
       "stillInTodayList": true
     },
     {
       "ticker": "NBIS",
       "grade": "A",
+      "signalDate": "2026-04-24",
+      "currentDate": "2026-04-27",
+      "originalAction": "WATCH",
+      "snapshotPrice": 147.16,
       "yesterdayEntryPrice": 147.16,
       "currentPrice": 144.96,
       "priceChangePct": -1.5,
+      "typicalHoldDays": 8,
       "status": "Still valid",
       "stillInTodayList": true
     },
     {
       "ticker": "NVDA",
       "grade": "A",
+      "signalDate": "2026-04-24",
+      "currentDate": "2026-04-27",
+      "originalAction": "WAIT",
+      "snapshotPrice": 208.27,
       "yesterdayEntryPrice": 208.27,
       "currentPrice": 216.61,
       "priceChangePct": 4.0,
+      "typicalHoldDays": 8,
       "status": "Extended - avoid new entries",
       "stillInTodayList": true
     },
     {
       "ticker": "MSTR",
       "grade": "A",
+      "signalDate": "2026-04-24",
+      "currentDate": "2026-04-27",
+      "originalAction": "WAIT",
+      "snapshotPrice": 171.02,
       "yesterdayEntryPrice": 171.02,
       "currentPrice": 169.2,
       "priceChangePct": -1.1,
+      "typicalHoldDays": 8,
       "status": "Still valid",
       "stillInTodayList": true
     },
     {
       "ticker": "MRVL",
       "grade": "A",
+      "signalDate": "2026-04-24",
+      "currentDate": "2026-04-27",
+      "originalAction": "WAIT",
+      "snapshotPrice": 164.31,
       "yesterdayEntryPrice": 164.31,
       "currentPrice": 158.21,
       "priceChangePct": -3.7,
+      "typicalHoldDays": 8,
       "status": "Weak - needs confirmation",
       "stillInTodayList": true
     },
     {
       "ticker": "ARM",
       "grade": "A",
+      "signalDate": "2026-04-24",
+      "currentDate": "2026-04-27",
+      "originalAction": "WAIT",
+      "snapshotPrice": 234.81,
       "yesterdayEntryPrice": 234.81,
       "currentPrice": 215.88,
       "priceChangePct": -8.1,
+      "typicalHoldDays": 8,
       "status": "Weak - needs confirmation",
       "stillInTodayList": true
     },
     {
       "ticker": "ORCL",
       "grade": "A",
+      "signalDate": "2026-04-24",
+      "currentDate": "2026-04-27",
+      "originalAction": "WAIT",
+      "snapshotPrice": 173.28,
       "yesterdayEntryPrice": 173.28,
       "currentPrice": 172.96,
       "priceChangePct": -0.2,
+      "typicalHoldDays": 8,
       "status": "Still valid",
       "stillInTodayList": true
     },
     {
       "ticker": "PANW",
       "grade": "A",
+      "signalDate": "2026-04-24",
+      "currentDate": "2026-04-27",
+      "originalAction": "WAIT",
+      "snapshotPrice": 178.54,
       "yesterdayEntryPrice": 178.54,
       "currentPrice": null,
       "priceChangePct": null,
+      "typicalHoldDays": 8,
+      "status": "Price unavailable - check live data",
+      "stillInTodayList": false
+    },
+    {
+      "ticker": "LSCC",
+      "grade": "A",
+      "signalDate": "2026-04-24",
+      "currentDate": "2026-04-27",
+      "originalAction": "WAIT",
+      "snapshotPrice": 122.8,
+      "yesterdayEntryPrice": 122.8,
+      "currentPrice": 119.23,
+      "priceChangePct": -2.9,
+      "typicalHoldDays": 8,
+      "status": "Weak - needs confirmation",
+      "stillInTodayList": true
+    },
+    {
+      "ticker": "SMTC",
+      "grade": "A",
+      "signalDate": "2026-04-24",
+      "currentDate": "2026-04-27",
+      "originalAction": "WAIT",
+      "snapshotPrice": 109.79,
+      "yesterdayEntryPrice": 109.79,
+      "currentPrice": null,
+      "priceChangePct": null,
+      "typicalHoldDays": 8,
       "status": "Price unavailable - check live data",
       "stillInTodayList": false
     }
@@ -611,22 +689,23 @@
           "todayScore": 100
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 19,
-          "distinctTickerCount": 1,
-          "winRate": 100.0,
-          "avgRMultiple": 3.27,
-          "medianHoldDays": 8.0,
+          "windowDays": 90,
+          "sampleSize": 95,
+          "distinctTickerCount": 9,
+          "winRate": 65.3,
+          "avgReturnPct": 108.0,
+          "avgRMultiple": null,
+          "medianHoldDays": 9.0,
           "holdP25Days": 8.0,
-          "holdP75Days": 9.0,
-          "cohortLabel": "Technology CALLs, ITM, 0-21 DTE, A-filtered",
-          "matchStrength": "tight",
-          "supportLabel": "Limited breadth"
+          "holdP75Days": 10.0,
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Strong"
         },
         "translation": "Strong continuation setup, but timing matters because momentum is already extended.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
@@ -635,7 +714,7 @@
           "Skip if spread or liquidity deteriorates on the live chain."
         ],
         "expectation": {
-          "timeframe": "8-9 trading days",
+          "timeframe": "8-10 trading days",
           "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
@@ -745,22 +824,23 @@
           "todayScore": 96
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 95,
-          "distinctTickerCount": 19,
-          "winRate": 77.9,
-          "avgRMultiple": 1.51,
-          "medianHoldDays": 8.0,
+          "windowDays": 90,
+          "sampleSize": 12,
+          "distinctTickerCount": 4,
+          "winRate": 41.7,
+          "avgReturnPct": 38.1,
+          "avgRMultiple": null,
+          "medianHoldDays": 8.5,
           "holdP25Days": 8.0,
-          "holdP75Days": 10.0,
-          "cohortLabel": "Technology CALLs, OTM",
-          "matchStrength": "broad",
-          "supportLabel": "Strong"
+          "holdP75Days": 9.2,
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Limited history"
         },
         "translation": "Qualified setup, but entry quality matters more than signal strength here.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
@@ -769,7 +849,7 @@
           "Skip if spread or liquidity deteriorates on the live chain."
         ],
         "expectation": {
-          "timeframe": "8-10 trading days",
+          "timeframe": "8-9 trading days",
           "baseCase": "Valid setup, but follow-through matters more than immediacy.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
@@ -878,22 +958,23 @@
           "todayScore": 92
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 15,
-          "distinctTickerCount": 5,
-          "winRate": 80.0,
-          "avgRMultiple": 0.77,
-          "medianHoldDays": 8.0,
+          "windowDays": 90,
+          "sampleSize": 36,
+          "distinctTickerCount": 6,
+          "winRate": 36.1,
+          "avgReturnPct": -29.1,
+          "avgRMultiple": null,
+          "medianHoldDays": 10.0,
           "holdP25Days": 8.0,
-          "holdP75Days": 8.0,
-          "cohortLabel": "Technology CALLs, ITM, 46-90 DTE",
-          "matchStrength": "medium",
-          "supportLabel": "Moderate"
+          "holdP75Days": 11.0,
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Limited"
         },
         "translation": "Qualified setup, but entry quality matters more than signal strength here.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
@@ -902,7 +983,7 @@
           "Skip if spread or liquidity deteriorates on the live chain."
         ],
         "expectation": {
-          "timeframe": "8 trading days",
+          "timeframe": "8-11 trading days",
           "baseCase": "Valid setup, but follow-through matters more than immediacy.",
           "risk": "The edge weakens if momentum cools and sector support fades."
         }
@@ -1012,17 +1093,18 @@
           "todayScore": 88
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 42,
-          "distinctTickerCount": 5,
-          "winRate": 47.6,
-          "avgRMultiple": 0.13,
-          "medianHoldDays": 8.0,
+          "windowDays": 90,
+          "sampleSize": 95,
+          "distinctTickerCount": 9,
+          "winRate": 65.3,
+          "avgReturnPct": 108.0,
+          "avgRMultiple": null,
+          "medianHoldDays": 9.0,
           "holdP25Days": 8.0,
           "holdP75Days": 10.0,
-          "cohortLabel": "Communication Services CALLs, ITM",
-          "matchStrength": "broad",
-          "supportLabel": "Weak"
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Strong"
         },
         "translation": "Qualified setup, but entry quality matters more than signal strength here.",
         "executionEdge": [
@@ -1147,22 +1229,23 @@
           "todayScore": 84
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 19,
-          "distinctTickerCount": 1,
-          "winRate": 100.0,
-          "avgRMultiple": 3.27,
-          "medianHoldDays": 8.0,
+          "windowDays": 90,
+          "sampleSize": 95,
+          "distinctTickerCount": 9,
+          "winRate": 65.3,
+          "avgReturnPct": 108.0,
+          "avgRMultiple": null,
+          "medianHoldDays": 9.0,
           "holdP25Days": 8.0,
-          "holdP75Days": 9.0,
-          "cohortLabel": "Technology CALLs, ITM, 0-21 DTE, A-filtered",
-          "matchStrength": "tight",
-          "supportLabel": "Limited breadth"
+          "holdP75Days": 10.0,
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Strong"
         },
         "translation": "Qualified setup, but entry quality matters more than signal strength here.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
@@ -1171,7 +1254,7 @@
           "Skip if spread or liquidity deteriorates on the live chain."
         ],
         "expectation": {
-          "timeframe": "8-9 trading days",
+          "timeframe": "8-10 trading days",
           "baseCase": "Valid setup, but follow-through matters more than immediacy.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
@@ -1191,7 +1274,7 @@
       "ticker": "MSTR",
       "companyName": "Strategy Inc",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "MODERATE",
       "contract": {
@@ -1278,22 +1361,23 @@
           "todayScore": 80
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 19,
-          "distinctTickerCount": 1,
-          "winRate": 100.0,
-          "avgRMultiple": 3.27,
-          "medianHoldDays": 8.0,
+          "windowDays": 90,
+          "sampleSize": 95,
+          "distinctTickerCount": 9,
+          "winRate": 65.3,
+          "avgReturnPct": 108.0,
+          "avgRMultiple": null,
+          "medianHoldDays": 9.0,
           "holdP25Days": 8.0,
-          "holdP75Days": 9.0,
-          "cohortLabel": "Technology CALLs, ITM, 0-21 DTE, A-filtered",
-          "matchStrength": "tight",
-          "supportLabel": "Limited breadth"
+          "holdP75Days": 10.0,
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Strong"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
@@ -1302,7 +1386,7 @@
           "Skip if spread or liquidity deteriorates on the live chain."
         ],
         "expectation": {
-          "timeframe": "8-9 trading days",
+          "timeframe": "8-10 trading days",
           "baseCase": "Secondary setup unless the tape improves.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
@@ -1322,7 +1406,7 @@
       "ticker": "NVDA",
       "companyName": "NVIDIA Corporation",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "MODERATE",
       "contract": {
@@ -1407,22 +1491,23 @@
           "todayScore": 76
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 93,
-          "distinctTickerCount": 15,
-          "winRate": 93.5,
-          "avgRMultiple": 1.9,
+          "windowDays": 90,
+          "sampleSize": 86,
+          "distinctTickerCount": 10,
+          "winRate": 57.0,
+          "avgReturnPct": 76.2,
+          "avgRMultiple": null,
           "medianHoldDays": 8.0,
           "holdP25Days": 8.0,
           "holdP75Days": 10.0,
-          "cohortLabel": "Technology CALLs, ITM, 22-45 DTE, A-filtered",
-          "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Moderate"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
@@ -1451,7 +1536,7 @@
       "ticker": "ARM",
       "companyName": "Arm Holdings plc",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "MODERATE",
       "contract": {
@@ -1538,22 +1623,23 @@
           "todayScore": 72
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 19,
-          "distinctTickerCount": 1,
-          "winRate": 100.0,
-          "avgRMultiple": 3.27,
-          "medianHoldDays": 8.0,
+          "windowDays": 90,
+          "sampleSize": 95,
+          "distinctTickerCount": 9,
+          "winRate": 65.3,
+          "avgReturnPct": 108.0,
+          "avgRMultiple": null,
+          "medianHoldDays": 9.0,
           "holdP25Days": 8.0,
-          "holdP75Days": 9.0,
-          "cohortLabel": "Technology CALLs, ITM, 0-21 DTE, A-filtered",
-          "matchStrength": "tight",
-          "supportLabel": "Limited breadth"
+          "holdP75Days": 10.0,
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Strong"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
@@ -1562,7 +1648,7 @@
           "Skip if spread or liquidity deteriorates on the live chain."
         ],
         "expectation": {
-          "timeframe": "8-9 trading days",
+          "timeframe": "8-10 trading days",
           "baseCase": "Secondary setup unless the tape improves.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
@@ -1582,7 +1668,7 @@
       "ticker": "ALAB",
       "companyName": "Astera Labs, Inc.",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "MODERATE",
       "contract": {
@@ -1669,22 +1755,23 @@
           "todayScore": 68
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 39,
-          "distinctTickerCount": 4,
-          "winRate": 100.0,
-          "avgRMultiple": 2.52,
+          "windowDays": 90,
+          "sampleSize": 249,
+          "distinctTickerCount": 16,
+          "winRate": 53.0,
+          "avgReturnPct": 65.6,
+          "avgRMultiple": null,
           "medianHoldDays": 8.0,
           "holdP25Days": 8.0,
           "holdP75Days": 10.0,
-          "cohortLabel": "Technology CALLs, ATM, 0-21 DTE, A-filtered",
-          "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Moderate"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
@@ -1713,7 +1800,7 @@
       "ticker": "LSCC",
       "companyName": "Lattice Semiconductor Corporation",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "MODERATE",
       "contract": {
@@ -1799,22 +1886,23 @@
           "todayScore": 64
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 39,
-          "distinctTickerCount": 4,
-          "winRate": 100.0,
-          "avgRMultiple": 2.52,
+          "windowDays": 90,
+          "sampleSize": 249,
+          "distinctTickerCount": 16,
+          "winRate": 53.0,
+          "avgReturnPct": 65.6,
+          "avgRMultiple": null,
           "medianHoldDays": 8.0,
           "holdP25Days": 8.0,
           "holdP75Days": 10.0,
-          "cohortLabel": "Technology CALLs, ATM, 0-21 DTE, A-filtered",
-          "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Moderate"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
@@ -1843,7 +1931,7 @@
       "ticker": "SIMO",
       "companyName": "Silicon Motion Technology Corporation",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "MODERATE",
       "contract": {
@@ -1930,22 +2018,23 @@
           "todayScore": 60
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 19,
-          "distinctTickerCount": 1,
-          "winRate": 100.0,
-          "avgRMultiple": 3.27,
-          "medianHoldDays": 8.0,
+          "windowDays": 90,
+          "sampleSize": 95,
+          "distinctTickerCount": 9,
+          "winRate": 65.3,
+          "avgReturnPct": 108.0,
+          "avgRMultiple": null,
+          "medianHoldDays": 9.0,
           "holdP25Days": 8.0,
-          "holdP75Days": 9.0,
-          "cohortLabel": "Technology CALLs, ITM, 0-21 DTE, A-filtered",
-          "matchStrength": "tight",
-          "supportLabel": "Limited breadth"
+          "holdP75Days": 10.0,
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Strong"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
@@ -1954,7 +2043,7 @@
           "Skip if spread or liquidity deteriorates on the live chain."
         ],
         "expectation": {
-          "timeframe": "8-9 trading days",
+          "timeframe": "8-10 trading days",
           "baseCase": "Secondary setup unless the tape improves.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
@@ -1974,7 +2063,7 @@
       "ticker": "ORCL",
       "companyName": "Oracle Corporation",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -2060,22 +2149,23 @@
           "todayScore": 56
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 153,
-          "distinctTickerCount": 14,
-          "winRate": 95.4,
-          "avgRMultiple": 1.65,
+          "windowDays": 90,
+          "sampleSize": 177,
+          "distinctTickerCount": 11,
+          "winRate": 50.8,
+          "avgReturnPct": 53.5,
+          "avgRMultiple": null,
           "medianHoldDays": 8.0,
           "holdP25Days": 8.0,
           "holdP75Days": 10.0,
-          "cohortLabel": "Technology CALLs, ATM, 22-45 DTE, A-filtered",
-          "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Moderate"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
@@ -2104,7 +2194,7 @@
       "ticker": "DVA",
       "companyName": "DaVita Inc.",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -2189,17 +2279,18 @@
           "todayScore": 52
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 23,
-          "distinctTickerCount": 9,
-          "winRate": 39.1,
-          "avgRMultiple": 0.03,
+          "windowDays": 90,
+          "sampleSize": 249,
+          "distinctTickerCount": 16,
+          "winRate": 53.0,
+          "avgReturnPct": 65.6,
+          "avgRMultiple": null,
           "medianHoldDays": 8.0,
           "holdP25Days": 8.0,
-          "holdP75Days": 8.0,
-          "cohortLabel": "Healthcare CALLs",
-          "matchStrength": "sector",
-          "supportLabel": "Weak"
+          "holdP75Days": 10.0,
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Moderate"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
@@ -2213,7 +2304,7 @@
           "Skip if spread or liquidity deteriorates on the live chain."
         ],
         "expectation": {
-          "timeframe": "8 trading days",
+          "timeframe": "8-10 trading days",
           "baseCase": "Secondary setup unless the tape improves.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
@@ -2233,7 +2324,7 @@
       "ticker": "ANET",
       "companyName": "Arista Networks, Inc.",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -2320,22 +2411,23 @@
           "todayScore": 48
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 39,
-          "distinctTickerCount": 4,
-          "winRate": 100.0,
-          "avgRMultiple": 2.52,
+          "windowDays": 90,
+          "sampleSize": 249,
+          "distinctTickerCount": 16,
+          "winRate": 53.0,
+          "avgReturnPct": 65.6,
+          "avgRMultiple": null,
           "medianHoldDays": 8.0,
           "holdP25Days": 8.0,
           "holdP75Days": 10.0,
-          "cohortLabel": "Technology CALLs, ATM, 0-21 DTE, A-filtered",
-          "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Moderate"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
@@ -2364,7 +2456,7 @@
       "ticker": "NEM",
       "companyName": "Newmont Corporation",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -2450,17 +2542,18 @@
           "todayScore": 44
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 28,
-          "distinctTickerCount": 4,
-          "winRate": 21.4,
-          "avgRMultiple": -0.21,
-          "medianHoldDays": 8.0,
+          "windowDays": 90,
+          "sampleSize": 36,
+          "distinctTickerCount": 6,
+          "winRate": 36.1,
+          "avgReturnPct": -29.1,
+          "avgRMultiple": null,
+          "medianHoldDays": 10.0,
           "holdP25Days": 8.0,
-          "holdP75Days": 8.5,
-          "cohortLabel": "Basic Materials CALLs",
-          "matchStrength": "sector",
-          "supportLabel": "Weak"
+          "holdP75Days": 11.0,
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Limited"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
@@ -2474,7 +2567,7 @@
           "Skip if spread or liquidity deteriorates on the live chain."
         ],
         "expectation": {
-          "timeframe": "8 trading days",
+          "timeframe": "8-11 trading days",
           "baseCase": "Secondary setup unless the tape improves.",
           "risk": "The edge weakens if momentum cools and sector support fades."
         }
@@ -2494,7 +2587,7 @@
       "ticker": "LRCX",
       "companyName": "Lam Research Corporation",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -2580,22 +2673,23 @@
           "todayScore": 40
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 39,
-          "distinctTickerCount": 4,
-          "winRate": 100.0,
-          "avgRMultiple": 2.52,
+          "windowDays": 90,
+          "sampleSize": 249,
+          "distinctTickerCount": 16,
+          "winRate": 53.0,
+          "avgReturnPct": 65.6,
+          "avgRMultiple": null,
           "medianHoldDays": 8.0,
           "holdP25Days": 8.0,
           "holdP75Days": 10.0,
-          "cohortLabel": "Technology CALLs, ATM, 0-21 DTE, A-filtered",
-          "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Moderate"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
@@ -2624,7 +2718,7 @@
       "ticker": "NXPI",
       "companyName": "NXP Semiconductors N.V.",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -2710,22 +2804,23 @@
           "todayScore": 36
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 39,
-          "distinctTickerCount": 4,
-          "winRate": 100.0,
-          "avgRMultiple": 2.52,
+          "windowDays": 90,
+          "sampleSize": 249,
+          "distinctTickerCount": 16,
+          "winRate": 53.0,
+          "avgReturnPct": 65.6,
+          "avgRMultiple": null,
           "medianHoldDays": 8.0,
           "holdP25Days": 8.0,
           "holdP75Days": 10.0,
-          "cohortLabel": "Technology CALLs, ATM, 0-21 DTE, A-filtered",
-          "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Moderate"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
@@ -2754,7 +2849,7 @@
       "ticker": "DDOG",
       "companyName": "Datadog, Inc.",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -2841,22 +2936,23 @@
           "todayScore": 32
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 95,
-          "distinctTickerCount": 19,
-          "winRate": 77.9,
-          "avgRMultiple": 1.51,
+          "windowDays": 90,
+          "sampleSize": 16,
+          "distinctTickerCount": 4,
+          "winRate": 43.8,
+          "avgReturnPct": 52.1,
+          "avgRMultiple": null,
           "medianHoldDays": 8.0,
           "holdP25Days": 8.0,
-          "holdP75Days": 10.0,
-          "cohortLabel": "Technology CALLs, OTM",
-          "matchStrength": "broad",
-          "supportLabel": "Strong"
+          "holdP75Days": 9.2,
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Limited history"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
@@ -2865,7 +2961,7 @@
           "Skip if spread or liquidity deteriorates on the live chain."
         ],
         "expectation": {
-          "timeframe": "8-10 trading days",
+          "timeframe": "8-9 trading days",
           "baseCase": "Secondary setup unless the tape improves.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
@@ -2885,7 +2981,7 @@
       "ticker": "QCOM",
       "companyName": "QUALCOMM Incorporated",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -2971,22 +3067,23 @@
           "todayScore": 28
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 39,
-          "distinctTickerCount": 4,
-          "winRate": 100.0,
-          "avgRMultiple": 2.52,
+          "windowDays": 90,
+          "sampleSize": 249,
+          "distinctTickerCount": 16,
+          "winRate": 53.0,
+          "avgReturnPct": 65.6,
+          "avgRMultiple": null,
           "medianHoldDays": 8.0,
           "holdP25Days": 8.0,
           "holdP75Days": 10.0,
-          "cohortLabel": "Technology CALLs, ATM, 0-21 DTE, A-filtered",
-          "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Moderate"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
@@ -3015,7 +3112,7 @@
       "ticker": "PLTR",
       "companyName": "Palantir Technologies Inc.",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -3099,22 +3196,23 @@
           "todayScore": 24
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 153,
-          "distinctTickerCount": 14,
-          "winRate": 95.4,
-          "avgRMultiple": 1.65,
+          "windowDays": 90,
+          "sampleSize": 123,
+          "distinctTickerCount": 9,
+          "winRate": 60.2,
+          "avgReturnPct": 66.7,
+          "avgRMultiple": null,
           "medianHoldDays": 8.0,
           "holdP25Days": 8.0,
           "holdP75Days": 10.0,
-          "cohortLabel": "Technology CALLs, ATM, 22-45 DTE, A-filtered",
-          "matchStrength": "tight",
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
           "supportLabel": "Strong"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
@@ -3143,7 +3241,7 @@
       "ticker": "NET",
       "companyName": "Cloudflare, Inc.",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -3229,22 +3327,23 @@
           "todayScore": 20
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 39,
-          "distinctTickerCount": 4,
-          "winRate": 100.0,
-          "avgRMultiple": 2.52,
+          "windowDays": 90,
+          "sampleSize": 249,
+          "distinctTickerCount": 16,
+          "winRate": 53.0,
+          "avgReturnPct": 65.6,
+          "avgRMultiple": null,
           "medianHoldDays": 8.0,
           "holdP25Days": 8.0,
           "holdP75Days": 10.0,
-          "cohortLabel": "Technology CALLs, ATM, 0-21 DTE, A-filtered",
-          "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Moderate"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
@@ -3273,7 +3372,7 @@
       "ticker": "RDDT",
       "companyName": "Reddit, Inc.",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -3358,17 +3457,18 @@
           "todayScore": 16
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 58,
-          "distinctTickerCount": 4,
-          "winRate": 43.1,
-          "avgRMultiple": 0.31,
+          "windowDays": 90,
+          "sampleSize": 249,
+          "distinctTickerCount": 16,
+          "winRate": 53.0,
+          "avgReturnPct": 65.6,
+          "avgRMultiple": null,
           "medianHoldDays": 8.0,
           "holdP25Days": 8.0,
           "holdP75Days": 10.0,
-          "cohortLabel": "Communication Services CALLs, ATM",
-          "matchStrength": "broad",
-          "supportLabel": "Weak"
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Moderate"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
@@ -3402,7 +3502,7 @@
       "ticker": "CRWV",
       "companyName": "CoreWeave, Inc.",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -3487,17 +3587,18 @@
           "todayScore": 12
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": null,
-          "distinctTickerCount": null,
-          "winRate": null,
+          "windowDays": 90,
+          "sampleSize": 249,
+          "distinctTickerCount": 16,
+          "winRate": 53.0,
+          "avgReturnPct": 65.6,
           "avgRMultiple": null,
-          "medianHoldDays": null,
-          "holdP25Days": null,
-          "holdP75Days": null,
-          "cohortLabel": null,
-          "matchStrength": "none",
-          "supportLabel": "Limited"
+          "medianHoldDays": 8.0,
+          "holdP25Days": 8.0,
+          "holdP75Days": 10.0,
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Moderate"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
@@ -3510,7 +3611,7 @@
           "Skip if spread or liquidity deteriorates on the live chain."
         ],
         "expectation": {
-          "timeframe": "3-7 trading days",
+          "timeframe": "8-10 trading days",
           "baseCase": "Secondary setup unless the tape improves.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
@@ -3530,7 +3631,7 @@
       "ticker": "ADBE",
       "companyName": "Adobe Inc.",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -3616,22 +3717,23 @@
           "todayScore": 8
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 39,
-          "distinctTickerCount": 4,
-          "winRate": 100.0,
-          "avgRMultiple": 2.52,
+          "windowDays": 90,
+          "sampleSize": 249,
+          "distinctTickerCount": 16,
+          "winRate": 53.0,
+          "avgReturnPct": 65.6,
+          "avgRMultiple": null,
           "medianHoldDays": 8.0,
           "holdP25Days": 8.0,
           "holdP75Days": 10.0,
-          "cohortLabel": "Technology CALLs, ATM, 0-21 DTE, A-filtered",
-          "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Moderate"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
@@ -3660,7 +3762,7 @@
       "ticker": "MDB",
       "companyName": "MongoDB, Inc.",
       "tier": "B",
-      "action": "PASS",
+      "action": "WAIT",
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -3746,22 +3848,23 @@
           "todayScore": 4
         },
         "historical": {
-          "windowDays": 365,
-          "sampleSize": 39,
-          "distinctTickerCount": 4,
-          "winRate": 100.0,
-          "avgRMultiple": 2.52,
+          "windowDays": 90,
+          "sampleSize": 249,
+          "distinctTickerCount": 16,
+          "winRate": 53.0,
+          "avgReturnPct": 65.6,
+          "avgRMultiple": null,
           "medianHoldDays": 8.0,
           "holdP25Days": 8.0,
           "holdP75Days": 10.0,
-          "cohortLabel": "Technology CALLs, ATM, 0-21 DTE, A-filtered",
-          "matchStrength": "tight",
-          "supportLabel": "Strong"
+          "cohortLabel": "Based on similar setups over the last 90 days",
+          "matchStrength": "setup",
+          "supportLabel": "Moderate"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "XLK sector signal strength: 73.5% 4d win rate across 66 stocks.",
           "Sector ranks #1 in today's conviction map."
         ],
         "invalidation": [
