@@ -181,7 +181,7 @@ export function TradeDetailDrawer({
                 <h3 className="text-sm font-black text-ink">View Trade Plan</h3>
                 <p className="mt-1 text-[11px] font-semibold text-muted">Lower-cost idea, execution notes, and risk checks.</p>
               </div>
-              <span className="text-xs font-black text-blue-700 transition group-open:rotate-180">âŒ„</span>
+              <span className="text-xs font-black text-blue-700 transition group-open:rotate-180">v</span>
             </summary>
 
             <div className="space-y-4 border-t border-slate-200 px-4 py-4">

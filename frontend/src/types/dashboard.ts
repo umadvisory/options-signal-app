@@ -112,6 +112,7 @@ export type TopTrade = {
       sampleSize: number | null;
       distinctTickerCount: number | null;
       winRate: number | null;
+      avgReturnPct?: number | null;
       avgRMultiple: number | null;
       medianHoldDays: number | null;
       holdP25Days: number | null;
@@ -183,9 +184,13 @@ export type YesterdayTradeStatus = {
   ticker: string;
   grade: string | null;
   signalDate?: string | null;
+  currentDate?: string | null;
+  originalAction?: "ENTER" | "WATCH" | "WAIT" | null;
+  snapshotPrice?: number | null;
   yesterdayEntryPrice: number | null;
   currentPrice: number | null;
   priceChangePct: number | null;
+  typicalHoldDays?: number | null;
   status: string;
   stillInTodayList: boolean;
 };

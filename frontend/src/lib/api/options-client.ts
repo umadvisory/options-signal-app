@@ -216,6 +216,7 @@ function normalizeTrade(trade: TopTrade): TopTrade {
             sampleSize: numberOrNull(trade.decisionContext.historical?.sampleSize),
             distinctTickerCount: numberOrNull((trade.decisionContext.historical as { distinctTickerCount?: unknown })?.distinctTickerCount),
             winRate: numberOrNull(trade.decisionContext.historical?.winRate),
+            avgReturnPct: numberOrNull((trade.decisionContext.historical as { avgReturnPct?: unknown })?.avgReturnPct),
             avgRMultiple: numberOrNull(trade.decisionContext.historical?.avgRMultiple),
             medianHoldDays: numberOrNull(trade.decisionContext.historical?.medianHoldDays),
             holdP25Days: numberOrNull(trade.decisionContext.historical?.holdP25Days),
@@ -276,12 +277,20 @@ function normalizeSectorOutlook(sectors: DashboardData["sectorOutlook"] | undefi
 function normalizeYesterdayStatus(items: DashboardData["yesterdayStatus"] | undefined): DashboardData["yesterdayStatus"] {
   if (!Array.isArray(items)) return [];
 
-  return items.map((item) => ({
-    ticker: String(item.ticker || "N/A"),
-    grade: item.grade ?? null,
-    yesterdayEntryPrice: numberOrNull(item.yesterdayEntryPrice),
-    currentPrice: numberOrNull(item.currentPrice),
+    return items.map((item) => ({
+      ticker: String(item.ticker || "N/A"),
+      grade: item.grade ?? null,
+      signalDate: item.signalDate ?? null,
+      currentDate: item.currentDate ?? null,
+      originalAction:
+        item.originalAction === "ENTER" || item.originalAction === "WATCH" || item.originalAction === "WAIT"
+          ? item.originalAction
+          : null,
+      snapshotPrice: numberOrNull(item.snapshotPrice),
+      yesterdayEntryPrice: numberOrNull(item.yesterdayEntryPrice),
+      currentPrice: numberOrNull(item.currentPrice),
     priceChangePct: numberOrNull(item.priceChangePct),
+    typicalHoldDays: numberOrNull(item.typicalHoldDays),
     status: String(item.status || "No current price"),
     stillInTodayList: Boolean(item.stillInTodayList)
   }));
