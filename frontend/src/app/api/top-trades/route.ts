@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+  const configuredBackendUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+  const backendUrl =
+    process.env.NODE_ENV !== "production"
+      ? "http://127.0.0.1:8011"
+      : configuredBackendUrl;
 
   if (!backendUrl) {
     return NextResponse.json(

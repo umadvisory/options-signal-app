@@ -9,7 +9,18 @@ export type StrategyStats = {
   maxDate?: string | null;
   avgReturnPct: number | null;
   medianReturnPct: number | null;
-  worstDrawdownProxy: number | null;
+  worstDrawdownProxy?: number | null;
+  lossRate?: number | null;
+  largeLossRate?: number | null;
+  returnDistribution?: Array<{
+    range: string;
+    count: number;
+    percentage?: number | null;
+  }>;
+  equityCurve?: Array<{
+    date: string;
+    value: number | null;
+  }>;
 };
 
 export type TopTrade = {

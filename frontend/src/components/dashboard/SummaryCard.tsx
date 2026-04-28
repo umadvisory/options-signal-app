@@ -1,5 +1,8 @@
+"use client";
+
 import type { StrategyStats } from "@/types/dashboard";
 import { formatNumber, formatPct } from "@/lib/format";
+import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 type SummaryCardProps = {
   title: string;
@@ -13,6 +16,29 @@ export function SummaryCard({ title, stats, accent, description, eyebrow }: Summ
   const accentClass = accent === "green" ? "text-emerald-600" : "text-slate-950";
   const borderClass = accent === "green" ? "border-emerald-200 bg-white" : "border-slate-200 bg-white";
   const backingLabel = formatBackingLabel(stats);
+  const sampleSize = stats.sampleSize ?? 0;
+  const distribution = (stats.returnDistribution ?? []).map((bucket) => ({
+    ...bucket,
+    count: Number(bucket.count) || 0,
+    percentage:
+      bucket.percentage === null || bucket.percentage === undefined
+        ? sampleSize
+          ? roundToOneDecimal(((Number(bucket.count) || 0) / sampleSize) * 100)
+          : 0
+        : Number(bucket.percentage) || 0
+  }));
+  const derivedLossRate = roundToOneDecimal(
+    distribution
+      .filter((bucket) => ["<-50%", "-50%–0%"].includes(bucket.range))
+      .reduce((sum, bucket) => sum + bucket.percentage, 0)
+  );
+  const derivedLargeLossRate = roundToOneDecimal(
+    distribution
+      .filter((bucket) => bucket.range === "<-50%")
+      .reduce((sum, bucket) => sum + bucket.percentage, 0)
+  );
+  const lossRate = stats.lossRate ?? derivedLossRate;
+  const largeLossRate = stats.largeLossRate ?? derivedLargeLossRate;
 
   return (
     <section className={`rounded-lg border px-5 py-6.5 shadow-soft ${borderClass}`}>
@@ -32,7 +58,34 @@ export function SummaryCard({ title, stats, accent, description, eyebrow }: Summ
 
       <div className="mt-6 grid grid-cols-2 gap-4 pb-1">
         <Metric label="Avg Return (per trade)" value={formatPct(stats.avgReturnPct, true)} positive />
-        <Metric label="Worst Drawdown" value={formatPct(stats.worstDrawdownProxy, true)} danger />
+        <LossProfile lossRate={lossRate} largeLossRate={largeLossRate} />
+      </div>
+
+      <div className="mt-6">
+        <p className="text-[11px] font-bold text-muted">Trade Outcome Profile</p>
+        <p className="mt-1 text-[11px] text-muted">Distribution of trade outcomes (last 30 days)</p>
+        <div className="mt-2 h-40 rounded-md border border-slate-100 bg-slate-50/50 px-2 py-2">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={distribution} margin={{ top: 4, right: 4, left: -20, bottom: 16 }} barCategoryGap="20%">
+              <CartesianGrid vertical={false} stroke="#e2e8f0" strokeDasharray="2 3" strokeOpacity={0.35} />
+              <XAxis
+                dataKey="range"
+                tick={{ fontSize: 9, fill: "#64748b" }}
+                interval={0}
+                angle={-22}
+                textAnchor="end"
+                height={42}
+              />
+              <YAxis tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} width={26} />
+              <Tooltip cursor={{ fill: "rgba(148, 163, 184, 0.08)" }} content={<DistributionTooltip />} />
+              <Bar dataKey="count" minPointSize={2} maxBarSize={44} radius={[4, 4, 0, 0]} isAnimationActive={false}>
+                {distribution.map((bucket, index) => (
+                  <Cell key={`${bucket.range}-${index}`} fill={bucket.range === "<-50%" || bucket.range === "-50%–0%" ? "#ef4444" : "#10b981"} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </section>
   );
@@ -71,4 +124,46 @@ function Metric({
       </p>
     </div>
   );
+}
+
+function LossProfile({
+  lossRate,
+  largeLossRate
+}: {
+  lossRate: number | null | undefined;
+  largeLossRate: number | null | undefined;
+}) {
+  return (
+    <div>
+      <p className="text-[11px] font-bold text-muted">Loss Profile</p>
+      <p className="mt-2 text-sm font-semibold text-ink">{formatPct(lossRate)} losing trades</p>
+      <p className="mt-1 text-sm font-semibold text-muted">{formatPct(largeLossRate)} large losses (&gt;30%)</p>
+    </div>
+  );
+}
+
+function DistributionTooltip({
+  active,
+  payload
+}: {
+  active?: boolean;
+  payload?: Array<{ payload?: { range?: string; count?: number; percentage?: number } }>;
+}) {
+  if (!active || !payload?.length || !payload[0]?.payload) return null;
+
+  const data = payload[0].payload;
+
+  return (
+    <div className="rounded-md bg-slate-900 px-2.5 py-1.5 text-xs text-white shadow-lg">
+      <div>{data.range}</div>
+      <div>
+        <strong>{formatNumber(data.count ?? 0)}</strong> trades
+      </div>
+      <div>{formatPct(data.percentage ?? 0)}</div>
+    </div>
+  );
+}
+
+function roundToOneDecimal(value: number) {
+  return Math.round(value * 10) / 10;
 }

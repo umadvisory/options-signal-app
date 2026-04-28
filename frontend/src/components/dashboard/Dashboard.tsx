@@ -121,14 +121,14 @@ export function Dashboard({
             stats={data.strategyStats.highConviction}
             accent="green"
             eyebrow="Historical Benchmark"
-            description="Higher win rate and stronger payoff vs baseline"
+            description="Strict filter. Fewer setups. Higher concentration. Represents ideal conditions when all signals align."
           />
           <SummaryCard
             title="Broad Base"
             stats={data.strategyStats.broadBase}
             accent="ink"
             eyebrow="Historical Benchmark"
-            description="Baseline comparison across wider universe"
+            description="Wider universe. More consistent opportunities. Reflects the typical signals available in the market."
           />
         </section>
 

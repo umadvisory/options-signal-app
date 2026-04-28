@@ -21,7 +21,11 @@ const emptyStats: StrategyStats = {
   maxDate: null,
   avgReturnPct: null,
   medianReturnPct: null,
-  worstDrawdownProxy: null
+  worstDrawdownProxy: null,
+  lossRate: null,
+  largeLossRate: null,
+  returnDistribution: [],
+  equityCurve: []
 };
 
 export async function fetchDashboardData(signal?: AbortSignal): Promise<DashboardData> {
@@ -86,15 +90,28 @@ function normalizeMarketRegime(regime: DashboardData["marketRegime"] | undefined
 }
 
 function normalizeStats(stats: Partial<StrategyStats> | null | undefined): StrategyStats {
+  const sampleSize = stats?.sampleSize ?? null;
+  const normalizedDistribution = normalizeReturnDistribution(stats?.returnDistribution, sampleSize);
+  const derivedLossProfile = deriveLossProfile(stats?.returnDistribution, sampleSize);
+
   return {
     winRate: stats?.winRate ?? null,
-    sampleSize: stats?.sampleSize ?? null,
+    sampleSize,
     tickerCount: stats?.tickerCount ?? null,
     minDate: stats?.minDate ?? null,
     maxDate: stats?.maxDate ?? null,
     avgReturnPct: stats?.avgReturnPct ?? null,
     medianReturnPct: stats?.medianReturnPct ?? null,
-    worstDrawdownProxy: stats?.worstDrawdownProxy ?? null
+    worstDrawdownProxy: stats?.worstDrawdownProxy ?? null,
+    lossRate: stats?.lossRate ?? derivedLossProfile.lossRate,
+    largeLossRate: stats?.largeLossRate ?? derivedLossProfile.largeLossRate,
+    returnDistribution: normalizedDistribution,
+    equityCurve: Array.isArray(stats?.equityCurve)
+      ? stats!.equityCurve!.map((point) => ({
+          date: String(point.date || ""),
+          value: point.value === null || point.value === undefined ? null : Number(point.value)
+        }))
+      : []
   };
 }
 
@@ -282,4 +299,81 @@ function boolOrNull(value: unknown): boolean | null {
   if (["1", "true", "yes", "y"].includes(text)) return true;
   if (["0", "false", "no", "n"].includes(text)) return false;
   return null;
+}
+
+function normalizeReturnDistribution(
+  buckets: StrategyStats["returnDistribution"] | undefined,
+  sampleSize: number | null
+): NonNullable<StrategyStats["returnDistribution"]> {
+  const collapsed = {
+    "<-50%": 0,
+    "-50%–0%": 0,
+    "0–50%": 0,
+    "50–150%": 0,
+    ">150%": 0
+  };
+
+  for (const bucket of buckets ?? []) {
+    const count = Number(bucket.count) || 0;
+    const range = String(bucket.range || "");
+
+    if (range === "<-50%" || range === "-50%–0%" || range === "0–50%" || range === "50–150%" || range === ">150%") {
+      collapsed[range] += count;
+      continue;
+    }
+
+    if (["<-100%", "-100% to -50%"].includes(range)) {
+      collapsed["<-50%"] += count;
+    } else if (["-50% to -20%", "-20% to 0%"].includes(range)) {
+      collapsed["-50%–0%"] += count;
+    } else if (["0% to 50%"].includes(range)) {
+      collapsed["0–50%"] += count;
+    } else if (["50% to 100%", "100% to 200%"].includes(range)) {
+      collapsed["50–150%"] += count;
+    } else if ([">200%"].includes(range)) {
+      collapsed[">150%"] += count;
+    }
+  }
+
+  const size = sampleSize ?? 0;
+  return Object.entries(collapsed).map(([range, count]) => ({
+    range,
+    count,
+    percentage: size ? roundToOneDecimal((count / size) * 100) : 0
+  }));
+}
+
+function deriveLossProfile(
+  buckets: StrategyStats["returnDistribution"] | undefined,
+  sampleSize: number | null
+): { lossRate: number | null; largeLossRate: number | null } {
+  const size = sampleSize ?? 0;
+  if (!size || !Array.isArray(buckets)) {
+    return { lossRate: null, largeLossRate: null };
+  }
+
+  let negativeCount = 0;
+  let largeLossCount = 0;
+
+  for (const bucket of buckets) {
+    const count = Number(bucket.count) || 0;
+    const range = String(bucket.range || "");
+
+    if (["<-100%", "-100% to -50%", "-50% to -20%", "-20% to 0%", "<-50%", "-50%–0%"].includes(range)) {
+      negativeCount += count;
+    }
+
+    if (["<-100%", "-100% to -50%", "-50% to -20%", "<-50%"].includes(range)) {
+      largeLossCount += count;
+    }
+  }
+
+  return {
+    lossRate: roundToOneDecimal((negativeCount / size) * 100),
+    largeLossRate: roundToOneDecimal((largeLossCount / size) * 100)
+  };
+}
+
+function roundToOneDecimal(value: number) {
+  return Math.round(value * 10) / 10;
 }
