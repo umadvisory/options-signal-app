@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-04-28T11:15:32.680327+00:00",
+  "generatedAt": "2026-04-28T13:28:42.772842+00:00",
   "signalDate": "2026-04-27",
   "sourceFiles": {
     "predictionCsv": "sample_predictions_with_tiers_20260427.csv",
     "previousPredictionCsv": "sample_predictions_with_tiers_20260424.csv",
-    "strategyStats": "dec25_jan26_strategy_uplift_20260428_071034.csv",
+    "strategyStats": "trades_master.duckdb",
     "sectorOutlookWorkbook": "ml_predictions_summary_lgbm_bigwin25_calls_v1_20260427.xlsx",
     "marketRegime": "macro_regime_enriched.csv",
     "tradesDb": "trades_master.duckdb"
   },
   "recordCounts": {
-    "candidateTrades": 18,
-    "returnedTrades": 18,
+    "candidateTrades": 25,
+    "returnedTrades": 25,
     "yesterdayStatus": 10,
     "sectorCount": 6
   },
@@ -38,24 +38,176 @@
   },
   "strategyStats": {
     "highConviction": {
-      "winRate": 86.2,
-      "sampleSize": 426,
-      "tickerCount": 8,
-      "minDate": "2026-03-26",
+      "winRate": 79.4,
+      "sampleSize": 442,
+      "tickerCount": 24,
+      "minDate": "2026-04-06",
       "maxDate": "2026-04-17",
-      "avgReturnPct": 170.0,
-      "medianReturnPct": 179.7,
-      "worstDrawdownProxy": -35.4
+      "avgReturnPct": 151.9,
+      "medianReturnPct": 135.7,
+      "lossRate": 19.9,
+      "largeLossRate": 12.9,
+      "worstDrawdownProxy": null,
+      "returnDistribution": [
+        {
+          "range": "<-50%",
+          "count": 36,
+          "percentage": 8.1
+        },
+        {
+          "range": "-50%–0%",
+          "count": 52,
+          "percentage": 11.8
+        },
+        {
+          "range": "0–50%",
+          "count": 22,
+          "percentage": 5.0
+        },
+        {
+          "range": "50–150%",
+          "count": 129,
+          "percentage": 29.2
+        },
+        {
+          "range": ">150%",
+          "count": 203,
+          "percentage": 45.9
+        }
+      ],
+      "equityCurve": [
+        {
+          "date": "2026-04-06",
+          "value": 989.3
+        },
+        {
+          "date": "2026-04-07",
+          "value": 1036.2
+        },
+        {
+          "date": "2026-04-08",
+          "value": 1569.1
+        },
+        {
+          "date": "2026-04-09",
+          "value": 8605.0
+        },
+        {
+          "date": "2026-04-10",
+          "value": 15126.5
+        },
+        {
+          "date": "2026-04-13",
+          "value": 22724.9
+        },
+        {
+          "date": "2026-04-14",
+          "value": 33368.1
+        },
+        {
+          "date": "2026-04-15",
+          "value": 42970.3
+        },
+        {
+          "date": "2026-04-16",
+          "value": 57091.9
+        },
+        {
+          "date": "2026-04-17",
+          "value": 67138.8
+        }
+      ],
+      "label": "Cohort A"
     },
     "broadBase": {
-      "winRate": 59.7,
-      "sampleSize": 1123,
+      "winRate": 78.8,
+      "sampleSize": 918,
       "tickerCount": 53,
-      "minDate": "2026-03-26",
+      "minDate": "2026-04-01",
       "maxDate": "2026-04-17",
-      "avgReturnPct": 61.5,
-      "medianReturnPct": 14.0,
-      "worstDrawdownProxy": -60.8
+      "avgReturnPct": 128.6,
+      "medianReturnPct": 117.0,
+      "lossRate": 20.2,
+      "largeLossRate": 10.2,
+      "worstDrawdownProxy": null,
+      "returnDistribution": [
+        {
+          "range": "<-50%",
+          "count": 47,
+          "percentage": 5.1
+        },
+        {
+          "range": "-50%–0%",
+          "count": 138,
+          "percentage": 15.0
+        },
+        {
+          "range": "0–50%",
+          "count": 153,
+          "percentage": 16.7
+        },
+        {
+          "range": "50–150%",
+          "count": 188,
+          "percentage": 20.5
+        },
+        {
+          "range": ">150%",
+          "count": 392,
+          "percentage": 42.7
+        }
+      ],
+      "equityCurve": [
+        {
+          "date": "2026-04-01",
+          "value": 4779.4
+        },
+        {
+          "date": "2026-04-02",
+          "value": 12314.2
+        },
+        {
+          "date": "2026-04-06",
+          "value": 23074.5
+        },
+        {
+          "date": "2026-04-07",
+          "value": 34846.1
+        },
+        {
+          "date": "2026-04-08",
+          "value": 47836.9
+        },
+        {
+          "date": "2026-04-09",
+          "value": 57010.7
+        },
+        {
+          "date": "2026-04-10",
+          "value": 61132.8
+        },
+        {
+          "date": "2026-04-13",
+          "value": 68029.0
+        },
+        {
+          "date": "2026-04-14",
+          "value": 81032.1
+        },
+        {
+          "date": "2026-04-15",
+          "value": 93674.2
+        },
+        {
+          "date": "2026-04-16",
+          "value": 109538.7
+        },
+        {
+          "date": "2026-04-17",
+          "value": 118040.2
+        }
+      ],
+      "label": "Cohort B"
     }
   },
   "sectorOutlook": [
@@ -290,6 +442,15 @@
       "stillInTodayList": true
     },
     {
+      "ticker": "NEM",
+      "grade": "A",
+      "yesterdayEntryPrice": 120.7,
+      "currentPrice": 116.08,
+      "priceChangePct": -3.8,
+      "status": "Weak - needs confirmation",
+      "stillInTodayList": true
+    },
+    {
       "ticker": "NBIS",
       "grade": "A",
       "yesterdayEntryPrice": 147.16,
@@ -297,15 +458,6 @@
       "priceChangePct": -1.5,
       "status": "Still valid",
       "stillInTodayList": true
-    },
-    {
-      "ticker": "NEM",
-      "grade": "A",
-      "yesterdayEntryPrice": 120.7,
-      "currentPrice": null,
-      "priceChangePct": null,
-      "status": "Price unavailable - check live data",
-      "stillInTodayList": false
     },
     {
       "ticker": "NVDA",
@@ -335,11 +487,11 @@
       "stillInTodayList": true
     },
     {
-      "ticker": "ANET",
+      "ticker": "ARM",
       "grade": "A",
-      "yesterdayEntryPrice": 176.91,
-      "currentPrice": 172.47,
-      "priceChangePct": -2.5,
+      "yesterdayEntryPrice": 234.81,
+      "currentPrice": 215.88,
+      "priceChangePct": -8.1,
       "status": "Weak - needs confirmation",
       "stillInTodayList": true
     },
@@ -353,13 +505,13 @@
       "stillInTodayList": true
     },
     {
-      "ticker": "ARM",
+      "ticker": "PANW",
       "grade": "A",
-      "yesterdayEntryPrice": 234.81,
-      "currentPrice": 215.88,
-      "priceChangePct": -8.1,
-      "status": "Weak - needs confirmation",
-      "stillInTodayList": true
+      "yesterdayEntryPrice": 178.54,
+      "currentPrice": null,
+      "priceChangePct": null,
+      "status": "Price unavailable - check live data",
+      "stillInTodayList": false
     }
   ],
   "trades": [
@@ -454,8 +606,8 @@
       "decisionContext": {
         "today": {
           "rank": 1,
-          "candidateCount": 18,
-          "topPercent": 6,
+          "candidateCount": 25,
+          "topPercent": 4,
           "todayScore": 100
         },
         "historical": {
@@ -490,7 +642,7 @@
       },
       "provenance": {
         "sourceFile": "sample_predictions_with_tiers_20260427.csv",
-        "strategyStatsFile": "dec25_jan26_strategy_uplift_20260428_071034.csv",
+        "strategyStatsFile": "trades_master.duckdb",
         "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
         "filterVersion": "filters_20251210.json",
         "dataCutoff": "2025-12-10",
@@ -588,9 +740,9 @@
       "decisionContext": {
         "today": {
           "rank": 2,
-          "candidateCount": 18,
-          "topPercent": 12,
-          "todayScore": 94
+          "candidateCount": 25,
+          "topPercent": 8,
+          "todayScore": 96
         },
         "historical": {
           "windowDays": 365,
@@ -624,7 +776,7 @@
       },
       "provenance": {
         "sourceFile": "sample_predictions_with_tiers_20260427.csv",
-        "strategyStatsFile": "dec25_jan26_strategy_uplift_20260428_071034.csv",
+        "strategyStatsFile": "trades_master.duckdb",
         "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
         "filterVersion": "filters_20251210.json",
         "dataCutoff": "2025-12-10",
@@ -641,10 +793,10 @@
       "optionType": "call",
       "signalStrength": "MODERATE",
       "contract": {
-        "optionSymbol": "O:DELL260515C00200000",
+        "optionSymbol": "O:DELL260618C00200000",
         "strike": 200,
-        "expiry": "2026-05-15",
-        "dte": 18,
+        "expiry": "2026-06-18",
+        "dte": 52,
         "underlyingPrice": 215.97,
         "distanceToStrikePct": -7.4,
         "moneyness": "0.926",
@@ -653,8 +805,8 @@
         "strikePositionText": "7.4% below spot"
       },
       "market": {
-        "volume": 133,
-        "openInterest": 3437
+        "volume": 513,
+        "openInterest": 1238
       },
       "context": {
         "sector": "Technology",
@@ -667,14 +819,14 @@
         "breadth": 66
       },
       "scores": {
-        "adaptiveScoreFinal": 1.649,
-        "adaptiveScore": 1.499,
+        "adaptiveScoreFinal": 1.655,
+        "adaptiveScore": 1.505,
         "adaptiveRank": 0,
         "priorityScore": 0.138,
         "probCalibrated": 0.138,
-        "expectedValue": -6.055,
+        "expectedValue": -8.495,
         "evPct": -0.25,
-        "rankScore": 0.238,
+        "rankScore": 0.0,
         "regimeAdj": 0.15,
         "sectorScore": 2.0,
         "rsiScore": 1.566
@@ -684,22 +836,22 @@
         "predictedTierRaw": "A",
         "adaptiveTier": "A",
         "filteredTier": "A",
-        "dteBucket": "0-21",
+        "dteBucket": "45-60",
         "vixBucket": "15-20"
       },
       "execution": {
-        "liveEligible": true,
-        "selected": true,
+        "liveEligible": false,
+        "selected": false,
         "aPlus": false,
         "rankAlpha": null,
-        "failReason": "OK_BASE"
+        "failReason": "NOT_AcapAprime"
       },
       "risk": {
-        "midPrice": 24.22,
+        "midPrice": 33.98,
         "bidAskPct": null,
         "bidOk": true,
         "volumeOk": true,
-        "dteOk": true,
+        "dteOk": false,
         "spyTrendOk": true,
         "liquidityOk": true,
         "openInterestOk": true
@@ -710,34 +862,33 @@
           "ITM structure supports follow-through if trend holds."
         ],
         "caution": [
-          "Qualified but needs cleaner confirmation.",
-          "Short duration: time decay risk is higher."
+          "Qualified but needs cleaner confirmation."
         ],
         "unfavorable": [
           "Avoid if sector support fades.",
           "Avoid if momentum weakens.",
-          "Avoid if the move does not start quickly (decay)."
+          "Avoid if bid/ask widens materially."
         ]
       },
       "decisionContext": {
         "today": {
           "rank": 3,
-          "candidateCount": 18,
-          "topPercent": 17,
-          "todayScore": 89
+          "candidateCount": 25,
+          "topPercent": 12,
+          "todayScore": 92
         },
         "historical": {
           "windowDays": 365,
-          "sampleSize": 19,
-          "distinctTickerCount": 1,
-          "winRate": 100.0,
-          "avgRMultiple": 3.27,
+          "sampleSize": 15,
+          "distinctTickerCount": 5,
+          "winRate": 80.0,
+          "avgRMultiple": 0.77,
           "medianHoldDays": 8.0,
           "holdP25Days": 8.0,
-          "holdP75Days": 9.0,
-          "cohortLabel": "Technology CALLs, ITM, 0-21 DTE, A-filtered",
-          "matchStrength": "tight",
-          "supportLabel": "Limited breadth"
+          "holdP75Days": 8.0,
+          "cohortLabel": "Technology CALLs, ITM, 46-90 DTE",
+          "matchStrength": "medium",
+          "supportLabel": "Moderate"
         },
         "translation": "Qualified setup, but entry quality matters more than signal strength here.",
         "executionEdge": [
@@ -751,14 +902,14 @@
           "Skip if spread or liquidity deteriorates on the live chain."
         ],
         "expectation": {
-          "timeframe": "8-9 trading days",
+          "timeframe": "8 trading days",
           "baseCase": "Valid setup, but follow-through matters more than immediacy.",
-          "risk": "Time decay becomes the main risk if price chops sideways."
+          "risk": "The edge weakens if momentum cools and sector support fades."
         }
       },
       "provenance": {
         "sourceFile": "sample_predictions_with_tiers_20260427.csv",
-        "strategyStatsFile": "dec25_jan26_strategy_uplift_20260428_071034.csv",
+        "strategyStatsFile": "trades_master.duckdb",
         "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
         "filterVersion": "filters_20251210.json",
         "dataCutoff": "2025-12-10",
@@ -768,140 +919,6 @@
     },
     {
       "rank": 4,
-      "ticker": "FSLY",
-      "companyName": "Fastly, Inc.",
-      "tier": "B+",
-      "action": "WATCH",
-      "optionType": "call",
-      "signalStrength": "MODERATE",
-      "contract": {
-        "optionSymbol": "O:FSLY260515C00020000",
-        "strike": 20,
-        "expiry": "2026-05-15",
-        "dte": 18,
-        "underlyingPrice": 25.8,
-        "distanceToStrikePct": -22.5,
-        "moneyness": "0.775",
-        "itmFlag": "Deep ITM",
-        "strikePositionLabel": "DEEP ITM",
-        "strikePositionText": "22.5% below spot"
-      },
-      "market": {
-        "volume": 64,
-        "openInterest": 241
-      },
-      "context": {
-        "sector": "Technology",
-        "rsi": 48.7
-      },
-      "etfOverlay": {
-        "etf": "XLK",
-        "bias": "Bullish",
-        "winRate4d": 73.5,
-        "breadth": 66
-      },
-      "scores": {
-        "adaptiveScoreFinal": 1.538,
-        "adaptiveScore": 1.438,
-        "adaptiveRank": 0,
-        "priorityScore": 0.137,
-        "probCalibrated": 0.137,
-        "expectedValue": -1.84,
-        "evPct": -0.24,
-        "rankScore": 0.238,
-        "regimeAdj": 0.1,
-        "sectorScore": 2.0,
-        "rsiScore": -0.507
-      },
-      "classification": {
-        "predictedTierCal": "A",
-        "predictedTierRaw": "A",
-        "adaptiveTier": "A",
-        "filteredTier": "A",
-        "dteBucket": "0-21",
-        "vixBucket": "15-20"
-      },
-      "execution": {
-        "liveEligible": true,
-        "selected": false,
-        "aPlus": false,
-        "rankAlpha": null,
-        "failReason": "OK_BASE"
-      },
-      "risk": {
-        "midPrice": 7.64,
-        "bidAskPct": null,
-        "bidOk": true,
-        "volumeOk": true,
-        "dteOk": true,
-        "spyTrendOk": true,
-        "liquidityOk": true,
-        "openInterestOk": true
-      },
-      "executionGuidance": {
-        "favorable": [
-          "Sector/ETF backdrop supportive.",
-          "ITM structure supports follow-through if trend holds."
-        ],
-        "caution": [
-          "Qualified but needs cleaner confirmation.",
-          "Short duration: time decay risk is higher."
-        ],
-        "unfavorable": [
-          "Avoid if sector support fades.",
-          "Avoid if momentum weakens.",
-          "Avoid if the move does not start quickly (decay)."
-        ]
-      },
-      "decisionContext": {
-        "today": {
-          "rank": 4,
-          "candidateCount": 18,
-          "topPercent": 23,
-          "todayScore": 83
-        },
-        "historical": {
-          "windowDays": 365,
-          "sampleSize": 19,
-          "distinctTickerCount": 1,
-          "winRate": 100.0,
-          "avgRMultiple": 3.27,
-          "medianHoldDays": 8.0,
-          "holdP25Days": 8.0,
-          "holdP75Days": 9.0,
-          "cohortLabel": "Technology CALLs, ITM, 0-21 DTE, A-filtered",
-          "matchStrength": "tight",
-          "supportLabel": "Limited breadth"
-        },
-        "translation": "Qualified setup, but entry quality matters more than signal strength here.",
-        "executionEdge": [
-          "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
-          "Sector ranks #1 in today's conviction map."
-        ],
-        "invalidation": [
-          "Skip if price moves more than 2% above the snapshot before entry.",
-          "Skip if RSI pushes into the 68-70 rejection zone before entry.",
-          "Skip if spread or liquidity deteriorates on the live chain."
-        ],
-        "expectation": {
-          "timeframe": "8-9 trading days",
-          "baseCase": "Valid setup, but follow-through matters more than immediacy.",
-          "risk": "Time decay becomes the main risk if price chops sideways."
-        }
-      },
-      "provenance": {
-        "sourceFile": "sample_predictions_with_tiers_20260427.csv",
-        "strategyStatsFile": "dec25_jan26_strategy_uplift_20260428_071034.csv",
-        "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
-        "filterVersion": "filters_20251210.json",
-        "dataCutoff": "2025-12-10",
-        "runTimestamp": "2026-04-28 07:11:01",
-        "signalDate": "2026-04-27"
-      }
-    },
-    {
-      "rank": 5,
       "ticker": "NBIS",
       "companyName": "Nebius Group N.V.",
       "tier": "B+",
@@ -989,10 +1006,10 @@
       },
       "decisionContext": {
         "today": {
-          "rank": 5,
-          "candidateCount": 18,
-          "topPercent": 28,
-          "todayScore": 78
+          "rank": 4,
+          "candidateCount": 25,
+          "topPercent": 16,
+          "todayScore": 88
         },
         "historical": {
           "windowDays": 365,
@@ -1026,7 +1043,7 @@
       },
       "provenance": {
         "sourceFile": "sample_predictions_with_tiers_20260427.csv",
-        "strategyStatsFile": "dec25_jan26_strategy_uplift_20260428_071034.csv",
+        "strategyStatsFile": "trades_master.duckdb",
         "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
         "filterVersion": "filters_20251210.json",
         "dataCutoff": "2025-12-10",
@@ -1035,7 +1052,7 @@
       }
     },
     {
-      "rank": 6,
+      "rank": 5,
       "ticker": "MRVL",
       "companyName": "Marvell Technology, Inc.",
       "tier": "B+",
@@ -1124,10 +1141,10 @@
       },
       "decisionContext": {
         "today": {
-          "rank": 6,
-          "candidateCount": 18,
-          "topPercent": 34,
-          "todayScore": 72
+          "rank": 5,
+          "candidateCount": 25,
+          "topPercent": 20,
+          "todayScore": 84
         },
         "historical": {
           "windowDays": 365,
@@ -1161,7 +1178,7 @@
       },
       "provenance": {
         "sourceFile": "sample_predictions_with_tiers_20260427.csv",
-        "strategyStatsFile": "dec25_jan26_strategy_uplift_20260428_071034.csv",
+        "strategyStatsFile": "trades_master.duckdb",
         "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
         "filterVersion": "filters_20251210.json",
         "dataCutoff": "2025-12-10",
@@ -1170,7 +1187,7 @@
       }
     },
     {
-      "rank": 7,
+      "rank": 6,
       "ticker": "MSTR",
       "companyName": "Strategy Inc",
       "tier": "B",
@@ -1255,10 +1272,10 @@
       },
       "decisionContext": {
         "today": {
-          "rank": 7,
-          "candidateCount": 18,
-          "topPercent": 39,
-          "todayScore": 67
+          "rank": 6,
+          "candidateCount": 25,
+          "topPercent": 24,
+          "todayScore": 80
         },
         "historical": {
           "windowDays": 365,
@@ -1292,7 +1309,7 @@
       },
       "provenance": {
         "sourceFile": "sample_predictions_with_tiers_20260427.csv",
-        "strategyStatsFile": "dec25_jan26_strategy_uplift_20260428_071034.csv",
+        "strategyStatsFile": "trades_master.duckdb",
         "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
         "filterVersion": "filters_20251210.json",
         "dataCutoff": "2025-12-10",
@@ -1301,7 +1318,7 @@
       }
     },
     {
-      "rank": 8,
+      "rank": 7,
       "ticker": "NVDA",
       "companyName": "NVIDIA Corporation",
       "tier": "B",
@@ -1384,10 +1401,10 @@
       },
       "decisionContext": {
         "today": {
-          "rank": 8,
-          "candidateCount": 18,
-          "topPercent": 45,
-          "todayScore": 61
+          "rank": 7,
+          "candidateCount": 25,
+          "topPercent": 29,
+          "todayScore": 76
         },
         "historical": {
           "windowDays": 365,
@@ -1421,7 +1438,7 @@
       },
       "provenance": {
         "sourceFile": "sample_predictions_with_tiers_20260427.csv",
-        "strategyStatsFile": "dec25_jan26_strategy_uplift_20260428_071034.csv",
+        "strategyStatsFile": "trades_master.duckdb",
         "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
         "filterVersion": "filters_20251210.json",
         "dataCutoff": "2025-12-10",
@@ -1430,7 +1447,7 @@
       }
     },
     {
-      "rank": 9,
+      "rank": 8,
       "ticker": "ARM",
       "companyName": "Arm Holdings plc",
       "tier": "B",
@@ -1515,10 +1532,10 @@
       },
       "decisionContext": {
         "today": {
-          "rank": 9,
-          "candidateCount": 18,
-          "topPercent": 50,
-          "todayScore": 56
+          "rank": 8,
+          "candidateCount": 25,
+          "topPercent": 32,
+          "todayScore": 72
         },
         "historical": {
           "windowDays": 365,
@@ -1552,7 +1569,7 @@
       },
       "provenance": {
         "sourceFile": "sample_predictions_with_tiers_20260427.csv",
-        "strategyStatsFile": "dec25_jan26_strategy_uplift_20260428_071034.csv",
+        "strategyStatsFile": "trades_master.duckdb",
         "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
         "filterVersion": "filters_20251210.json",
         "dataCutoff": "2025-12-10",
@@ -1561,7 +1578,7 @@
       }
     },
     {
-      "rank": 10,
+      "rank": 9,
       "ticker": "ALAB",
       "companyName": "Astera Labs, Inc.",
       "tier": "B",
@@ -1646,10 +1663,10 @@
       },
       "decisionContext": {
         "today": {
-          "rank": 10,
-          "candidateCount": 18,
-          "topPercent": 56,
-          "todayScore": 50
+          "rank": 9,
+          "candidateCount": 25,
+          "topPercent": 36,
+          "todayScore": 68
         },
         "historical": {
           "windowDays": 365,
@@ -1683,7 +1700,7 @@
       },
       "provenance": {
         "sourceFile": "sample_predictions_with_tiers_20260427.csv",
-        "strategyStatsFile": "dec25_jan26_strategy_uplift_20260428_071034.csv",
+        "strategyStatsFile": "trades_master.duckdb",
         "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
         "filterVersion": "filters_20251210.json",
         "dataCutoff": "2025-12-10",
@@ -1692,7 +1709,7 @@
       }
     },
     {
-      "rank": 11,
+      "rank": 10,
       "ticker": "LSCC",
       "companyName": "Lattice Semiconductor Corporation",
       "tier": "B",
@@ -1776,10 +1793,10 @@
       },
       "decisionContext": {
         "today": {
-          "rank": 11,
-          "candidateCount": 18,
-          "topPercent": 62,
-          "todayScore": 44
+          "rank": 10,
+          "candidateCount": 25,
+          "topPercent": 40,
+          "todayScore": 64
         },
         "historical": {
           "windowDays": 365,
@@ -1813,7 +1830,7 @@
       },
       "provenance": {
         "sourceFile": "sample_predictions_with_tiers_20260427.csv",
-        "strategyStatsFile": "dec25_jan26_strategy_uplift_20260428_071034.csv",
+        "strategyStatsFile": "trades_master.duckdb",
         "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
         "filterVersion": "filters_20251210.json",
         "dataCutoff": "2025-12-10",
@@ -1822,7 +1839,7 @@
       }
     },
     {
-      "rank": 12,
+      "rank": 11,
       "ticker": "SIMO",
       "companyName": "Silicon Motion Technology Corporation",
       "tier": "B",
@@ -1830,20 +1847,20 @@
       "optionType": "call",
       "signalStrength": "MODERATE",
       "contract": {
-        "optionSymbol": "O:SIMO260515C00160000",
-        "strike": 160,
+        "optionSymbol": "O:SIMO260515C00140000",
+        "strike": 140,
         "expiry": "2026-05-15",
         "dte": 18,
         "underlyingPrice": 147.54,
-        "distanceToStrikePct": 8.4,
-        "moneyness": "1.084",
-        "itmFlag": "OTM",
-        "strikePositionLabel": "OTM",
-        "strikePositionText": "8.4% above spot"
+        "distanceToStrikePct": -5.1,
+        "moneyness": "0.949",
+        "itmFlag": "ITM",
+        "strikePositionLabel": "ITM",
+        "strikePositionText": "5.1% below spot"
       },
       "market": {
-        "volume": 99,
-        "openInterest": 3992
+        "volume": 73,
+        "openInterest": 2428
       },
       "context": {
         "sector": "Technology",
@@ -1856,12 +1873,12 @@
         "breadth": 66
       },
       "scores": {
-        "adaptiveScoreFinal": 1.009,
-        "adaptiveScore": 0.859,
+        "adaptiveScoreFinal": 1.0,
+        "adaptiveScore": 0.85,
         "adaptiveRank": 0,
         "priorityScore": 0.138,
         "probCalibrated": 0.138,
-        "expectedValue": -1.875,
+        "expectedValue": -4.183,
         "evPct": -0.25,
         "rankScore": 0.238,
         "regimeAdj": 0.15,
@@ -1884,7 +1901,7 @@
         "failReason": "OK_BASE"
       },
       "risk": {
-        "midPrice": 7.5,
+        "midPrice": 16.73,
         "bidAskPct": null,
         "bidOk": true,
         "volumeOk": true,
@@ -1895,10 +1912,10 @@
       },
       "executionGuidance": {
         "favorable": [
-          "Sector/ETF backdrop supportive."
+          "Sector/ETF backdrop supportive.",
+          "ITM structure supports follow-through if trend holds."
         ],
         "caution": [
-          "OTM structure: avoid paying up if move is already extended.",
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
@@ -1907,23 +1924,23 @@
       },
       "decisionContext": {
         "today": {
-          "rank": 12,
-          "candidateCount": 18,
-          "topPercent": 67,
-          "todayScore": 39
+          "rank": 11,
+          "candidateCount": 25,
+          "topPercent": 44,
+          "todayScore": 60
         },
         "historical": {
           "windowDays": 365,
-          "sampleSize": 95,
-          "distinctTickerCount": 19,
-          "winRate": 77.9,
-          "avgRMultiple": 1.51,
+          "sampleSize": 19,
+          "distinctTickerCount": 1,
+          "winRate": 100.0,
+          "avgRMultiple": 3.27,
           "medianHoldDays": 8.0,
           "holdP25Days": 8.0,
-          "holdP75Days": 10.0,
-          "cohortLabel": "Technology CALLs, OTM",
-          "matchStrength": "broad",
-          "supportLabel": "Strong"
+          "holdP75Days": 9.0,
+          "cohortLabel": "Technology CALLs, ITM, 0-21 DTE, A-filtered",
+          "matchStrength": "tight",
+          "supportLabel": "Limited breadth"
         },
         "translation": "Broadly qualified, but not a priority versus cleaner names today.",
         "executionEdge": [
@@ -1937,14 +1954,14 @@
           "Skip if spread or liquidity deteriorates on the live chain."
         ],
         "expectation": {
-          "timeframe": "8-10 trading days",
+          "timeframe": "8-9 trading days",
           "baseCase": "Secondary setup unless the tape improves.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
       "provenance": {
         "sourceFile": "sample_predictions_with_tiers_20260427.csv",
-        "strategyStatsFile": "dec25_jan26_strategy_uplift_20260428_071034.csv",
+        "strategyStatsFile": "trades_master.duckdb",
         "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
         "filterVersion": "filters_20251210.json",
         "dataCutoff": "2025-12-10",
@@ -1953,138 +1970,7 @@
       }
     },
     {
-      "rank": 13,
-      "ticker": "TWLO",
-      "companyName": "Twilio Inc.",
-      "tier": "B",
-      "action": "PASS",
-      "optionType": "call",
-      "signalStrength": "WEAK",
-      "contract": {
-        "optionSymbol": "O:TWLO260515C00150000",
-        "strike": 150,
-        "expiry": "2026-05-15",
-        "dte": 18,
-        "underlyingPrice": 142.59,
-        "distanceToStrikePct": 5.2,
-        "moneyness": "1.052",
-        "itmFlag": "OTM",
-        "strikePositionLabel": "OTM",
-        "strikePositionText": "5.2% above spot"
-      },
-      "market": {
-        "volume": 56,
-        "openInterest": 1319
-      },
-      "context": {
-        "sector": "Technology",
-        "rsi": 62.0
-      },
-      "etfOverlay": {
-        "etf": "XLK",
-        "bias": "Bullish",
-        "winRate4d": 73.5,
-        "breadth": 66
-      },
-      "scores": {
-        "adaptiveScoreFinal": 0.984,
-        "adaptiveScore": 0.834,
-        "adaptiveRank": 0,
-        "priorityScore": 0.138,
-        "probCalibrated": 0.138,
-        "expectedValue": -2.44,
-        "evPct": -0.25,
-        "rankScore": 0.238,
-        "regimeAdj": 0.15,
-        "sectorScore": 2.0,
-        "rsiScore": 1.566
-      },
-      "classification": {
-        "predictedTierCal": "A",
-        "predictedTierRaw": "A",
-        "adaptiveTier": "A",
-        "filteredTier": "A",
-        "dteBucket": "0-21",
-        "vixBucket": "15-20"
-      },
-      "execution": {
-        "liveEligible": true,
-        "selected": false,
-        "aPlus": false,
-        "rankAlpha": null,
-        "failReason": "OK_BASE"
-      },
-      "risk": {
-        "midPrice": 9.76,
-        "bidAskPct": null,
-        "bidOk": true,
-        "volumeOk": true,
-        "dteOk": true,
-        "spyTrendOk": true,
-        "liquidityOk": true,
-        "openInterestOk": true
-      },
-      "executionGuidance": {
-        "favorable": [
-          "Sector/ETF backdrop supportive."
-        ],
-        "caution": [
-          "OTM structure: avoid paying up if move is already extended.",
-          "Short duration: time decay risk is higher."
-        ],
-        "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
-        ]
-      },
-      "decisionContext": {
-        "today": {
-          "rank": 13,
-          "candidateCount": 18,
-          "topPercent": 73,
-          "todayScore": 33
-        },
-        "historical": {
-          "windowDays": 365,
-          "sampleSize": 95,
-          "distinctTickerCount": 19,
-          "winRate": 77.9,
-          "avgRMultiple": 1.51,
-          "medianHoldDays": 8.0,
-          "holdP25Days": 8.0,
-          "holdP75Days": 10.0,
-          "cohortLabel": "Technology CALLs, OTM",
-          "matchStrength": "broad",
-          "supportLabel": "Strong"
-        },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
-        "executionEdge": [
-          "Spread and liquidity snapshot support cleaner fills.",
-          "XLK overlay: 73.5% recent hit rate across 66 names.",
-          "Sector ranks #1 in today's conviction map."
-        ],
-        "invalidation": [
-          "Skip if price moves more than 2% above the snapshot before entry.",
-          "Skip if RSI pushes into the 68-70 rejection zone before entry.",
-          "Skip if spread or liquidity deteriorates on the live chain."
-        ],
-        "expectation": {
-          "timeframe": "8-10 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
-          "risk": "Time decay becomes the main risk if price chops sideways."
-        }
-      },
-      "provenance": {
-        "sourceFile": "sample_predictions_with_tiers_20260427.csv",
-        "strategyStatsFile": "dec25_jan26_strategy_uplift_20260428_071034.csv",
-        "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
-        "filterVersion": "filters_20251210.json",
-        "dataCutoff": "2025-12-10",
-        "runTimestamp": "2026-04-28 07:11:01",
-        "signalDate": "2026-04-27"
-      }
-    },
-    {
-      "rank": 14,
+      "rank": 12,
       "ticker": "ORCL",
       "companyName": "Oracle Corporation",
       "tier": "B",
@@ -2168,10 +2054,10 @@
       },
       "decisionContext": {
         "today": {
-          "rank": 14,
-          "candidateCount": 18,
-          "topPercent": 78,
-          "todayScore": 28
+          "rank": 12,
+          "candidateCount": 25,
+          "topPercent": 48,
+          "todayScore": 56
         },
         "historical": {
           "windowDays": 365,
@@ -2205,7 +2091,7 @@
       },
       "provenance": {
         "sourceFile": "sample_predictions_with_tiers_20260427.csv",
-        "strategyStatsFile": "dec25_jan26_strategy_uplift_20260428_071034.csv",
+        "strategyStatsFile": "trades_master.duckdb",
         "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
         "filterVersion": "filters_20251210.json",
         "dataCutoff": "2025-12-10",
@@ -2214,7 +2100,7 @@
       }
     },
     {
-      "rank": 15,
+      "rank": 13,
       "ticker": "DVA",
       "companyName": "DaVita Inc.",
       "tier": "B",
@@ -2297,10 +2183,10 @@
       },
       "decisionContext": {
         "today": {
-          "rank": 15,
-          "candidateCount": 18,
-          "topPercent": 84,
-          "todayScore": 22
+          "rank": 13,
+          "candidateCount": 25,
+          "topPercent": 52,
+          "todayScore": 52
         },
         "historical": {
           "windowDays": 365,
@@ -2334,7 +2220,7 @@
       },
       "provenance": {
         "sourceFile": "sample_predictions_with_tiers_20260427.csv",
-        "strategyStatsFile": "dec25_jan26_strategy_uplift_20260428_071034.csv",
+        "strategyStatsFile": "trades_master.duckdb",
         "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
         "filterVersion": "filters_20251210.json",
         "dataCutoff": "2025-12-10",
@@ -2343,7 +2229,7 @@
       }
     },
     {
-      "rank": 16,
+      "rank": 14,
       "ticker": "ANET",
       "companyName": "Arista Networks, Inc.",
       "tier": "B",
@@ -2428,10 +2314,10 @@
       },
       "decisionContext": {
         "today": {
-          "rank": 16,
-          "candidateCount": 18,
-          "topPercent": 89,
-          "todayScore": 17
+          "rank": 14,
+          "candidateCount": 25,
+          "topPercent": 57,
+          "todayScore": 48
         },
         "historical": {
           "windowDays": 365,
@@ -2465,7 +2351,7 @@
       },
       "provenance": {
         "sourceFile": "sample_predictions_with_tiers_20260427.csv",
-        "strategyStatsFile": "dec25_jan26_strategy_uplift_20260428_071034.csv",
+        "strategyStatsFile": "trades_master.duckdb",
         "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
         "filterVersion": "filters_20251210.json",
         "dataCutoff": "2025-12-10",
@@ -2474,7 +2360,137 @@
       }
     },
     {
-      "rank": 17,
+      "rank": 15,
+      "ticker": "NEM",
+      "companyName": "Newmont Corporation",
+      "tier": "B",
+      "action": "PASS",
+      "optionType": "call",
+      "signalStrength": "WEAK",
+      "contract": {
+        "optionSymbol": "O:NEM260618C00105000",
+        "strike": 105,
+        "expiry": "2026-06-18",
+        "dte": 52,
+        "underlyingPrice": 116.08,
+        "distanceToStrikePct": -9.5,
+        "moneyness": "0.905",
+        "itmFlag": "ITM",
+        "strikePositionLabel": "ITM",
+        "strikePositionText": "9.5% below spot"
+      },
+      "market": {
+        "volume": 177,
+        "openInterest": 2312
+      },
+      "context": {
+        "sector": "Basic Materials",
+        "rsi": 50.5
+      },
+      "etfOverlay": {
+        "etf": "XLB",
+        "bias": "No overlay",
+        "winRate4d": null,
+        "breadth": null
+      },
+      "scores": {
+        "adaptiveScoreFinal": 0.966,
+        "adaptiveScore": 1.016,
+        "adaptiveRank": 0,
+        "priorityScore": 0.138,
+        "probCalibrated": 0.138,
+        "expectedValue": -4.42,
+        "evPct": -0.25,
+        "rankScore": 0.0,
+        "regimeAdj": -0.05,
+        "sectorScore": -0.576,
+        "rsiScore": 0.213
+      },
+      "classification": {
+        "predictedTierCal": "A",
+        "predictedTierRaw": "A",
+        "adaptiveTier": "A",
+        "filteredTier": "A",
+        "dteBucket": "45-60",
+        "vixBucket": "15-20"
+      },
+      "execution": {
+        "liveEligible": false,
+        "selected": false,
+        "aPlus": false,
+        "rankAlpha": null,
+        "failReason": "NOT_AcapAprime"
+      },
+      "risk": {
+        "midPrice": 17.68,
+        "bidAskPct": null,
+        "bidOk": true,
+        "volumeOk": true,
+        "dteOk": false,
+        "spyTrendOk": true,
+        "liquidityOk": true,
+        "openInterestOk": true
+      },
+      "executionGuidance": {
+        "favorable": [
+          "ITM structure supports follow-through if trend holds."
+        ],
+        "caution": [
+          "No live sector overlay; use price action to confirm."
+        ],
+        "unfavorable": [
+          "Behind stronger names today; only revisit if conditions improve."
+        ]
+      },
+      "decisionContext": {
+        "today": {
+          "rank": 15,
+          "candidateCount": 25,
+          "topPercent": 60,
+          "todayScore": 44
+        },
+        "historical": {
+          "windowDays": 365,
+          "sampleSize": 28,
+          "distinctTickerCount": 4,
+          "winRate": 21.4,
+          "avgRMultiple": -0.21,
+          "medianHoldDays": 8.0,
+          "holdP25Days": 8.0,
+          "holdP75Days": 8.5,
+          "cohortLabel": "Basic Materials CALLs",
+          "matchStrength": "sector",
+          "supportLabel": "Weak"
+        },
+        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "executionEdge": [
+          "Spread and liquidity snapshot support cleaner fills.",
+          "No live sector overlay, so price action matters more than backdrop.",
+          "RSI 50.5 stays below the late-extension zone."
+        ],
+        "invalidation": [
+          "Skip if price moves more than 3% above the snapshot before entry.",
+          "Skip if RSI pushes into the 68-70 rejection zone before entry.",
+          "Skip if spread or liquidity deteriorates on the live chain."
+        ],
+        "expectation": {
+          "timeframe": "8 trading days",
+          "baseCase": "Secondary setup unless the tape improves.",
+          "risk": "The edge weakens if momentum cools and sector support fades."
+        }
+      },
+      "provenance": {
+        "sourceFile": "sample_predictions_with_tiers_20260427.csv",
+        "strategyStatsFile": "trades_master.duckdb",
+        "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
+        "filterVersion": "filters_20251210.json",
+        "dataCutoff": "2025-12-10",
+        "runTimestamp": "2026-04-28 07:11:01",
+        "signalDate": "2026-04-27"
+      }
+    },
+    {
+      "rank": 16,
       "ticker": "LRCX",
       "companyName": "Lam Research Corporation",
       "tier": "B",
@@ -2558,10 +2574,10 @@
       },
       "decisionContext": {
         "today": {
-          "rank": 17,
-          "candidateCount": 18,
-          "topPercent": 95,
-          "todayScore": 11
+          "rank": 16,
+          "candidateCount": 25,
+          "topPercent": 64,
+          "todayScore": 40
         },
         "historical": {
           "windowDays": 365,
@@ -2595,7 +2611,7 @@
       },
       "provenance": {
         "sourceFile": "sample_predictions_with_tiers_20260427.csv",
-        "strategyStatsFile": "dec25_jan26_strategy_uplift_20260428_071034.csv",
+        "strategyStatsFile": "trades_master.duckdb",
         "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
         "filterVersion": "filters_20251210.json",
         "dataCutoff": "2025-12-10",
@@ -2604,7 +2620,7 @@
       }
     },
     {
-      "rank": 18,
+      "rank": 17,
       "ticker": "NXPI",
       "companyName": "NXP Semiconductors N.V.",
       "tier": "B",
@@ -2688,10 +2704,10 @@
       },
       "decisionContext": {
         "today": {
-          "rank": 18,
-          "candidateCount": 18,
-          "topPercent": 100,
-          "todayScore": 6
+          "rank": 17,
+          "candidateCount": 25,
+          "topPercent": 68,
+          "todayScore": 36
         },
         "historical": {
           "windowDays": 365,
@@ -2725,7 +2741,1043 @@
       },
       "provenance": {
         "sourceFile": "sample_predictions_with_tiers_20260427.csv",
-        "strategyStatsFile": "dec25_jan26_strategy_uplift_20260428_071034.csv",
+        "strategyStatsFile": "trades_master.duckdb",
+        "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
+        "filterVersion": "filters_20251210.json",
+        "dataCutoff": "2025-12-10",
+        "runTimestamp": "2026-04-28 07:11:01",
+        "signalDate": "2026-04-27"
+      }
+    },
+    {
+      "rank": 18,
+      "ticker": "DDOG",
+      "companyName": "Datadog, Inc.",
+      "tier": "B",
+      "action": "PASS",
+      "optionType": "call",
+      "signalStrength": "WEAK",
+      "contract": {
+        "optionSymbol": "O:DDOG260508C00140000",
+        "strike": 140,
+        "expiry": "2026-05-08",
+        "dte": 11,
+        "underlyingPrice": 132.66,
+        "distanceToStrikePct": 5.5,
+        "moneyness": "1.055",
+        "itmFlag": "OTM",
+        "strikePositionLabel": "OTM",
+        "strikePositionText": "5.5% above spot"
+      },
+      "market": {
+        "volume": 1420,
+        "openInterest": 3535
+      },
+      "context": {
+        "sector": "Technology",
+        "rsi": 55.5
+      },
+      "etfOverlay": {
+        "etf": "XLK",
+        "bias": "Bullish",
+        "winRate4d": 73.5,
+        "breadth": 66
+      },
+      "scores": {
+        "adaptiveScoreFinal": 0.855,
+        "adaptiveScore": 0.705,
+        "adaptiveRank": 0,
+        "priorityScore": 0.137,
+        "probCalibrated": 0.137,
+        "expectedValue": -1.875,
+        "evPct": -0.25,
+        "rankScore": 0.0,
+        "regimeAdj": 0.15,
+        "sectorScore": 2.0,
+        "rsiScore": 0.213
+      },
+      "classification": {
+        "predictedTierCal": "A",
+        "predictedTierRaw": "A",
+        "adaptiveTier": "B",
+        "filteredTier": "A",
+        "dteBucket": "0-21",
+        "vixBucket": "15-20"
+      },
+      "execution": {
+        "liveEligible": false,
+        "selected": false,
+        "aPlus": false,
+        "rankAlpha": null,
+        "failReason": "NOT_AcapAprime"
+      },
+      "risk": {
+        "midPrice": 7.5,
+        "bidAskPct": null,
+        "bidOk": true,
+        "volumeOk": true,
+        "dteOk": false,
+        "spyTrendOk": true,
+        "liquidityOk": true,
+        "openInterestOk": true
+      },
+      "executionGuidance": {
+        "favorable": [
+          "Sector/ETF backdrop supportive."
+        ],
+        "caution": [
+          "OTM structure: avoid paying up if move is already extended.",
+          "Short duration: time decay risk is higher."
+        ],
+        "unfavorable": [
+          "Behind stronger names today; only revisit if conditions improve."
+        ]
+      },
+      "decisionContext": {
+        "today": {
+          "rank": 18,
+          "candidateCount": 25,
+          "topPercent": 72,
+          "todayScore": 32
+        },
+        "historical": {
+          "windowDays": 365,
+          "sampleSize": 95,
+          "distinctTickerCount": 19,
+          "winRate": 77.9,
+          "avgRMultiple": 1.51,
+          "medianHoldDays": 8.0,
+          "holdP25Days": 8.0,
+          "holdP75Days": 10.0,
+          "cohortLabel": "Technology CALLs, OTM",
+          "matchStrength": "broad",
+          "supportLabel": "Strong"
+        },
+        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "executionEdge": [
+          "Spread and liquidity snapshot support cleaner fills.",
+          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "Sector ranks #1 in today's conviction map."
+        ],
+        "invalidation": [
+          "Skip if price moves more than 2% above the snapshot before entry.",
+          "Skip if RSI pushes into the 68-70 rejection zone before entry.",
+          "Skip if spread or liquidity deteriorates on the live chain."
+        ],
+        "expectation": {
+          "timeframe": "8-10 trading days",
+          "baseCase": "Secondary setup unless the tape improves.",
+          "risk": "Time decay becomes the main risk if price chops sideways."
+        }
+      },
+      "provenance": {
+        "sourceFile": "sample_predictions_with_tiers_20260427.csv",
+        "strategyStatsFile": "trades_master.duckdb",
+        "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
+        "filterVersion": "filters_20251210.json",
+        "dataCutoff": "2025-12-10",
+        "runTimestamp": "2026-04-28 07:11:01",
+        "signalDate": "2026-04-27"
+      }
+    },
+    {
+      "rank": 19,
+      "ticker": "QCOM",
+      "companyName": "QUALCOMM Incorporated",
+      "tier": "B",
+      "action": "PASS",
+      "optionType": "call",
+      "signalStrength": "WEAK",
+      "contract": {
+        "optionSymbol": "O:QCOM260515C00150000",
+        "strike": 150,
+        "expiry": "2026-05-15",
+        "dte": 18,
+        "underlyingPrice": 150.26,
+        "distanceToStrikePct": -0.2,
+        "moneyness": "0.998",
+        "itmFlag": "ATM",
+        "strikePositionLabel": "ATM",
+        "strikePositionText": "At spot"
+      },
+      "market": {
+        "volume": 978,
+        "openInterest": 6117
+      },
+      "context": {
+        "sector": "Technology",
+        "rsi": 57.3
+      },
+      "etfOverlay": {
+        "etf": "XLK",
+        "bias": "Bullish",
+        "winRate4d": 73.5,
+        "breadth": 66
+      },
+      "scores": {
+        "adaptiveScoreFinal": 0.819,
+        "adaptiveScore": 0.669,
+        "adaptiveRank": 0,
+        "priorityScore": 0.138,
+        "probCalibrated": 0.138,
+        "expectedValue": -2.223,
+        "evPct": -0.25,
+        "rankScore": 0.24,
+        "regimeAdj": 0.15,
+        "sectorScore": 2.0,
+        "rsiScore": 0.213
+      },
+      "classification": {
+        "predictedTierCal": "A",
+        "predictedTierRaw": "A",
+        "adaptiveTier": "B",
+        "filteredTier": "A",
+        "dteBucket": "0-21",
+        "vixBucket": "15-20"
+      },
+      "execution": {
+        "liveEligible": true,
+        "selected": false,
+        "aPlus": false,
+        "rankAlpha": false,
+        "failReason": "OK_BASE"
+      },
+      "risk": {
+        "midPrice": 8.89,
+        "bidAskPct": null,
+        "bidOk": true,
+        "volumeOk": true,
+        "dteOk": true,
+        "spyTrendOk": true,
+        "liquidityOk": true,
+        "openInterestOk": true
+      },
+      "executionGuidance": {
+        "favorable": [
+          "Sector/ETF backdrop supportive."
+        ],
+        "caution": [
+          "Short duration: time decay risk is higher."
+        ],
+        "unfavorable": [
+          "Behind stronger names today; only revisit if conditions improve."
+        ]
+      },
+      "decisionContext": {
+        "today": {
+          "rank": 19,
+          "candidateCount": 25,
+          "topPercent": 76,
+          "todayScore": 28
+        },
+        "historical": {
+          "windowDays": 365,
+          "sampleSize": 39,
+          "distinctTickerCount": 4,
+          "winRate": 100.0,
+          "avgRMultiple": 2.52,
+          "medianHoldDays": 8.0,
+          "holdP25Days": 8.0,
+          "holdP75Days": 10.0,
+          "cohortLabel": "Technology CALLs, ATM, 0-21 DTE, A-filtered",
+          "matchStrength": "tight",
+          "supportLabel": "Strong"
+        },
+        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "executionEdge": [
+          "Spread and liquidity snapshot support cleaner fills.",
+          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "Sector ranks #1 in today's conviction map."
+        ],
+        "invalidation": [
+          "Skip if price moves more than 2% above the snapshot before entry.",
+          "Skip if RSI pushes into the 68-70 rejection zone before entry.",
+          "Skip if spread or liquidity deteriorates on the live chain."
+        ],
+        "expectation": {
+          "timeframe": "8-10 trading days",
+          "baseCase": "Secondary setup unless the tape improves.",
+          "risk": "Time decay becomes the main risk if price chops sideways."
+        }
+      },
+      "provenance": {
+        "sourceFile": "sample_predictions_with_tiers_20260427.csv",
+        "strategyStatsFile": "trades_master.duckdb",
+        "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
+        "filterVersion": "filters_20251210.json",
+        "dataCutoff": "2025-12-10",
+        "runTimestamp": "2026-04-28 07:11:01",
+        "signalDate": "2026-04-27"
+      }
+    },
+    {
+      "rank": 20,
+      "ticker": "PLTR",
+      "companyName": "Palantir Technologies Inc.",
+      "tier": "B",
+      "action": "PASS",
+      "optionType": "call",
+      "signalStrength": "WEAK",
+      "contract": {
+        "optionSymbol": "O:PLTR260529C00145000",
+        "strike": 145,
+        "expiry": "2026-05-29",
+        "dte": 32,
+        "underlyingPrice": 143.1,
+        "distanceToStrikePct": 1.3,
+        "moneyness": "1.013",
+        "itmFlag": "ATM",
+        "strikePositionLabel": "ATM",
+        "strikePositionText": "1.3% above spot"
+      },
+      "market": {
+        "volume": 212,
+        "openInterest": 2064
+      },
+      "context": {
+        "sector": "Technology",
+        "rsi": 48.9
+      },
+      "etfOverlay": {
+        "etf": "XLK",
+        "bias": "Bullish",
+        "winRate4d": 73.5,
+        "breadth": 66
+      },
+      "scores": {
+        "adaptiveScoreFinal": 0.759,
+        "adaptiveScore": 0.559,
+        "adaptiveRank": 0,
+        "priorityScore": 0.138,
+        "probCalibrated": 0.138,
+        "expectedValue": -2.8,
+        "evPct": -0.25,
+        "rankScore": 0.204,
+        "regimeAdj": 0.2,
+        "sectorScore": 2.0,
+        "rsiScore": -0.507
+      },
+      "classification": {
+        "predictedTierCal": "A",
+        "predictedTierRaw": "A",
+        "adaptiveTier": "B",
+        "filteredTier": "A",
+        "dteBucket": "30-45",
+        "vixBucket": "15-20"
+      },
+      "execution": {
+        "liveEligible": true,
+        "selected": false,
+        "aPlus": false,
+        "rankAlpha": null,
+        "failReason": "OK_BASE"
+      },
+      "risk": {
+        "midPrice": 11.2,
+        "bidAskPct": null,
+        "bidOk": true,
+        "volumeOk": true,
+        "dteOk": true,
+        "spyTrendOk": true,
+        "liquidityOk": true,
+        "openInterestOk": true
+      },
+      "executionGuidance": {
+        "favorable": [
+          "Sector/ETF backdrop supportive."
+        ],
+        "caution": [],
+        "unfavorable": [
+          "Behind stronger names today; only revisit if conditions improve."
+        ]
+      },
+      "decisionContext": {
+        "today": {
+          "rank": 20,
+          "candidateCount": 25,
+          "topPercent": 80,
+          "todayScore": 24
+        },
+        "historical": {
+          "windowDays": 365,
+          "sampleSize": 153,
+          "distinctTickerCount": 14,
+          "winRate": 95.4,
+          "avgRMultiple": 1.65,
+          "medianHoldDays": 8.0,
+          "holdP25Days": 8.0,
+          "holdP75Days": 10.0,
+          "cohortLabel": "Technology CALLs, ATM, 22-45 DTE, A-filtered",
+          "matchStrength": "tight",
+          "supportLabel": "Strong"
+        },
+        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "executionEdge": [
+          "Spread and liquidity snapshot support cleaner fills.",
+          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "Sector ranks #1 in today's conviction map."
+        ],
+        "invalidation": [
+          "Skip if price moves more than 3% above the snapshot before entry.",
+          "Skip if RSI pushes into the 68-70 rejection zone before entry.",
+          "Skip if spread or liquidity deteriorates on the live chain."
+        ],
+        "expectation": {
+          "timeframe": "8-10 trading days",
+          "baseCase": "Secondary setup unless the tape improves.",
+          "risk": "The edge weakens if momentum cools and sector support fades."
+        }
+      },
+      "provenance": {
+        "sourceFile": "sample_predictions_with_tiers_20260427.csv",
+        "strategyStatsFile": "trades_master.duckdb",
+        "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
+        "filterVersion": "filters_20251210.json",
+        "dataCutoff": "2025-12-10",
+        "runTimestamp": "2026-04-28 07:11:01",
+        "signalDate": "2026-04-27"
+      }
+    },
+    {
+      "rank": 21,
+      "ticker": "NET",
+      "companyName": "Cloudflare, Inc.",
+      "tier": "B",
+      "action": "PASS",
+      "optionType": "call",
+      "signalStrength": "WEAK",
+      "contract": {
+        "optionSymbol": "O:NET260515C00220000",
+        "strike": 220,
+        "expiry": "2026-05-15",
+        "dte": 18,
+        "underlyingPrice": 212.36,
+        "distanceToStrikePct": 3.6,
+        "moneyness": "1.036",
+        "itmFlag": "ATM",
+        "strikePositionLabel": "ATM",
+        "strikePositionText": "3.6% above spot"
+      },
+      "market": {
+        "volume": 149,
+        "openInterest": 3924
+      },
+      "context": {
+        "sector": "Technology",
+        "rsi": 49.6
+      },
+      "etfOverlay": {
+        "etf": "XLK",
+        "bias": "Bullish",
+        "winRate4d": 73.5,
+        "breadth": 66
+      },
+      "scores": {
+        "adaptiveScoreFinal": 0.758,
+        "adaptiveScore": 0.608,
+        "adaptiveRank": 0,
+        "priorityScore": 0.138,
+        "probCalibrated": 0.138,
+        "expectedValue": -3.947,
+        "evPct": -0.25,
+        "rankScore": 0.238,
+        "regimeAdj": 0.15,
+        "sectorScore": 2.0,
+        "rsiScore": -0.507
+      },
+      "classification": {
+        "predictedTierCal": "A",
+        "predictedTierRaw": "A",
+        "adaptiveTier": "B",
+        "filteredTier": "A",
+        "dteBucket": "0-21",
+        "vixBucket": "15-20"
+      },
+      "execution": {
+        "liveEligible": true,
+        "selected": false,
+        "aPlus": false,
+        "rankAlpha": null,
+        "failReason": "OK_BASE"
+      },
+      "risk": {
+        "midPrice": 15.79,
+        "bidAskPct": null,
+        "bidOk": true,
+        "volumeOk": true,
+        "dteOk": true,
+        "spyTrendOk": true,
+        "liquidityOk": true,
+        "openInterestOk": true
+      },
+      "executionGuidance": {
+        "favorable": [
+          "Sector/ETF backdrop supportive."
+        ],
+        "caution": [
+          "Short duration: time decay risk is higher."
+        ],
+        "unfavorable": [
+          "Behind stronger names today; only revisit if conditions improve."
+        ]
+      },
+      "decisionContext": {
+        "today": {
+          "rank": 21,
+          "candidateCount": 25,
+          "topPercent": 84,
+          "todayScore": 20
+        },
+        "historical": {
+          "windowDays": 365,
+          "sampleSize": 39,
+          "distinctTickerCount": 4,
+          "winRate": 100.0,
+          "avgRMultiple": 2.52,
+          "medianHoldDays": 8.0,
+          "holdP25Days": 8.0,
+          "holdP75Days": 10.0,
+          "cohortLabel": "Technology CALLs, ATM, 0-21 DTE, A-filtered",
+          "matchStrength": "tight",
+          "supportLabel": "Strong"
+        },
+        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "executionEdge": [
+          "Spread and liquidity snapshot support cleaner fills.",
+          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "Sector ranks #1 in today's conviction map."
+        ],
+        "invalidation": [
+          "Skip if price moves more than 2% above the snapshot before entry.",
+          "Skip if RSI pushes into the 68-70 rejection zone before entry.",
+          "Skip if spread or liquidity deteriorates on the live chain."
+        ],
+        "expectation": {
+          "timeframe": "8-10 trading days",
+          "baseCase": "Secondary setup unless the tape improves.",
+          "risk": "Time decay becomes the main risk if price chops sideways."
+        }
+      },
+      "provenance": {
+        "sourceFile": "sample_predictions_with_tiers_20260427.csv",
+        "strategyStatsFile": "trades_master.duckdb",
+        "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
+        "filterVersion": "filters_20251210.json",
+        "dataCutoff": "2025-12-10",
+        "runTimestamp": "2026-04-28 07:11:01",
+        "signalDate": "2026-04-27"
+      }
+    },
+    {
+      "rank": 22,
+      "ticker": "RDDT",
+      "companyName": "Reddit, Inc.",
+      "tier": "B",
+      "action": "PASS",
+      "optionType": "call",
+      "signalStrength": "WEAK",
+      "contract": {
+        "optionSymbol": "O:RDDT260515C00160000",
+        "strike": 160,
+        "expiry": "2026-05-15",
+        "dte": 18,
+        "underlyingPrice": 160.21,
+        "distanceToStrikePct": -0.1,
+        "moneyness": "0.999",
+        "itmFlag": "ATM",
+        "strikePositionLabel": "ATM",
+        "strikePositionText": "At spot"
+      },
+      "market": {
+        "volume": 62,
+        "openInterest": 855
+      },
+      "context": {
+        "sector": "Communication Services",
+        "rsi": 65.6
+      },
+      "etfOverlay": {
+        "etf": "XLC",
+        "bias": "No overlay",
+        "winRate4d": null,
+        "breadth": null
+      },
+      "scores": {
+        "adaptiveScoreFinal": 0.756,
+        "adaptiveScore": 0.606,
+        "adaptiveRank": 0,
+        "priorityScore": 0.138,
+        "probCalibrated": 0.138,
+        "expectedValue": -4.043,
+        "evPct": -0.25,
+        "rankScore": 0.238,
+        "regimeAdj": 0.15,
+        "sectorScore": -0.738,
+        "rsiScore": 1.566
+      },
+      "classification": {
+        "predictedTierCal": "A",
+        "predictedTierRaw": "A",
+        "adaptiveTier": "B",
+        "filteredTier": "A",
+        "dteBucket": "0-21",
+        "vixBucket": "15-20"
+      },
+      "execution": {
+        "liveEligible": true,
+        "selected": false,
+        "aPlus": false,
+        "rankAlpha": null,
+        "failReason": "OK_BASE"
+      },
+      "risk": {
+        "midPrice": 16.17,
+        "bidAskPct": null,
+        "bidOk": true,
+        "volumeOk": true,
+        "dteOk": true,
+        "spyTrendOk": true,
+        "liquidityOk": true,
+        "openInterestOk": true
+      },
+      "executionGuidance": {
+        "favorable": [],
+        "caution": [
+          "No live sector overlay; use price action to confirm.",
+          "Short duration: time decay risk is higher."
+        ],
+        "unfavorable": [
+          "Behind stronger names today; only revisit if conditions improve."
+        ]
+      },
+      "decisionContext": {
+        "today": {
+          "rank": 22,
+          "candidateCount": 25,
+          "topPercent": 88,
+          "todayScore": 16
+        },
+        "historical": {
+          "windowDays": 365,
+          "sampleSize": 58,
+          "distinctTickerCount": 4,
+          "winRate": 43.1,
+          "avgRMultiple": 0.31,
+          "medianHoldDays": 8.0,
+          "holdP25Days": 8.0,
+          "holdP75Days": 10.0,
+          "cohortLabel": "Communication Services CALLs, ATM",
+          "matchStrength": "broad",
+          "supportLabel": "Weak"
+        },
+        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "executionEdge": [
+          "Spread and liquidity snapshot support cleaner fills.",
+          "No live sector overlay, so price action matters more than backdrop.",
+          "Sector ranks #3 in today's conviction map."
+        ],
+        "invalidation": [
+          "Skip if price moves more than 2% above the snapshot before entry.",
+          "Skip if RSI pushes into the 68-70 rejection zone before entry.",
+          "Skip if spread or liquidity deteriorates on the live chain."
+        ],
+        "expectation": {
+          "timeframe": "8-10 trading days",
+          "baseCase": "Secondary setup unless the tape improves.",
+          "risk": "Time decay becomes the main risk if price chops sideways."
+        }
+      },
+      "provenance": {
+        "sourceFile": "sample_predictions_with_tiers_20260427.csv",
+        "strategyStatsFile": "trades_master.duckdb",
+        "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
+        "filterVersion": "filters_20251210.json",
+        "dataCutoff": "2025-12-10",
+        "runTimestamp": "2026-04-28 07:11:01",
+        "signalDate": "2026-04-27"
+      }
+    },
+    {
+      "rank": 23,
+      "ticker": "CRWV",
+      "companyName": "CoreWeave, Inc.",
+      "tier": "B",
+      "action": "PASS",
+      "optionType": "call",
+      "signalStrength": "WEAK",
+      "contract": {
+        "optionSymbol": "O:CRWV260515C00115000",
+        "strike": 115,
+        "expiry": "2026-05-15",
+        "dte": 18,
+        "underlyingPrice": 112.06,
+        "distanceToStrikePct": 2.6,
+        "moneyness": "1.026",
+        "itmFlag": "ATM",
+        "strikePositionLabel": "ATM",
+        "strikePositionText": "2.6% above spot"
+      },
+      "market": {
+        "volume": 273,
+        "openInterest": 21995
+      },
+      "context": {
+        "sector": null,
+        "rsi": 75.1
+      },
+      "etfOverlay": {
+        "etf": "N/A",
+        "bias": "Neutral",
+        "winRate4d": null,
+        "breadth": null
+      },
+      "scores": {
+        "adaptiveScoreFinal": 0.755,
+        "adaptiveScore": 0.705,
+        "adaptiveRank": 0,
+        "priorityScore": 0.137,
+        "probCalibrated": 0.137,
+        "expectedValue": -3.123,
+        "evPct": -0.25,
+        "rankScore": 0.238,
+        "regimeAdj": 0.05,
+        "sectorScore": 0.0,
+        "rsiScore": -0.168
+      },
+      "classification": {
+        "predictedTierCal": "A",
+        "predictedTierRaw": "A",
+        "adaptiveTier": "B",
+        "filteredTier": "A",
+        "dteBucket": "0-21",
+        "vixBucket": "15-20"
+      },
+      "execution": {
+        "liveEligible": true,
+        "selected": false,
+        "aPlus": false,
+        "rankAlpha": null,
+        "failReason": "OK_BASE"
+      },
+      "risk": {
+        "midPrice": 12.49,
+        "bidAskPct": null,
+        "bidOk": true,
+        "volumeOk": true,
+        "dteOk": true,
+        "spyTrendOk": true,
+        "liquidityOk": true,
+        "openInterestOk": true
+      },
+      "executionGuidance": {
+        "favorable": [],
+        "caution": [
+          "Momentum extended; avoid chasing strength.",
+          "Short duration: time decay risk is higher."
+        ],
+        "unfavorable": [
+          "Behind stronger names today; only revisit if conditions improve."
+        ]
+      },
+      "decisionContext": {
+        "today": {
+          "rank": 23,
+          "candidateCount": 25,
+          "topPercent": 92,
+          "todayScore": 12
+        },
+        "historical": {
+          "windowDays": 365,
+          "sampleSize": null,
+          "distinctTickerCount": null,
+          "winRate": null,
+          "avgRMultiple": null,
+          "medianHoldDays": null,
+          "holdP25Days": null,
+          "holdP75Days": null,
+          "cohortLabel": null,
+          "matchStrength": "none",
+          "supportLabel": "Limited"
+        },
+        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "executionEdge": [
+          "Spread and liquidity snapshot support cleaner fills.",
+          "RSI 75.1 is elevated, so timing needs more care."
+        ],
+        "invalidation": [
+          "Skip if price moves more than 2% above the snapshot before entry.",
+          "Skip if momentum extends further without a reset.",
+          "Skip if spread or liquidity deteriorates on the live chain."
+        ],
+        "expectation": {
+          "timeframe": "3-7 trading days",
+          "baseCase": "Secondary setup unless the tape improves.",
+          "risk": "Time decay becomes the main risk if price chops sideways."
+        }
+      },
+      "provenance": {
+        "sourceFile": "sample_predictions_with_tiers_20260427.csv",
+        "strategyStatsFile": "trades_master.duckdb",
+        "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
+        "filterVersion": "filters_20251210.json",
+        "dataCutoff": "2025-12-10",
+        "runTimestamp": "2026-04-28 07:11:01",
+        "signalDate": "2026-04-27"
+      }
+    },
+    {
+      "rank": 24,
+      "ticker": "ADBE",
+      "companyName": "Adobe Inc.",
+      "tier": "B",
+      "action": "PASS",
+      "optionType": "call",
+      "signalStrength": "WEAK",
+      "contract": {
+        "optionSymbol": "O:ADBE260515C00245000",
+        "strike": 245,
+        "expiry": "2026-05-15",
+        "dte": 18,
+        "underlyingPrice": 239.31,
+        "distanceToStrikePct": 2.4,
+        "moneyness": "1.024",
+        "itmFlag": "ATM",
+        "strikePositionLabel": "ATM",
+        "strikePositionText": "2.4% above spot"
+      },
+      "market": {
+        "volume": 651,
+        "openInterest": 827
+      },
+      "context": {
+        "sector": "Technology",
+        "rsi": 51.3
+      },
+      "etfOverlay": {
+        "etf": "XLK",
+        "bias": "Bullish",
+        "winRate4d": 73.5,
+        "breadth": 66
+      },
+      "scores": {
+        "adaptiveScoreFinal": 0.748,
+        "adaptiveScore": 0.598,
+        "adaptiveRank": 0,
+        "priorityScore": 0.138,
+        "probCalibrated": 0.138,
+        "expectedValue": -2.277,
+        "evPct": -0.25,
+        "rankScore": 0.239,
+        "regimeAdj": 0.15,
+        "sectorScore": 2.0,
+        "rsiScore": 0.213
+      },
+      "classification": {
+        "predictedTierCal": "A",
+        "predictedTierRaw": "A",
+        "adaptiveTier": "B",
+        "filteredTier": "A",
+        "dteBucket": "0-21",
+        "vixBucket": "15-20"
+      },
+      "execution": {
+        "liveEligible": true,
+        "selected": false,
+        "aPlus": false,
+        "rankAlpha": false,
+        "failReason": "OK_BASE"
+      },
+      "risk": {
+        "midPrice": 9.11,
+        "bidAskPct": null,
+        "bidOk": true,
+        "volumeOk": true,
+        "dteOk": true,
+        "spyTrendOk": true,
+        "liquidityOk": true,
+        "openInterestOk": true
+      },
+      "executionGuidance": {
+        "favorable": [
+          "Sector/ETF backdrop supportive."
+        ],
+        "caution": [
+          "Short duration: time decay risk is higher."
+        ],
+        "unfavorable": [
+          "Behind stronger names today; only revisit if conditions improve."
+        ]
+      },
+      "decisionContext": {
+        "today": {
+          "rank": 24,
+          "candidateCount": 25,
+          "topPercent": 96,
+          "todayScore": 8
+        },
+        "historical": {
+          "windowDays": 365,
+          "sampleSize": 39,
+          "distinctTickerCount": 4,
+          "winRate": 100.0,
+          "avgRMultiple": 2.52,
+          "medianHoldDays": 8.0,
+          "holdP25Days": 8.0,
+          "holdP75Days": 10.0,
+          "cohortLabel": "Technology CALLs, ATM, 0-21 DTE, A-filtered",
+          "matchStrength": "tight",
+          "supportLabel": "Strong"
+        },
+        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "executionEdge": [
+          "Spread and liquidity snapshot support cleaner fills.",
+          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "Sector ranks #1 in today's conviction map."
+        ],
+        "invalidation": [
+          "Skip if price moves more than 2% above the snapshot before entry.",
+          "Skip if RSI pushes into the 68-70 rejection zone before entry.",
+          "Skip if spread or liquidity deteriorates on the live chain."
+        ],
+        "expectation": {
+          "timeframe": "8-10 trading days",
+          "baseCase": "Secondary setup unless the tape improves.",
+          "risk": "Time decay becomes the main risk if price chops sideways."
+        }
+      },
+      "provenance": {
+        "sourceFile": "sample_predictions_with_tiers_20260427.csv",
+        "strategyStatsFile": "trades_master.duckdb",
+        "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
+        "filterVersion": "filters_20251210.json",
+        "dataCutoff": "2025-12-10",
+        "runTimestamp": "2026-04-28 07:11:01",
+        "signalDate": "2026-04-27"
+      }
+    },
+    {
+      "rank": 25,
+      "ticker": "MDB",
+      "companyName": "MongoDB, Inc.",
+      "tier": "B",
+      "action": "PASS",
+      "optionType": "call",
+      "signalStrength": "WEAK",
+      "contract": {
+        "optionSymbol": "O:MDB260515C00260000",
+        "strike": 260,
+        "expiry": "2026-05-15",
+        "dte": 18,
+        "underlyingPrice": 264.38,
+        "distanceToStrikePct": -1.7,
+        "moneyness": "0.983",
+        "itmFlag": "ATM",
+        "strikePositionLabel": "ATM",
+        "strikePositionText": "1.7% below spot"
+      },
+      "market": {
+        "volume": 52,
+        "openInterest": 1191
+      },
+      "context": {
+        "sector": "Technology",
+        "rsi": 46.7
+      },
+      "etfOverlay": {
+        "etf": "XLK",
+        "bias": "Bullish",
+        "winRate4d": 73.5,
+        "breadth": 66
+      },
+      "scores": {
+        "adaptiveScoreFinal": 0.709,
+        "adaptiveScore": 0.559,
+        "adaptiveRank": 0,
+        "priorityScore": 0.138,
+        "probCalibrated": 0.138,
+        "expectedValue": -5.772,
+        "evPct": -0.25,
+        "rankScore": 0.238,
+        "regimeAdj": 0.15,
+        "sectorScore": 2.0,
+        "rsiScore": -0.507
+      },
+      "classification": {
+        "predictedTierCal": "A",
+        "predictedTierRaw": "A",
+        "adaptiveTier": "B",
+        "filteredTier": "A",
+        "dteBucket": "0-21",
+        "vixBucket": "15-20"
+      },
+      "execution": {
+        "liveEligible": true,
+        "selected": false,
+        "aPlus": false,
+        "rankAlpha": null,
+        "failReason": "OK_BASE"
+      },
+      "risk": {
+        "midPrice": 23.09,
+        "bidAskPct": null,
+        "bidOk": true,
+        "volumeOk": true,
+        "dteOk": true,
+        "spyTrendOk": true,
+        "liquidityOk": true,
+        "openInterestOk": true
+      },
+      "executionGuidance": {
+        "favorable": [
+          "Sector/ETF backdrop supportive."
+        ],
+        "caution": [
+          "Short duration: time decay risk is higher."
+        ],
+        "unfavorable": [
+          "Behind stronger names today; only revisit if conditions improve."
+        ]
+      },
+      "decisionContext": {
+        "today": {
+          "rank": 25,
+          "candidateCount": 25,
+          "topPercent": 100,
+          "todayScore": 4
+        },
+        "historical": {
+          "windowDays": 365,
+          "sampleSize": 39,
+          "distinctTickerCount": 4,
+          "winRate": 100.0,
+          "avgRMultiple": 2.52,
+          "medianHoldDays": 8.0,
+          "holdP25Days": 8.0,
+          "holdP75Days": 10.0,
+          "cohortLabel": "Technology CALLs, ATM, 0-21 DTE, A-filtered",
+          "matchStrength": "tight",
+          "supportLabel": "Strong"
+        },
+        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "executionEdge": [
+          "Spread and liquidity snapshot support cleaner fills.",
+          "XLK overlay: 73.5% recent hit rate across 66 names.",
+          "Sector ranks #1 in today's conviction map."
+        ],
+        "invalidation": [
+          "Skip if price moves more than 2% above the snapshot before entry.",
+          "Skip if RSI pushes into the 68-70 rejection zone before entry.",
+          "Skip if spread or liquidity deteriorates on the live chain."
+        ],
+        "expectation": {
+          "timeframe": "8-10 trading days",
+          "baseCase": "Secondary setup unless the tape improves.",
+          "risk": "Time decay becomes the main risk if price chops sideways."
+        }
+      },
+      "provenance": {
+        "sourceFile": "sample_predictions_with_tiers_20260427.csv",
+        "strategyStatsFile": "trades_master.duckdb",
         "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
         "filterVersion": "filters_20251210.json",
         "dataCutoff": "2025-12-10",
