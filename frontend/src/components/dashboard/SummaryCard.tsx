@@ -39,6 +39,8 @@ export function SummaryCard({ title, stats, accent, description, eyebrow }: Summ
   );
   const lossRate = stats.lossRate ?? derivedLossRate;
   const largeLossRate = stats.largeLossRate ?? derivedLargeLossRate;
+  const displayedWinRate = roundToOneDecimal(Number(stats.winRate ?? 0));
+  const displayedLossRate = roundToOneDecimal(100 - displayedWinRate);
 
   return (
     <section className={`rounded-lg border px-5 py-6.5 shadow-soft ${borderClass}`}>
@@ -52,13 +54,13 @@ export function SummaryCard({ title, stats, accent, description, eyebrow }: Summ
       </div>
 
       <div className="mt-6 flex items-end gap-3 border-b border-slate-200 pb-5">
-        <p className={`text-4xl font-black tracking-normal ${accentClass}`}>{formatPct(stats.winRate)}</p>
+        <p className={`text-4xl font-black tracking-normal ${accentClass}`}>{formatPct(displayedWinRate)}</p>
         <p className="pb-1 text-xs font-bold text-muted">Win rate</p>
       </div>
 
       <div className="mt-6 grid grid-cols-2 gap-4 pb-1">
         <Metric label="Avg Return (per trade)" value={formatPct(stats.avgReturnPct, true)} positive />
-        <LossProfile lossRate={lossRate} largeLossRate={largeLossRate} />
+        <LossProfile lossRate={displayedLossRate} largeLossRate={largeLossRate} />
       </div>
 
       <div className="mt-6">
@@ -136,8 +138,8 @@ function LossProfile({
   return (
     <div>
       <p className="text-[11px] font-bold text-muted">Loss Profile</p>
-      <p className="mt-2 text-sm font-semibold text-ink">{formatPct(lossRate)} losing trades</p>
-      <p className="mt-1 text-sm font-semibold text-muted">{formatPct(largeLossRate)} large losses (&gt;30%)</p>
+      <p className="mt-2 text-sm font-semibold text-ink">{formatPct(lossRate)} non-winning trades</p>
+      <p className="mt-1 text-sm font-semibold text-muted">{formatPct(largeLossRate)} of trades were large losses (&gt;30%), included above</p>
     </div>
   );
 }

@@ -12,6 +12,7 @@ import type { DashboardData, TopTrade } from "@/types/dashboard";
 export function Dashboard({
   data,
   heroTrade,
+  topRankedTrade,
   totalTrades,
   filters,
   sectors,
@@ -30,6 +31,7 @@ export function Dashboard({
 }: {
   data: DashboardData;
   heroTrade?: TopTrade | null;
+  topRankedTrade?: TopTrade | null;
   totalTrades?: number;
   filters?: TradeFiltersState;
   sectors?: string[];
@@ -53,6 +55,7 @@ export function Dashboard({
   ) as Record<string, "ENTER" | "WATCH" | "WAIT">;
   const resolvedHeroTrade = heroTrade ?? null;
   const heroDecision = resolvedHeroTrade ? getDecisionState(resolvedHeroTrade) : null;
+  const resolvedTopRankedTrade = topRankedTrade ?? null;
 
   return (
     <main className="min-h-screen px-4 py-4 sm:px-6 lg:px-8">
@@ -114,11 +117,23 @@ export function Dashboard({
                 {resolvedHeroTrade.companyName ? (
                   <p className="mt-2 text-base font-semibold text-slate-300">{resolvedHeroTrade.companyName}</p>
                 ) : null}
-                <p className="mt-3 text-base font-semibold leading-7 text-slate-200">{buildHeroTranslation(resolvedHeroTrade, heroDecision.action)}</p>
+                <p className="mt-3 text-base font-semibold leading-7 text-slate-200">
+                  {buildHeroRationale(resolvedHeroTrade, {
+                    topTrade: resolvedTopRankedTrade
+                      ? {
+                          ...resolvedTopRankedTrade,
+                          action:
+                            fullWorkbenchActionMap?.[resolvedTopRankedTrade.ticker] ??
+                            getDecisionState(resolvedTopRankedTrade).action
+                        }
+                      : null,
+                    trades: data.trades
+                  })}
+                </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[320px] lg:max-w-[420px] lg:flex-1">
                 <HeroStat label="Expected Window" value={resolvedHeroTrade.decisionContext?.expectation.timeframe || `${resolvedHeroTrade.contract.dte} trading days`} />
-                <HeroStat label="Structure" value={`${resolvedHeroTrade.contract.strikePositionLabel} ${resolvedHeroTrade.optionType}`} />
+                <HeroStat label="Execution Snapshot" value={buildHeroStructure(resolvedHeroTrade)} />
               </div>
             </div>
           </section>
@@ -188,21 +203,95 @@ function HeroStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border border-white/15 bg-white/5 px-4 py-3">
       <p className="text-[10px] font-bold tracking-[0.08em] text-slate-300">{label}</p>
-      <p className="mt-2 text-base font-black text-white">{value}</p>
+      <p className="mt-2 whitespace-pre-line text-base font-black leading-6 text-white">{value}</p>
     </div>
   );
 }
 
-function buildHeroTranslation(trade: TopTrade, action: "ENTER" | "WATCH" | "WAIT") {
-  if (action === "ENTER") {
-    return "Best timing-adjusted entry from today’s qualified setups. Cleaner entry and less extended versus higher-ranked names.";
+function buildHeroStructure(trade: TopTrade) {
+  const strike = Number.isFinite(trade.contract?.strike) ? `$${formatCompactCurrency(trade.contract.strike)}` : null;
+  const optionType = trade.optionType
+    ? `${trade.optionType.charAt(0).toUpperCase()}${trade.optionType.slice(1).toLowerCase()}`
+    : null;
+  const expiry = formatHeroExpiry(trade.contract?.expiry ?? null);
+  const lineOne = strike && optionType && expiry ? `${strike} ${optionType} • ${expiry}` : `${trade.contract?.strikePositionLabel ?? "ATM"} ${optionType ?? "Call"}`;
+
+  const spot = Number.isFinite(trade.contract?.underlyingPrice) ? `$${trade.contract.underlyingPrice.toFixed(2)}` : null;
+  const distancePct = Number.isFinite(trade.contract?.distanceToStrikePct) ? trade.contract.distanceToStrikePct : null;
+  const lineTwo =
+    spot !== null && distancePct !== null
+      ? `Spot ${spot} • ${distancePct >= 0 ? "+" : ""}${distancePct.toFixed(1)}%`
+      : null;
+
+  return lineTwo ? `${lineOne}\n${lineTwo}` : lineOne;
+}
+
+function formatCompactCurrency(value: number) {
+  return Number.isInteger(value) ? value.toFixed(0) : value.toFixed(2);
+}
+
+function formatHeroExpiry(value: string | null) {
+  if (!value) return null;
+
+  const parsed = new Date(`${value}T00:00:00Z`);
+  if (Number.isNaN(parsed.getTime())) return value;
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC"
+  }).format(parsed);
+}
+
+function buildHeroRationale(
+  trade: TopTrade,
+  context: {
+    topTrade: TopTrade | null;
+    trades: TopTrade[];
+  }
+) {
+  const rank = Number.isFinite(trade.rank) ? trade.rank : null;
+  const rsi = Number.isFinite(trade.context?.rsi) ? trade.context.rsi : null;
+  const distancePct = Number.isFinite(trade.contract?.distanceToStrikePct) ? trade.contract.distanceToStrikePct : null;
+  const moneynessValue = trade.contract?.moneyness;
+  const moneynessText = String(moneynessValue ?? "").trim().toUpperCase();
+  const moneynessNumber = Number(moneynessValue);
+  const isAtm =
+    moneynessText === "ATM" || (Number.isFinite(moneynessNumber) && moneynessNumber >= 0.97 && moneynessNumber <= 1.03);
+
+  if (
+    rank === null ||
+    rsi === null ||
+    distancePct === null ||
+    (!moneynessText && !Number.isFinite(moneynessNumber)) ||
+    (rank > 1 && !context.topTrade)
+  ) {
+    return "Top-ranked setup based on current model signals.";
   }
 
-  if (action === "WATCH") {
-    return "High-quality setup, but timing is not ideal yet. Watch for a cleaner entry.";
-  }
+  const topAction = context.topTrade?.action ?? null;
+  console.log("Hero Logic:", {
+    trade: trade.ticker,
+    rank: trade.rank,
+    topAction
+  });
 
-  return "High-quality setup, but momentum is extended. Wait for a reset before considering entry.";
+  const differentiator =
+    rank > 1 && topAction === "WAIT"
+      ? "Cleaner timing than extended top-ranked setup"
+      : rank === 1
+      ? "Top-ranked setup"
+      : "Strong alternative to higher-ranked setup";
+
+  const entryQuality = isAtm ? "ATM entry" : distancePct <= 3 ? "slightly extended entry" : "extended entry";
+  const momentum =
+    rsi >= 65 ? "elevated momentum" : rsi >= 55 ? "balanced momentum" : "early momentum";
+
+  const sentence = `${differentiator}, ${entryQuality}, ${momentum}.`;
+  const words = sentence.trim().split(/\s+/);
+  if (words.length <= 18) return sentence;
+
+  return `${differentiator}, ${entryQuality}, ${momentum}.`;
 }
 
 function heroGradeClass(tier: TopTrade["tier"]) {

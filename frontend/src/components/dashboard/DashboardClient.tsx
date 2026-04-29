@@ -180,6 +180,7 @@ function DashboardWithState({
       null,
     [data.trades]
   );
+  const topRankedTrade = useMemo(() => data.trades.find((trade) => trade.rank === 1) ?? null, [data.trades]);
   const sectors = useMemo(
     () => Array.from(new Set(data.trades.map((trade) => trade.context.sector).filter(Boolean))).sort(),
     [data.trades]
@@ -210,6 +211,7 @@ function DashboardWithState({
       <Dashboard
         data={{ ...data, watchlist, trades: displayedTrades, sectorOutlook }}
         heroTrade={heroTrade}
+        topRankedTrade={topRankedTrade}
         totalTrades={data.trades.length}
         filters={filters}
         sectors={sectors}
