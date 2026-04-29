@@ -1,11 +1,10 @@
 import type { TradeAction, TradeTier } from "@/types/dashboard";
 
-type UiAction = TradeAction | "WAIT";
+type UiAction = TradeAction;
 
 const actionStyles: Record<UiAction, string> = {
   ENTER: "bg-emerald-600 text-white ring-1 ring-emerald-300 shadow-[0_10px_24px_rgba(5,150,105,0.28)]",
   WATCH: "bg-amber-500 text-white shadow-[0_8px_18px_rgba(245,158,11,0.22)]",
-  PASS: "bg-slate-200 text-slate-700",
   WAIT: "bg-red-600 text-white shadow-[0_8px_18px_rgba(220,38,38,0.22)]"
 };
 
@@ -41,13 +40,11 @@ export function Badge({ children, tone = "neutral", className = "" }: BadgeProps
 }
 
 export function ActionBadge({ action }: { action: UiAction }) {
-  const label = action === "PASS" ? "REVIEW" : action;
-
   return (
     <span
       className={`inline-flex h-9 min-w-[86px] items-center justify-center rounded-md px-4 text-[11px] font-black uppercase tracking-wide ${actionStyles[action]}`}
     >
-      {label}
+      {action}
     </span>
   );
 }

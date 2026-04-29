@@ -7,12 +7,14 @@ export function TopTradesTable({
   trades,
   watchlist = [],
   heroTicker,
+  emptyState,
   onToggleWatchlist,
   onSelectTrade
 }: {
   trades: TopTrade[];
   watchlist?: WatchlistItem[];
   heroTicker?: string | null;
+  emptyState?: { title: string; message: string } | null;
   onToggleWatchlist?: (trade: TopTrade) => void;
   onSelectTrade?: (trade: TopTrade) => void;
 }) {
@@ -21,6 +23,7 @@ export function TopTradesTable({
       <div className="flex items-center justify-between gap-4 border-b border-slate-200 px-5 py-4">
         <div>
           <h2 className="text-lg font-black text-ink">Qualified Setups <span className="text-sm font-bold text-muted">(from High Conviction)</span></h2>
+          <p className="mt-1 text-[11px] font-semibold text-muted">Showing top actionable setups by overall rank.</p>
         </div>
         <span className="text-xs font-bold text-muted">{trades.length} visible setups</span>
       </div>
@@ -30,7 +33,7 @@ export function TopTradesTable({
           <thead>
             <tr className="bg-slate-50 text-[11px] font-bold text-muted">
               <HeaderCell className="w-12 px-4 py-3" label="Save" tip="Save this setup to the watchlist for quick follow-up." />
-              <HeaderCell className="w-14 px-5 py-3" label="#" tip="Relative rank among the qualified setups currently shown." />
+              <HeaderCell className="w-14 px-5 py-3" label="Overall Rank" tip="Original rank among the qualified setups before any filtering." />
               <HeaderCell label="Ticker" tip="Underlying stock symbol." />
               <HeaderCell label="Grade" tip="Relative setup quality grade from the signal engine. Higher grades indicate stronger alignment across screens." />
               <HeaderCell label="Action" tip="ENTER is in a good entry zone. WATCH is valid but timing is less ideal. WAIT means momentum is extended." />
@@ -45,9 +48,9 @@ export function TopTradesTable({
             {trades.length === 0 ? (
               <tr>
                 <td colSpan={10} className="px-5 py-16 text-center">
-                  <p className="text-base font-black text-ink">No ranked trades available</p>
+                  <p className="text-base font-black text-ink">{emptyState?.title || "No ranked trades available"}</p>
                   <p className="mt-2 text-sm font-semibold text-muted">
-                    The live API returned successfully, but the trades array is empty.
+                    {emptyState?.message || "The live API returned successfully, but the trades array is empty."}
                   </p>
                 </td>
               </tr>

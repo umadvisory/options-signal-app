@@ -5,6 +5,7 @@ import glob
 import os
 import math
 import json
+import re
 from datetime import datetime, timezone
 
 app = FastAPI()
@@ -32,6 +33,35 @@ def get_previous_file(current_file: str | None):
             return files[current_index + 1]
         return None
     return files[1] if len(files) > 1 else None
+
+def extract_signal_file_date(file_path: str | None):
+    if not file_path:
+        return None
+    match = re.search(r"sample_predictions_with_tiers_(\d{8})\.csv$", os.path.basename(file_path))
+    if not match:
+        return None
+    try:
+        return datetime.strptime(match.group(1), "%Y%m%d").date()
+    except ValueError:
+        return None
+
+def get_recent_signal_files(current_file: str | None, count: int = 5):
+    base_path = ROOT_DIR / "ML" if "ROOT_DIR" in globals() else Path(__file__).resolve().parents[1] / "ML"
+    files = []
+    for path in glob.glob(str(base_path / "sample_predictions_with_tiers_*.csv")):
+        if extract_signal_file_date(path) is not None:
+            files.append(path)
+
+    files = sorted(files, key=lambda p: extract_signal_file_date(p) or datetime.min.date())
+    if not files:
+        return []
+
+    if current_file and current_file in files:
+        current_index = files.index(current_file)
+        start_index = max(0, current_index - count)
+        return list(reversed(files[start_index:current_index]))
+
+    return list(reversed(files[-(count + 1):-1])) if len(files) > 1 else []
 
 from pathlib import Path
 
@@ -666,6 +696,40 @@ def build_expectation_frame(action, dte, median_hold_days, hold_p25_days, hold_p
         "risk": risk
     }
 
+
+def build_market_insight(market_regime, trades):
+    counts = {"ENTER": 0, "WATCH": 0, "WAIT": 0}
+    for trade in trades or []:
+        action = str(trade.get("action") or "").strip().upper()
+        if action in counts:
+            counts[action] += 1
+
+    enter_count = counts["ENTER"]
+    watch_count = counts["WATCH"]
+    wait_count = counts["WAIT"]
+
+    regime_label = str((market_regime or {}).get("regime") or "").strip().lower()
+    risk_soft = False
+    if market_regime:
+        vix_level = market_regime.get("vix", {}).get("level")
+        spy_trend = market_regime.get("spy", {}).get("trend5d")
+        shock_day = bool(market_regime.get("risk", {}).get("shockDay"))
+        vix_soft = vix_level is not None and float(vix_level) >= 30
+        spy_soft = spy_trend is not None and float(spy_trend) <= 0
+        risk_soft = shock_day or vix_soft or spy_soft or regime_label in {"risk-off", "defensive", "unstable"}
+
+    if risk_soft:
+        return "System Insight: Risk conditions are softer; reduce aggression and wait for cleaner entries."
+    if enter_count >= 3:
+        return "System Insight: Multiple entry-grade setups available; prioritize clean entries over extended momentum."
+    if 1 <= enter_count <= 2:
+        return "System Insight: Selective entry environment; focus on the few clean setups and avoid chasing."
+    if enter_count == 0 and watch_count > 0:
+        return "System Insight: No clean entries yet; several setups remain on watch for better timing."
+    if wait_count > enter_count + watch_count:
+        return "System Insight: Momentum is extended across many names; patience is favored."
+    return "System Insight: Mixed signal quality; stay selective and favor the cleanest setups."
+
 def fetch_historical_context(con, latest_entry_time, predicted_tier_cal, filtered_tier, option_type, structure_bucket, dte):
     if con is None or not option_type or not predicted_tier_cal or not filtered_tier or dte is None:
         return {
@@ -811,7 +875,8 @@ def build_ranked_trade_slice(df: pd.DataFrame):
     working["adaptive_tier"] = working["adaptive_tier"].astype(str).str.strip()
     working["predicted_tier_cal"] = working["predicted_tier_cal"].astype(str).str.strip()
     working["filteredtier"] = working["filteredtier"].astype(str).str.strip()
-    working["is_tradeable"] = working["is_tradeable"].isin([True, 1]).astype(int)
+    tradeable_source = working["is_tradeable"] if "is_tradeable" in working.columns else pd.Series([0] * len(working), index=working.index)
+    working["is_tradeable"] = tradeable_source.isin([True, 1, "1", "true", "True"]).astype(int)
 
     ranked = working[
         (working["predicted_tier_cal"] == "A") &
@@ -846,80 +911,173 @@ def classify_yesterday_status(price_change_pct):
         return "Extended - avoid new entries"
     return "Weak - needs confirmation"
 
+def classify_followup_state(price_change_pct):
+    if price_change_pct is None:
+        return None
+    if price_change_pct <= -12:
+        return "BROKEN"
+    if price_change_pct <= -3:
+        return "PULLBACK"
+    if price_change_pct <= 2:
+        return "STABLE"
+    if price_change_pct <= 6:
+        return "EXTENDED"
+    if price_change_pct < 20:
+        return "OVEREXTENDED"
+    return "PLAYED_OUT"
+
+def map_followup_action(original_action, state):
+    normalized_action = str(original_action or "WATCH").strip().upper()
+    if normalized_action == "ENTER":
+        if state == "PULLBACK":
+            return "ENTER (better price)"
+        if state == "STABLE":
+            return "ENTER"
+        if state == "EXTENDED":
+            return "WAIT"
+        return "DROP"
+
+    if normalized_action == "WATCH":
+        if state == "PULLBACK":
+            return "WATCH (near entry)"
+        if state == "STABLE":
+            return "WATCH"
+        if state == "EXTENDED":
+            return "WAIT"
+        return "DROP"
+
+    if state == "PULLBACK":
+        return "WATCH"
+    if state in {"STABLE", "EXTENDED"}:
+        return "WAIT"
+    return "DROP"
+
+def cap_followup_action(raw_action, today_action):
+    normalized_today = None if today_action is None else str(today_action).strip().upper()
+    normalized_raw = str(raw_action or "WAIT").strip()
+
+    if normalized_today == "WAIT" and normalized_raw not in {"WAIT", "DROP"}:
+        return "WAIT", "Prior setup improved, but today's signal remains WAIT"
+
+    if normalized_today == "WATCH" and normalized_raw.startswith("ENTER"):
+        return "WATCH", "Prior setup near entry, but today's signal remains WATCH"
+
+    return normalized_raw, None
+
 def build_yesterday_status(today_df: pd.DataFrame, current_file: str | None, historical_con=None):
-    previous_file = get_previous_file(current_file)
-    if previous_file is None or today_df is None or today_df.empty:
+    recent_files = get_recent_signal_files(current_file, count=5)
+    if not recent_files or today_df is None or today_df.empty:
         return []
 
-    try:
-        yesterday_df = pd.read_csv(previous_file, low_memory=False)
-    except Exception as e:
-        print(f"[YESTERDAY STATUS] Failed to load previous file: {e}")
-        return []
-
-    ranked_yesterday = build_ranked_trade_slice(yesterday_df)
-    if ranked_yesterday.empty:
-        return []
+    today_ranked = build_ranked_trade_slice(today_df)
 
     today_prices = {}
+    today_actions = {}
     today_in_list = set()
     current_signal_date = None
     if "signal_date" in today_df.columns and not today_df.empty:
         raw_signal_date = today_df.iloc[0].get("signal_date")
         if pd.notna(raw_signal_date):
             current_signal_date = str(raw_signal_date)
+    if current_signal_date is None:
+        current_file_date = extract_signal_file_date(current_file)
+        if current_file_date is not None:
+            current_signal_date = current_file_date.isoformat()
 
     for _, row in today_df.iterrows():
         ticker = str(row.get("ticker")).strip() if pd.notna(row.get("ticker")) else None
         if not ticker:
             continue
-        today_in_list.add(ticker)
         price_value = pd.to_numeric(pd.Series([row.get("underlyingPrice")]), errors="coerce").iloc[0]
         if pd.notna(price_value):
             today_prices[ticker] = float(price_value)
 
-    items = []
-    for _, row in ranked_yesterday.iterrows():
+    for _, row in today_ranked.iterrows():
         ticker = str(row.get("ticker")).strip() if pd.notna(row.get("ticker")) else None
         if not ticker:
             continue
+        today_in_list.add(ticker)
+        today_actions[ticker] = build_trade_action_from_score(row.get("adaptive_score_final"))
 
-        yesterday_price = pd.to_numeric(pd.Series([row.get("underlyingPrice")]), errors="coerce").iloc[0]
-        current_price = today_prices.get(ticker)
+    items_by_ticker = {}
+    for prior_file in recent_files:
+        try:
+            prior_df = pd.read_csv(prior_file, low_memory=False)
+        except Exception as e:
+            print(f"[YESTERDAY STATUS] Failed to load prior file {prior_file}: {e}")
+            continue
 
-        price_change_pct = None
-        if pd.notna(yesterday_price) and yesterday_price not in (0, None) and current_price is not None:
-            price_change_pct = round((float(current_price) - float(yesterday_price)) / float(yesterday_price), 4)
+        ranked_prior = build_ranked_trade_slice(prior_df)
+        if ranked_prior.empty:
+            continue
 
-        dte_value = pd.to_numeric(pd.Series([row.get("dte")]), errors="coerce").iloc[0]
-        historical_context = fetch_historical_context(
-            con=historical_con,
-            latest_entry_time=None,
-            predicted_tier_cal=None if pd.isna(row.get("predicted_tier_cal")) else str(row.get("predicted_tier_cal")).strip(),
-            filtered_tier=None if pd.isna(row.get("filteredtier")) else str(row.get("filteredtier")).strip(),
-            option_type=None if pd.isna(row.get("optionType")) else str(row.get("optionType")).strip(),
-            structure_bucket=canonical_structure_bucket(None if pd.isna(row.get("itm_flag")) else str(row.get("itm_flag")).strip()),
-            dte=None if pd.isna(dte_value) else int(dte_value)
-        )
-        median_hold_days = historical_context.get("medianHoldDays")
-        typical_hold_days = int(round(median_hold_days)) if median_hold_days is not None else None
+        prior_file_date = extract_signal_file_date(prior_file)
+        for _, row in ranked_prior.iterrows():
+            ticker = str(row.get("ticker")).strip() if pd.notna(row.get("ticker")) else None
+            if not ticker or ticker in items_by_ticker:
+                continue
 
-        items.append({
-            "ticker": ticker,
-            "grade": None if pd.isna(row.get("adaptive_tier")) else str(row.get("adaptive_tier")).strip(),
-            "signalDate": None if pd.isna(row.get("signal_date")) else str(row.get("signal_date")).strip(),
-            "currentDate": current_signal_date,
-            "originalAction": build_trade_action_from_score(row.get("adaptive_score_final")),
-            "snapshotPrice": round(float(yesterday_price), 2) if pd.notna(yesterday_price) else None,
-            "yesterdayEntryPrice": round(float(yesterday_price), 2) if pd.notna(yesterday_price) else None,
-            "currentPrice": round(float(current_price), 2) if current_price is not None else None,
-            "priceChangePct": round(price_change_pct * 100, 1) if price_change_pct is not None else None,
-            "typicalHoldDays": typical_hold_days,
-            "status": classify_yesterday_status(price_change_pct),
-            "stillInTodayList": ticker in today_in_list
-        })
+            snapshot_price = pd.to_numeric(pd.Series([row.get("underlyingPrice")]), errors="coerce").iloc[0]
+            current_price = today_prices.get(ticker)
+            if pd.isna(snapshot_price) or snapshot_price in (0, None) or current_price is None:
+                continue
 
-    return items[:12]
+            price_change_decimal = round((float(current_price) - float(snapshot_price)) / float(snapshot_price), 4)
+            price_change_pct = round(price_change_decimal * 100, 1)
+            state = classify_followup_state(price_change_pct)
+            if state in {"BROKEN", "OVEREXTENDED", "PLAYED_OUT"}:
+                continue
+
+            original_action = build_trade_action_from_score(row.get("adaptive_score_final"))
+            raw_followup_action = map_followup_action(original_action, state)
+            if raw_followup_action == "DROP":
+                continue
+
+            today_action = today_actions.get(ticker)
+            capped_followup_action, status_note = cap_followup_action(raw_followup_action, today_action)
+            if capped_followup_action == "DROP":
+                continue
+
+            dte_value = pd.to_numeric(pd.Series([row.get("dte")]), errors="coerce").iloc[0]
+            historical_context = fetch_historical_context(
+                con=historical_con,
+                latest_entry_time=None,
+                predicted_tier_cal=None if pd.isna(row.get("predicted_tier_cal")) else str(row.get("predicted_tier_cal")).strip(),
+                filtered_tier=None if pd.isna(row.get("filteredtier")) else str(row.get("filteredtier")).strip(),
+                option_type=None if pd.isna(row.get("optionType")) else str(row.get("optionType")).strip(),
+                structure_bucket=canonical_structure_bucket(None if pd.isna(row.get("itm_flag")) else str(row.get("itm_flag")).strip()),
+                dte=None if pd.isna(dte_value) else int(dte_value)
+            )
+            median_hold_days = historical_context.get("medianHoldDays")
+            typical_hold_days = int(round(median_hold_days)) if median_hold_days is not None else None
+
+            signal_date = None if pd.isna(row.get("signal_date")) else str(row.get("signal_date")).strip()
+            if not signal_date and prior_file_date is not None:
+                signal_date = prior_file_date.isoformat()
+
+            items_by_ticker[ticker] = {
+                "ticker": ticker,
+                "grade": None if pd.isna(row.get("adaptive_tier")) else str(row.get("adaptive_tier")).strip(),
+                "signalDate": signal_date,
+                "currentDate": current_signal_date,
+                "originalAction": original_action,
+                "todayAction": today_action,
+                "snapshotPrice": round(float(snapshot_price), 2) if pd.notna(snapshot_price) else None,
+                "yesterdayEntryPrice": round(float(snapshot_price), 2) if pd.notna(snapshot_price) else None,
+                "currentPrice": round(float(current_price), 2) if current_price is not None else None,
+                "priceChangePct": price_change_pct,
+                "typicalHoldDays": typical_hold_days,
+                "status": status_note or classify_yesterday_status(price_change_decimal),
+                "statusNote": status_note,
+                "rawFollowupAction": raw_followup_action,
+                "cappedFollowupAction": capped_followup_action,
+                "followupState": state,
+                "stillInTodayList": ticker in today_in_list
+            }
+
+    items = list(items_by_ticker.values())
+    items.sort(key=lambda item: str(item.get("signalDate") or ""), reverse=True)
+    return items
 
 
 @app.get("/")
@@ -1022,7 +1180,7 @@ def apply_include_pass_to_payload(payload, include_pass: bool):
     if not isinstance(trades, list):
         return payload
 
-    filtered_trades = [trade for trade in trades if trade.get("action") != "PASS"]
+    filtered_trades = [trade for trade in trades if str(trade.get("action") or "").strip().upper() != "WAIT"]
     filtered_payload = dict(payload)
     filtered_payload["trades"] = filtered_trades
 
@@ -1188,7 +1346,7 @@ def build_top_trades_payload(include_pass: bool = True):
                 historical_con = None
                 latest_hist_entry_time = None
 
-        yesterday_status = build_yesterday_status(df_filtered, file, historical_con)
+        yesterday_status = build_yesterday_status(df, file, historical_con)
         
         def safe_pct_distance(strike, spot):
             strike_v = pd.to_numeric(pd.Series([strike]), errors="coerce").iloc[0]
@@ -1498,7 +1656,7 @@ def build_top_trades_payload(include_pass: bool = True):
             })
         
         if not include_pass:
-            response = [trade for trade in response if trade.get("action") != "PASS"]
+            response = [trade for trade in response if str(trade.get("action") or "").strip().upper() != "WAIT"]
 
         if historical_con is not None:
             historical_con.close()
@@ -1506,6 +1664,9 @@ def build_top_trades_payload(include_pass: bool = True):
 
         previous_file = get_previous_file(file)
         signal_date = response[0]["provenance"]["signalDate"] if response else None
+        market_regime_payload = dict(market_regime) if isinstance(market_regime, dict) else market_regime
+        if isinstance(market_regime_payload, dict):
+            market_regime_payload["insight"] = build_market_insight(market_regime_payload, response)
         return {
             "generatedAt": datetime.now(timezone.utc).isoformat(),
             "signalDate": signal_date,
@@ -1523,7 +1684,7 @@ def build_top_trades_payload(include_pass: bool = True):
                 "yesterdayStatus": len(yesterday_status),
                 "sectorCount": len(sector_outlook.get("sectors", []))
             },
-            "marketRegime": market_regime,
+            "marketRegime": market_regime_payload,
             "strategyStats": {
                 "highConviction": strategy_stats.get("highConviction"),
                 "broadBase": strategy_stats.get("broadBase")

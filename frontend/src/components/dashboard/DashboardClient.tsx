@@ -25,7 +25,7 @@ export function DashboardClient() {
     sector: "ALL",
     query: ""
   });
-  const [showReview, setShowReview] = useState(false);
+  const [showReview, setShowReview] = useState(true);
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
@@ -185,19 +185,39 @@ function DashboardWithState({
     [data.trades]
   );
   const filteredTrades = useMemo(() => applyTradeFilters(data.trades, filters, showReview), [data.trades, filters, showReview]);
-  const sectorOutlook = useMemo(() => enrichSectorOutlook(data.sectorOutlook, filteredTrades), [data.sectorOutlook, filteredTrades]);
-  const reviewCount = useMemo(() => data.trades.filter((trade) => trade.action === "PASS").length, [data.trades]);
+  const actionableTrades = useMemo(
+    () => filteredTrades.filter((trade) => getDecisionState(trade).action === "ENTER"),
+    [filteredTrades]
+  );
+  const displayedTrades = useMemo(() => (showReview ? actionableTrades.slice(0, 5) : filteredTrades), [actionableTrades, filteredTrades, showReview]);
+  const sectorOutlook = useMemo(() => enrichSectorOutlook(data.sectorOutlook, displayedTrades), [data.sectorOutlook, displayedTrades]);
+  const actionableCount = useMemo(
+    () => filteredTrades.filter((trade) => getDecisionState(trade).action === "ENTER").length,
+    [filteredTrades]
+  );
+  const fullWorkbenchActionMap = useMemo(
+    () =>
+      Object.fromEntries(
+        data.trades.map((trade) => [trade.ticker, getDecisionState(trade).action])
+      ) as Record<string, "ENTER" | "WATCH" | "WAIT">,
+    [data.trades]
+  );
+  const computedTradeEmptyState = useMemo(() => buildTradeEmptyState(filters, showReview), [filters, showReview]);
+  const systemInsight = useMemo(() => buildSystemInsight(data.marketRegime, data.trades), [data.marketRegime, data.trades]);
 
   return (
     <>
       <Dashboard
-        data={{ ...data, watchlist, trades: filteredTrades, sectorOutlook }}
+        data={{ ...data, watchlist, trades: displayedTrades, sectorOutlook }}
         heroTrade={heroTrade}
         totalTrades={data.trades.length}
         filters={filters}
         sectors={sectors}
         showReview={showReview}
-        reviewCount={reviewCount}
+        actionableCount={actionableCount}
+        tradeEmptyState={computedTradeEmptyState}
+        systemInsight={systemInsight}
+        fullWorkbenchActionMap={fullWorkbenchActionMap}
         onFiltersChange={onFiltersChange}
         onToggleReview={onToggleReview}
         onToggleWatchlist={onToggleWatchlist}
@@ -245,4 +265,87 @@ function enrichSectorOutlook(outlook: SectorOutlook[], trades: TopTrade[]): Sect
     ...sector,
     visibleSetups: visibleCounts.get(sector.sector) ?? 0
   }));
+}
+
+function buildTradeEmptyState(filters: TradeFiltersState, showReview: boolean): { title: string; message: string } {
+  if (filters.action === "ENTER") {
+    return {
+      title: "No ENTER setups match the current filters.",
+      message: "Try clearing Sector/Search filters or view WATCH setups."
+    };
+  }
+
+  if (filters.action === "WATCH") {
+    return {
+      title: "No WATCH setups match the current filters.",
+      message: "Try clearing Sector/Search filters or view ENTER setups."
+    };
+  }
+
+  if (filters.action === "WAIT") {
+    return {
+      title: "No WAIT setups match the current filters.",
+      message: showReview ? "Turn off actionable view to see WATCH and WAIT setups." : "Try clearing Sector/Search filters."
+    };
+  }
+
+  if (showReview) {
+    return {
+      title: "No actionable setups match the current filters.",
+      message: "Turn off actionable view to see WATCH and WAIT setups."
+    };
+  }
+
+  return {
+    title: "No qualified setups match the current filters.",
+    message: "Try clearing Sector/Search filters."
+  };
+}
+
+function buildSystemInsight(marketRegime: DashboardData["marketRegime"], trades: TopTrade[]) {
+  const rows = trades.map((trade) => ({
+    trade,
+    action: getDecisionState(trade).action
+  }));
+  const enterCount = rows.filter((row) => row.action === "ENTER").length;
+  const watchCount = rows.filter((row) => row.action === "WATCH").length;
+  const topRanked = rows[0] ?? null;
+  const bestEntry = rows.find((row) => row.action === "ENTER") ?? null;
+  const marketLabel = marketRegime?.regime ?? "Unknown";
+  const riskOff =
+    marketRegime?.risk?.shockDay ||
+    (typeof marketRegime?.vix?.level === "number" && marketRegime.vix.level >= 30) ||
+    /risk-off/i.test(marketLabel);
+
+  if (riskOff) {
+    return "System Insight: Risk conditions are softer; reduce aggression and wait for cleaner entries.";
+  }
+
+  if (enterCount >= 5 && topRanked?.action === "WAIT") {
+    const bestEntryPhrase = bestEntry?.trade.ticker
+      ? `${bestEntry.trade.ticker} is the cleaner timing-adjusted entry`
+      : "A cleaner timing-adjusted entry is available";
+    return `System Insight: Several clean entries are available, but the top-ranked signal is extended. ${bestEntryPhrase}.`;
+  }
+
+  if (enterCount >= 5) {
+    const bestEntryPhrase = bestEntry?.trade.ticker
+      ? `${bestEntry.trade.ticker} leads the group`
+      : "The best entry leads the group";
+    return `System Insight: Multiple clean entries are available; prioritize the highest-ranked actionable names. ${bestEntryPhrase}.`;
+  }
+
+  if (enterCount >= 1 && enterCount <= 4) {
+    return "System Insight: Selective entry environment; only a few clean setups are available today.";
+  }
+
+  if (enterCount === 0 && watchCount > 0) {
+    return "System Insight: No clean entries yet; several setups remain on watch for better timing.";
+  }
+
+  if (enterCount === 0 && watchCount === 0) {
+    return "System Insight: No actionable setups today; patience is favored.";
+  }
+
+  return `System Insight: ${marketLabel} conditions remain mixed; stay selective.`;
 }

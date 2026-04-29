@@ -1,4 +1,4 @@
-export type TradeAction = "ENTER" | "WATCH" | "PASS";
+export type TradeAction = "ENTER" | "WATCH" | "WAIT";
 export type TradeTier = "A+" | "A" | "A-" | "B+" | "B";
 
 export type StrategyStats = {
@@ -186,11 +186,16 @@ export type YesterdayTradeStatus = {
   signalDate?: string | null;
   currentDate?: string | null;
   originalAction?: "ENTER" | "WATCH" | "WAIT" | null;
+  todayAction?: "ENTER" | "WATCH" | "WAIT" | null;
   snapshotPrice?: number | null;
   yesterdayEntryPrice: number | null;
   currentPrice: number | null;
   priceChangePct: number | null;
   typicalHoldDays?: number | null;
+  statusNote?: string | null;
+  rawFollowupAction?: string | null;
+  cappedFollowupAction?: string | null;
+  followupState?: string | null;
   status: string;
   stillInTodayList: boolean;
 };
@@ -199,6 +204,7 @@ export type MarketRegime = {
   date: string | null;
   regime: string;
   summary: string;
+  insight?: string | null;
   vix: {
     level: number | null;
     label: string;

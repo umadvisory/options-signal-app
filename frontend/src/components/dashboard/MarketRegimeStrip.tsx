@@ -1,7 +1,7 @@
 import { formatPct } from "@/lib/format";
 import type { MarketRegime } from "@/types/dashboard";
 
-export function MarketRegimeStrip({ regime }: { regime: MarketRegime | null }) {
+export function MarketRegimeStrip({ regime, insight }: { regime: MarketRegime | null; insight?: string | null }) {
   if (!regime) {
     return (
       <section className="rounded-lg border border-slate-200 bg-white px-6 py-5 shadow-soft">
@@ -29,6 +29,7 @@ export function MarketRegimeStrip({ regime }: { regime: MarketRegime | null }) {
           </div>
           <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-muted">{posture.contextLine}</p>
           <p className="mt-2 max-w-xl text-sm font-black leading-6 text-ink">{posture.actionLine}</p>
+          {insight ? <p className="mt-2 max-w-xl text-sm font-semibold leading-6 text-slate-700">{insight}</p> : null}
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 xl:min-w-[500px] xl:grid-cols-4">

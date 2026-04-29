@@ -1,4 +1,5 @@
 import type { TradeAction, TradeTier, TopTrade } from "@/types/dashboard";
+import { getDecisionState } from "@/lib/trade-decision";
 
 export type TradeFiltersState = {
   action: TradeAction | "ALL";
@@ -12,7 +13,7 @@ type TradeFiltersProps = {
   sectors: string[];
   totalCount: number;
   visibleCount: number;
-  reviewCount: number;
+  actionableCount: number;
   showReview: boolean;
   onChange: (filters: TradeFiltersState) => void;
   onToggleReview: () => void;
@@ -23,7 +24,7 @@ export function TradeFilters({
   sectors,
   totalCount,
   visibleCount,
-  reviewCount,
+  actionableCount,
   showReview,
   onChange,
   onToggleReview
@@ -33,22 +34,30 @@ export function TradeFilters({
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-xs font-bold text-muted">Trade Workbench</p>
-          <h2 className="mt-1 text-lg font-black text-ink">{visibleCount} visible setups</h2>
-          <p className="mt-1 text-[11px] font-semibold text-muted">
-            {totalCount} qualified setups loaded. Review candidates are {showReview ? "visible" : "hidden"} by default.
-          </p>
+          <h2 className="mt-1 text-lg font-black text-ink">
+            {showReview ? `${visibleCount} shown · ${actionableCount} actionable available` : `${visibleCount} visible setups`}
+          </h2>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[180px_140px_170px_240px_190px]">
           <Select
             label="Action"
             value={filters.action}
-            onChange={(value) => onChange({ ...filters, action: value as TradeFiltersState["action"] })}
+            onChange={(value) => {
+              const nextAction = normalizeActionOption(value);
+              if ((nextAction === "WATCH" || nextAction === "WAIT") && showReview) {
+                onToggleReview();
+              }
+              onChange({
+                ...filters,
+                action: nextAction
+              });
+            }}
             options={[
               { value: "ALL", label: "ALL" },
               { value: "ENTER", label: "ENTER" },
               { value: "WATCH", label: "WATCH" },
-              { value: "PASS", label: "REVIEW" }
+              { value: "WAIT", label: "WAIT" }
             ]}
           />
           <Select
@@ -68,12 +77,12 @@ export function TradeFilters({
             <input
               value={filters.query}
               onChange={(event) => onChange({ ...filters, query: event.target.value })}
-              placeholder="Ticker, ETF, sector"
+              placeholder="Ticker, company, sector"
               className="h-10 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm font-bold text-ink outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white"
             />
           </label>
           <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold text-muted">Review</span>
+            <span className="text-[11px] font-bold text-muted">Show actionable setups (ENTER only)</span>
             <button
               type="button"
               onClick={onToggleReview}
@@ -83,7 +92,7 @@ export function TradeFilters({
                   : "border-slate-200 bg-slate-50 text-slate-700 hover:border-blue-300 hover:text-blue-700"
               }`}
             >
-              {showReview ? "Hide" : "Show"} Review ({reviewCount})
+              {showReview ? "ON" : "OFF"}
             </button>
           </div>
         </div>
@@ -94,10 +103,13 @@ export function TradeFilters({
 
 export function applyTradeFilters(trades: TopTrade[], filters: TradeFiltersState, showReview = false) {
   const query = filters.query.trim().toLowerCase();
+  const selectedAction = normalizeActionOption(filters.action);
 
   return trades.filter((trade) => {
-    if (!showReview && filters.action === "ALL" && trade.action === "PASS") return false;
-    if (filters.action !== "ALL" && trade.action !== filters.action) return false;
+    const decisionAction = getDecisionState(trade).action;
+    const normalizedTradeAction = normalizeActionOption(decisionAction);
+    if (showReview && normalizedTradeAction !== "ENTER") return false;
+    if (selectedAction !== "ALL" && normalizedTradeAction !== selectedAction) return false;
     if (filters.tier !== "ALL" && trade.tier !== filters.tier) return false;
     if (filters.sector !== "ALL" && trade.context.sector !== filters.sector) return false;
 
@@ -143,4 +155,15 @@ function Select({
       </select>
     </label>
   );
+}
+
+function normalizeActionOption(value: string): TradeFiltersState["action"] {
+  const normalized = String(value || "").trim().toUpperCase();
+  if (normalized === "ENTER" || normalized === "WATCH" || normalized === "WAIT" || normalized === "ALL") {
+    return normalized;
+  }
+  if (normalized === "PASS" || normalized === "REVIEW") {
+    return "WAIT";
+  }
+  return "WATCH";
 }

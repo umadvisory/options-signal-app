@@ -1,70 +1,137 @@
 "use client";
 
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type { YesterdayTradeStatus } from "@/types/dashboard";
+
+type TrackerState = "PULLBACK" | "STABLE" | "EXTENDED" | "BROKEN" | "OVEREXTENDED" | "PLAYED OUT";
+type TrackerAction = "ENTER" | "ENTER (better price)" | "WATCH (near entry)" | "WATCH" | "WAIT" | "DROP";
+type GroupKey = "REENTRY" | "NEAR_ENTRY" | "PASSIVE_MONITOR";
 
 type TrackerRow = {
   ticker: string;
-  signalDate: string | null;
+  rawSignalDate: string;
+  displaySignalDate: string;
   originalAction: "ENTER" | "WATCH" | "WAIT";
-  changePct: number | null;
-  state: "STABLE" | "PULLBACK" | "EXTENDED" | "OVEREXTENDED" | "BROKEN";
-  action: string;
-  entryQuality: string;
+  todayAction: "ENTER" | "WATCH" | "WAIT" | null;
+  changePct: number;
+  state: TrackerState;
+  finalAction: TrackerAction;
+  group: GroupKey;
+  statusNote: string | null;
 };
 
-const STATE_PRIORITY: Record<TrackerRow["state"], number> = {
-  STABLE: 0,
-  PULLBACK: 1,
-  EXTENDED: 2,
-  OVEREXTENDED: 3,
-  BROKEN: 4
+const ACTION_PRIORITY: Record<TrackerAction, number> = {
+  "ENTER": 0,
+  "ENTER (better price)": 1,
+  "WATCH (near entry)": 2,
+  "WATCH": 3,
+  "WAIT": 4,
+  "DROP": 5
 };
 
-const ACTION_PRIORITY: Record<TrackerRow["originalAction"], number> = {
-  ENTER: 0,
-  WATCH: 1,
-  WAIT: 2
-};
+const GROUP_ORDER: GroupKey[] = ["REENTRY", "NEAR_ENTRY", "PASSIVE_MONITOR"];
 
 export function YesterdayStatusSection({
   items,
-  fallbackSignalDate
+  fallbackSignalDate,
+  workbenchActionMap
 }: {
   items: YesterdayTradeStatus[];
   fallbackSignalDate?: string | null;
+  workbenchActionMap?: Record<string, "ENTER" | "WATCH" | "WAIT">;
 }) {
   const activeRows = items
-    .map((item) => buildTrackerRow(item, fallbackSignalDate ?? null))
+    .map((item) => buildTrackerRow(item, fallbackSignalDate ?? null, workbenchActionMap ?? {}))
     .filter((row): row is TrackerRow => row !== null)
     .sort((a, b) => {
-      const aTime = toSortTime(a.signalDate);
-      const bTime = toSortTime(b.signalDate);
+      if (a.group !== b.group) return GROUP_ORDER.indexOf(a.group) - GROUP_ORDER.indexOf(b.group);
+
+      const aTime = toSortTime(a.displaySignalDate);
+      const bTime = toSortTime(b.displaySignalDate);
       if (aTime !== bTime) return bTime - aTime;
 
-      const actionPriority = ACTION_PRIORITY[a.originalAction] - ACTION_PRIORITY[b.originalAction];
-      if (actionPriority !== 0) return actionPriority;
-
-      return STATE_PRIORITY[a.state] - STATE_PRIORITY[b.state];
-    })
-    .slice(0, 12);
+      return ACTION_PRIORITY[a.finalAction] - ACTION_PRIORITY[b.finalAction];
+    });
 
   if (!activeRows.length) return null;
+
+  const reEntryRows = activeRows.filter((row) => row.group === "REENTRY");
+  const nearEntryRows = activeRows.filter((row) => row.group === "NEAR_ENTRY");
+  const passiveMonitorRows = activeRows.filter((row) => row.group === "PASSIVE_MONITOR");
+  const [showAllMonitor, setShowAllMonitor] = useState(false);
+  const monitorCollapsedByDefault = passiveMonitorRows.length > 0;
+
+  useEffect(() => {
+    setShowAllMonitor(false);
+  }, [passiveMonitorRows.length]);
+
+  const visibleMonitorRows = useMemo(() => {
+    if (!monitorCollapsedByDefault || showAllMonitor) return passiveMonitorRows;
+    return [];
+  }, [monitorCollapsedByDefault, passiveMonitorRows, showAllMonitor]);
 
   return (
     <section className="rounded-lg border border-slate-200 bg-white px-5 py-4 shadow-soft">
       <div className="flex items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-black text-ink">Recent Signals - Follow-Up</h2>
-          <p className="mt-1 text-xs font-semibold text-muted">Follow-up on recent signals based on current price action.</p>
+          <p className="mt-1 text-xs font-semibold text-muted">
+            Tracks recent signals through their active lifecycle based on price action.
+          </p>
         </div>
-        <p className="text-xs font-black text-muted">{activeRows.length} active signals</p>
+        <p className="text-xs font-black text-muted">
+          {reEntryRows.length} re-entry · {nearEntryRows.length} near entry · {passiveMonitorRows.length} monitor
+        </p>
       </div>
 
-      <div className="mt-4 overflow-x-auto">
+      <div className="mt-4 space-y-5">
+        {reEntryRows.length ? (
+          <FollowUpGroup title="Re-Entry Opportunities" rows={reEntryRows} />
+        ) : null}
+        {nearEntryRows.length ? (
+          <FollowUpGroup title={`Near Entry (${nearEntryRows.length})`} rows={nearEntryRows} />
+        ) : null}
+        {passiveMonitorRows.length ? (
+          <div>
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-xs font-black uppercase tracking-[0.08em] text-muted">
+                Passive Monitor ({passiveMonitorRows.length})
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowAllMonitor((current) => !current)}
+                className="text-xs font-black text-blue-700 transition hover:text-blue-800"
+              >
+                {showAllMonitor ? "Hide Passive Monitor" : `Show Passive Monitor (${passiveMonitorRows.length})`}
+              </button>
+            </div>
+            {showAllMonitor ? <FollowUpGroup title="" rows={visibleMonitorRows} hideTitle /> : null}
+          </div>
+        ) : null}
+      </div>
+    </section>
+  );
+}
+
+function FollowUpGroup({
+  title,
+  rows,
+  footer,
+  hideTitle = false
+}: {
+  title: string;
+  rows: TrackerRow[];
+  footer?: ReactNode;
+  hideTitle?: boolean;
+}) {
+  return (
+    <div>
+      {!hideTitle ? <h3 className="text-xs font-black uppercase tracking-[0.08em] text-muted">{title}</h3> : null}
+      <div className="mt-2 overflow-x-auto">
         <table className="min-w-full border-separate border-spacing-0 text-sm">
           <thead>
             <tr className="text-left">
-              {["Ticker", "Signal Date", "Original Signal", "Change %", "State", "Entry Quality", "Action"].map((label) => (
+              {["Ticker", "Signal Date", "Original Signal", "Underlying Ticker Move %", "Setup Status", "Follow-Up Action"].map((label) => (
                 <th
                   key={label}
                   className="border-b border-slate-200 px-3 py-2 text-[11px] font-black uppercase tracking-[0.08em] text-muted"
@@ -75,14 +142,14 @@ export function YesterdayStatusSection({
             </tr>
           </thead>
           <tbody>
-            {activeRows.map((row) => {
+            {rows.map((row) => {
               const tone = getStateTone(row.state);
 
               return (
-                <tr key={`${row.ticker}-${row.signalDate ?? "na"}`} className="hover:bg-slate-50">
+                <tr key={`${row.ticker}-${row.rawSignalDate}`} className="hover:bg-slate-50">
                   <td className="border-b border-slate-100 px-3 py-3 font-black text-ink">{row.ticker}</td>
                   <td className="border-b border-slate-100 px-3 py-3 font-semibold text-slate-600">
-                    {row.signalDate ? formatSignalDate(row.signalDate) : "N/A"}
+                    {formatSignalDate(row.displaySignalDate)}
                   </td>
                   <td className="border-b border-slate-100 px-3 py-3">
                     <span className={`inline-flex rounded-md px-2 py-1 text-[11px] font-black ${getOriginalActionTone(row.originalAction)}`}>
@@ -90,133 +157,218 @@ export function YesterdayStatusSection({
                     </span>
                   </td>
                   <td className="border-b border-slate-100 px-3 py-3 font-semibold text-slate-700">
-                    {row.changePct === null ? "N/A" : `${row.changePct > 0 ? "+" : ""}${row.changePct.toFixed(1)}%`}
+                    {row.changePct > 0 ? "+" : ""}
+                    {row.changePct.toFixed(1)}%
                   </td>
                   <td className="border-b border-slate-100 px-3 py-3">
-                    <span className={`inline-flex rounded-md px-2 py-1 text-[11px] font-black ${tone.badge}`}>{row.state}</span>
+                    <span className={`inline-flex rounded-md px-2 py-1 text-[11px] font-black ${tone.badge}`}>
+                      {formatStateLabel(row.state)}
+                    </span>
                   </td>
-                  <td className="border-b border-slate-100 px-3 py-3 font-semibold text-slate-700">{row.entryQuality}</td>
-                  <td className="border-b border-slate-100 px-3 py-3 font-semibold text-slate-700">{row.action}</td>
+                  <td className="border-b border-slate-100 px-3 py-3">
+                    <div className="font-semibold text-slate-700">{row.finalAction}</div>
+                    {row.statusNote ? (
+                      <div className="mt-1 text-[11px] font-semibold text-muted">{row.statusNote}</div>
+                    ) : null}
+                  </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
       </div>
-    </section>
+      {footer ? <div className="mt-2">{footer}</div> : null}
+    </div>
   );
 }
 
-function buildTrackerRow(item: YesterdayTradeStatus, fallbackSignalDate: string | null): TrackerRow | null {
+function buildTrackerRow(
+  item: YesterdayTradeStatus,
+  fallbackSignalDate: string | null,
+  workbenchActionMap: Record<string, "ENTER" | "WATCH" | "WAIT">
+): TrackerRow | null {
   const signalDate = item.signalDate ?? fallbackSignalDate ?? null;
   const currentDate = item.currentDate ?? fallbackSignalDate ?? null;
-  const typicalHoldDays = item.typicalHoldDays ?? null;
   const originalAction = item.originalAction ?? "WATCH";
-  const changePct = item.priceChangePct ?? calculateChangePct(item.snapshotPrice ?? item.yesterdayEntryPrice, item.currentPrice);
+  const snapshotPrice = item.snapshotPrice ?? item.yesterdayEntryPrice ?? null;
+  const currentPrice = item.currentPrice ?? null;
 
-  if (!signalDate || !currentDate || typicalHoldDays === null || typicalHoldDays === undefined) {
+  if (!signalDate || !currentDate) return null;
+
+  const displaySignalDate = normalizeIsoDate(signalDate) ?? signalDate;
+
+  const daysSinceSignal = diffDays(displaySignalDate, currentDate);
+  if (daysSinceSignal === null || daysSinceSignal > 14) {
     return null;
   }
 
-  const daysSinceSignal = diffDays(signalDate, currentDate);
-  if (daysSinceSignal === null) {
+  if (snapshotPrice === null || currentPrice === null) {
     return null;
   }
 
-  const activeWindow = Math.min(typicalHoldDays * 1.5, 14);
-  if (daysSinceSignal > activeWindow) {
+  const changePct = item.priceChangePct ?? calculateChangePct(snapshotPrice, currentPrice);
+  if (changePct === null) {
     return null;
   }
 
-  const state = classifyState(changePct);
+  const state = normalizeState(item.followupState) ?? classifyState(changePct);
+  if (state === "BROKEN" || state === "OVEREXTENDED" || state === "PLAYED OUT") {
+    return null;
+  }
+
+  const todayAction = workbenchActionMap[item.ticker] ?? null;
+  if (todayAction === "ENTER") {
+    return null;
+  }
+  const rawAction = normalizeTrackerAction(item.rawFollowupAction) ?? mapAction(originalAction, state);
+  const { finalAction, statusNote } = capAction(rawAction, todayAction, item.statusNote ?? null);
+  if (finalAction === "DROP") {
+    return null;
+  }
+  const group = getGroup(finalAction);
+  if (!group) {
+    return null;
+  }
+
   return {
     ticker: item.ticker,
-    signalDate,
+    rawSignalDate: signalDate,
+    displaySignalDate,
     originalAction,
+    todayAction,
     changePct,
     state,
-    action: mapAction(originalAction, state),
-    entryQuality: mapEntryQuality(originalAction, state)
+    finalAction,
+    group,
+    statusNote
   };
 }
 
-function classifyState(changePct: number | null): TrackerRow["state"] {
-  if (changePct === null) return "BROKEN";
-  if (changePct <= -10) return "BROKEN";
-  if (changePct <= -2) return "PULLBACK";
+function classifyState(changePct: number): TrackerState {
+  if (changePct <= -12) return "BROKEN";
+  if (changePct <= -3) return "PULLBACK";
   if (changePct <= 2) return "STABLE";
   if (changePct <= 6) return "EXTENDED";
-  return "OVEREXTENDED";
+  if (changePct < 20) return "OVEREXTENDED";
+  return "PLAYED OUT";
 }
 
-function mapAction(originalAction: TrackerRow["originalAction"], state: TrackerRow["state"]) {
+function mapAction(originalAction: TrackerRow["originalAction"], state: TrackerState): TrackerAction {
   if (originalAction === "ENTER") {
     switch (state) {
-      case "STABLE":
-        return "Enter";
       case "PULLBACK":
-        return "Enter (better price)";
+        return "ENTER (better price)";
+      case "STABLE":
+        return "ENTER";
       case "EXTENDED":
-        return "Wait";
-      case "OVEREXTENDED":
-        return "Avoid new entry";
+        return "WAIT";
       case "BROKEN":
-        return "Drop";
+      case "OVEREXTENDED":
+      case "PLAYED OUT":
+        return "DROP";
     }
   }
 
   if (originalAction === "WATCH") {
     switch (state) {
-      case "STABLE":
-        return "Watch";
       case "PULLBACK":
-        return "Watch -> approaching entry";
+        return "WATCH (near entry)";
+      case "STABLE":
+        return "WATCH";
       case "EXTENDED":
-        return "Wait";
-      case "OVEREXTENDED":
-        return "Avoid";
+        return "WAIT";
       case "BROKEN":
-        return "Drop";
+      case "OVEREXTENDED":
+      case "PLAYED OUT":
+        return "DROP";
     }
   }
 
   switch (state) {
-    case "STABLE":
-      return "Wait";
     case "PULLBACK":
-      return "Watch";
+      return "WATCH";
+    case "STABLE":
     case "EXTENDED":
-      return "Wait";
-    case "OVEREXTENDED":
-      return "Avoid";
+      return "WAIT";
     case "BROKEN":
-      return "Drop";
+    case "OVEREXTENDED":
+    case "PLAYED OUT":
+      return "DROP";
   }
 }
 
-function mapEntryQuality(originalAction: TrackerRow["originalAction"], state: TrackerRow["state"]) {
-  if (state === "BROKEN") return "Invalid";
-  if (state === "OVEREXTENDED") return "Too late";
-  if (state === "PULLBACK") return "Improving";
-  if (state === "EXTENDED") return "Late";
+function capAction(
+  rawAction: TrackerAction,
+  todayAction: TrackerRow["todayAction"],
+  fallbackNote: string | null
+) {
+  if (todayAction === "WAIT" && rawAction !== "WAIT" && rawAction !== "DROP") {
+    return {
+      finalAction: "WAIT" as TrackerAction,
+      statusNote: fallbackNote ?? "Prior setup improved, but today's signal remains WAIT."
+    };
+  }
 
-  if (originalAction === "ENTER") return "Good";
-  if (originalAction === "WATCH") return "Neutral";
-  return "Waiting";
+  if (todayAction === "WATCH" && rawAction.startsWith("ENTER")) {
+    return {
+      finalAction: "WATCH" as TrackerAction,
+      statusNote: fallbackNote ?? "Prior setup improved, but today's signal remains WATCH."
+    };
+  }
+
+  if (todayAction === "WATCH" && rawAction !== "DROP" && rawAction !== "WAIT") {
+    return {
+      finalAction: "WATCH" as TrackerAction,
+      statusNote: fallbackNote
+    };
+  }
+
+  return { finalAction: rawAction, statusNote: fallbackNote };
 }
 
-function getStateTone(state: TrackerRow["state"]) {
+function getGroup(action: TrackerAction): GroupKey | null {
+  if (action === "ENTER" || action === "ENTER (better price)") {
+    return "REENTRY";
+  }
+  if (action === "WATCH (near entry)") {
+    return "NEAR_ENTRY";
+  }
+  if (action === "WATCH" || action === "WAIT") {
+    return "PASSIVE_MONITOR";
+  }
+  return null;
+}
+
+function formatStateLabel(state: TrackerState) {
   switch (state) {
+    case "PULLBACK":
+      return "Pullback forming";
     case "STABLE":
-      return { badge: "bg-emerald-50 text-emerald-700" };
+      return "Stable";
+    case "EXTENDED":
+      return "Extended";
+    case "BROKEN":
+      return "Broken";
+    case "OVEREXTENDED":
+      return "Overextended";
+    case "PLAYED OUT":
+      return "Played out";
+  }
+}
+
+function getStateTone(state: TrackerState) {
+  switch (state) {
     case "PULLBACK":
       return { badge: "bg-blue-50 text-blue-700" };
+    case "STABLE":
+      return { badge: "bg-emerald-50 text-emerald-700" };
     case "EXTENDED":
       return { badge: "bg-amber-50 text-amber-700" };
-    case "OVEREXTENDED":
-      return { badge: "bg-red-50 text-red-700" };
     case "BROKEN":
       return { badge: "bg-slate-100 text-slate-600" };
+    case "OVEREXTENDED":
+    case "PLAYED OUT":
+      return { badge: "bg-red-50 text-red-700" };
   }
 }
 
@@ -231,36 +383,89 @@ function getOriginalActionTone(action: TrackerRow["originalAction"]) {
   }
 }
 
-function calculateChangePct(snapshotPrice: number | null | undefined, currentPrice: number | null) {
-  if (snapshotPrice === null || snapshotPrice === undefined || snapshotPrice === 0 || currentPrice === null) {
+function calculateChangePct(snapshotPrice: number, currentPrice: number) {
+  if (!snapshotPrice || currentPrice === null) {
     return null;
   }
 
   return Number((((currentPrice - snapshotPrice) / snapshotPrice) * 100).toFixed(1));
 }
 
+function normalizeState(value: string | null | undefined): TrackerState | null {
+  switch ((value ?? "").trim().toUpperCase()) {
+    case "PULLBACK":
+      return "PULLBACK";
+    case "STABLE":
+      return "STABLE";
+    case "EXTENDED":
+      return "EXTENDED";
+    case "BROKEN":
+      return "BROKEN";
+    case "OVEREXTENDED":
+      return "OVEREXTENDED";
+    case "PLAYED_OUT":
+    case "PLAYED OUT":
+      return "PLAYED OUT";
+    default:
+      return null;
+  }
+}
+
+function normalizeTrackerAction(value: string | null | undefined): TrackerAction | null {
+  switch ((value ?? "").trim()) {
+    case "ENTER":
+    case "ENTER (better price)":
+    case "WATCH (near entry)":
+    case "WATCH":
+    case "WAIT":
+    case "DROP":
+      return value!.trim() as TrackerAction;
+    default:
+      return null;
+  }
+}
+
 function diffDays(start: string, end: string) {
-  const startDate = new Date(start);
-  const endDate = new Date(end);
-  if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
+  const startParts = parseIsoDateParts(start);
+  const endParts = parseIsoDateParts(end);
+  if (!startParts || !endParts) {
     return null;
   }
 
-  return Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+  const startUtc = Date.UTC(startParts.year, startParts.month - 1, startParts.day);
+  const endUtc = Date.UTC(endParts.year, endParts.month - 1, endParts.day);
+  return Math.floor((endUtc - startUtc) / (1000 * 60 * 60 * 24));
 }
 
-function toSortTime(value: string | null) {
-  if (!value) return 0;
-  const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+function toSortTime(value: string) {
+  const parts = parseIsoDateParts(value);
+  return parts ? Date.UTC(parts.year, parts.month - 1, parts.day) : 0;
 }
 
 function formatSignalDate(value: string) {
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return value;
-
+  const parts = parseIsoDateParts(value);
+  if (!parts) return value;
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
-    day: "numeric"
-  }).format(parsed);
+    day: "numeric",
+    timeZone: "UTC"
+  }).format(new Date(Date.UTC(parts.year, parts.month - 1, parts.day)));
+}
+
+function normalizeIsoDate(value: string) {
+  const parts = parseIsoDateParts(value);
+  if (!parts) return null;
+  return `${parts.year.toString().padStart(4, "0")}-${parts.month.toString().padStart(2, "0")}-${parts.day
+    .toString()
+    .padStart(2, "0")}`;
+}
+
+function parseIsoDateParts(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value).trim());
+  if (!match) return null;
+  return {
+    year: Number(match[1]),
+    month: Number(match[2]),
+    day: Number(match[3])
+  };
 }

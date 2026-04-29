@@ -16,7 +16,10 @@ export function Dashboard({
   filters,
   sectors,
   showReview,
-  reviewCount,
+  actionableCount,
+  tradeEmptyState,
+  systemInsight,
+  fullWorkbenchActionMap,
   onFiltersChange,
   onToggleReview,
   onToggleWatchlist,
@@ -31,7 +34,10 @@ export function Dashboard({
   filters?: TradeFiltersState;
   sectors?: string[];
   showReview?: boolean;
-  reviewCount?: number;
+  actionableCount?: number;
+  tradeEmptyState?: { title: string; message: string } | null;
+  systemInsight?: string | null;
+  fullWorkbenchActionMap?: Record<string, "ENTER" | "WATCH" | "WAIT">;
   onFiltersChange?: (filters: TradeFiltersState) => void;
   onToggleReview?: () => void;
   onToggleWatchlist?: (trade: TopTrade) => void;
@@ -42,6 +48,9 @@ export function Dashboard({
 }) {
   const enterCount = data.trades.filter((trade) => getDecisionState(trade).action === "ENTER").length;
   const watchCount = data.trades.filter((trade) => getDecisionState(trade).action === "WATCH").length;
+  const workbenchActionMap = Object.fromEntries(
+    data.trades.map((trade) => [trade.ticker, getDecisionState(trade).action])
+  ) as Record<string, "ENTER" | "WATCH" | "WAIT">;
   const resolvedHeroTrade = heroTrade ?? null;
   const heroDecision = resolvedHeroTrade ? getDecisionState(resolvedHeroTrade) : null;
 
@@ -87,7 +96,7 @@ export function Dashboard({
           </div>
         </div>
 
-        <MarketRegimeStrip regime={data.marketRegime} />
+        <MarketRegimeStrip regime={data.marketRegime} insight={systemInsight ?? data.marketRegime?.insight ?? null} />
 
         <WatchlistBar items={data.watchlist} />
 
@@ -138,7 +147,7 @@ export function Dashboard({
             sectors={sectors ?? []}
             totalCount={totalTrades ?? data.trades.length}
             visibleCount={data.trades.length}
-            reviewCount={reviewCount ?? 0}
+            actionableCount={actionableCount ?? 0}
             showReview={showReview ?? false}
             onChange={onFiltersChange}
             onToggleReview={onToggleReview}
@@ -150,12 +159,17 @@ export function Dashboard({
             trades={data.trades}
             watchlist={data.watchlist}
             heroTicker={resolvedHeroTrade?.ticker ?? null}
+            emptyState={tradeEmptyState ?? null}
             onToggleWatchlist={onToggleWatchlist}
             onSelectTrade={onSelectTrade}
           />
         </section>
 
-        <YesterdayStatusSection items={data.yesterdayStatus} fallbackSignalDate={data.signalDate ?? null} />
+        <YesterdayStatusSection
+          items={data.yesterdayStatus}
+          fallbackSignalDate={data.signalDate ?? null}
+          workbenchActionMap={fullWorkbenchActionMap ?? workbenchActionMap}
+        />
 
         <section className="pt-1">
           <SectorContextCards sectors={data.sectorOutlook} />

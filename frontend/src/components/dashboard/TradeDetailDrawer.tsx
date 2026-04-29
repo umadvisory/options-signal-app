@@ -349,7 +349,6 @@ function buildSummary(trade: TopTrade) {
 }
 
 function getActionLabel(trade: TopTrade) {
-  if (trade.action === "PASS") return "Review";
   return trade.action.charAt(0) + trade.action.slice(1).toLowerCase();
 }
 

@@ -70,6 +70,7 @@ function normalizeMarketRegime(regime: DashboardData["marketRegime"] | undefined
     date: regime.date ?? null,
     regime: regime.regime || "Neutral",
     summary: regime.summary || "Macro context is available for the latest signal run.",
+    insight: regime.insight ?? null,
     vix: {
       level: numberOrNull(regime.vix?.level),
       label: regime.vix?.label || "Unknown",
@@ -117,7 +118,7 @@ function normalizeStats(stats: Partial<StrategyStats> | null | undefined): Strat
 
 function normalizeTrade(trade: TopTrade): TopTrade {
   const optionType = String(trade.optionType || "CALL").toUpperCase() === "PUT" ? "PUT" : "CALL";
-  const action = ["ENTER", "WATCH", "PASS"].includes(String(trade.action)) ? trade.action : "WATCH";
+  const action = normalizeAction(String(trade.action || ""));
   const tier = ["A+", "A", "A-", "B+", "B"].includes(String(trade.tier)) ? trade.tier : "B";
   const signalStrength = ["STRONG", "MODERATE", "WEAK", "UNKNOWN"].includes(String(trade.signalStrength))
     ? trade.signalStrength
@@ -247,6 +248,14 @@ function normalizeTrade(trade: TopTrade): TopTrade {
   };
 }
 
+function normalizeAction(value: string): "ENTER" | "WATCH" | "WAIT" {
+  const normalized = value.trim().toUpperCase();
+  if (normalized === "ENTER") return "ENTER";
+  if (normalized === "WATCH") return "WATCH";
+  if (normalized === "WAIT" || normalized === "PASS" || normalized === "REVIEW") return "WAIT";
+  return "WATCH";
+}
+
 function normalizeSectorOutlook(sectors: DashboardData["sectorOutlook"] | undefined): SectorOutlook[] {
   if (!Array.isArray(sectors)) return [];
 
@@ -286,14 +295,22 @@ function normalizeYesterdayStatus(items: DashboardData["yesterdayStatus"] | unde
         item.originalAction === "ENTER" || item.originalAction === "WATCH" || item.originalAction === "WAIT"
           ? item.originalAction
           : null,
+      todayAction:
+        item.todayAction === "ENTER" || item.todayAction === "WATCH" || item.todayAction === "WAIT"
+          ? item.todayAction
+          : null,
       snapshotPrice: numberOrNull(item.snapshotPrice),
       yesterdayEntryPrice: numberOrNull(item.yesterdayEntryPrice),
       currentPrice: numberOrNull(item.currentPrice),
-    priceChangePct: numberOrNull(item.priceChangePct),
-    typicalHoldDays: numberOrNull(item.typicalHoldDays),
-    status: String(item.status || "No current price"),
-    stillInTodayList: Boolean(item.stillInTodayList)
-  }));
+      priceChangePct: numberOrNull(item.priceChangePct),
+      typicalHoldDays: numberOrNull(item.typicalHoldDays),
+      statusNote: item.statusNote ? String(item.statusNote) : null,
+      rawFollowupAction: item.rawFollowupAction ? String(item.rawFollowupAction) : null,
+      cappedFollowupAction: item.cappedFollowupAction ? String(item.cappedFollowupAction) : null,
+      followupState: item.followupState ? String(item.followupState) : null,
+      status: String(item.status || "No current price"),
+      stillInTodayList: Boolean(item.stillInTodayList)
+    }));
 }
 
 function numberOrNull(value: unknown): number | null {
