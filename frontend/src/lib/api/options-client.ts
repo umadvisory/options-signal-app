@@ -271,6 +271,16 @@ function normalizeSectorOutlook(sectors: DashboardData["sectorOutlook"] | undefi
     convictionScore: numberOrNull(sector.convictionScore),
     flowSkew: String(sector.flowSkew || "Balanced"),
     visibleSetups: numberOrNull(sector.visibleSetups) ?? 0,
+    tickerCount: numberOrNull(sector.tickerCount),
+    aTierTickerCount: numberOrNull(sector.aTierTickerCount),
+    top1Share: numberOrNull(sector.top1Share),
+    top3Share: numberOrNull(sector.top3Share),
+    avgBestScore: numberOrNull(sector.avgBestScore),
+    top5AvgScore: numberOrNull(sector.top5AvgScore),
+    sectorScore: numberOrNull(sector.sectorScore),
+    rawBreadth: numberOrNull(sector.rawBreadth),
+    cappedBreadth: numberOrNull(sector.cappedBreadth),
+    previousRank: numberOrNull(sector.previousRank),
     topTickers: Array.isArray(sector.topTickers)
       ? sector.topTickers.map((ticker) => ({
           ticker: String(ticker.ticker || "N/A"),

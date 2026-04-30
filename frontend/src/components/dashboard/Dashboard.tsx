@@ -145,14 +145,26 @@ export function Dashboard({
             stats={data.strategyStats.highConviction}
             accent="green"
             eyebrow="Historical Benchmark"
-            description="Strict filter. Fewer setups. Higher concentration. Represents ideal conditions when all signals align."
+            benchmarkContext="Shows how the model has performed recently - across different signal profiles."
+            description="Fewer trades with higher upside per trade. Best used when signals align and selective entry matters."
+            interpretationLabel="Payoff-driven"
+            winRateContext="higher payoff skew"
+            avgReturnLabel="Avg Return (per trade)"
+            avgReturnContext="skewed by high payoff trades"
+            chartContext="Payoff distribution (last 30 days)"
           />
           <SummaryCard
             title="Broad Base"
             stats={data.strategyStats.broadBase}
             accent="ink"
             eyebrow="Historical Benchmark"
-            description="Wider universe. More consistent opportunities. Reflects the typical signals available in the market."
+            benchmarkContext="Shows how the model has performed recently - across different signal profiles."
+            description="More frequent trades with smoother outcomes. Useful for understanding overall model consistency."
+            interpretationLabel="Consistency-driven"
+            winRateContext="more consistent outcomes"
+            avgReturnLabel="Avg Return (per trade)"
+            avgReturnContext="skewed by high payoff trades"
+            chartContext="Payoff distribution (last 30 days)"
           />
         </section>
 

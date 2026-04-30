@@ -10,9 +10,27 @@ type SummaryCardProps = {
   accent: "green" | "ink";
   description?: string;
   eyebrow?: string;
+  interpretationLabel?: string;
+  benchmarkContext?: string;
+  winRateContext?: string;
+  avgReturnLabel?: string;
+  avgReturnContext?: string;
+  chartContext?: string;
 };
 
-export function SummaryCard({ title, stats, accent, description, eyebrow }: SummaryCardProps) {
+export function SummaryCard({
+  title,
+  stats,
+  accent,
+  description,
+  eyebrow,
+  interpretationLabel,
+  benchmarkContext,
+  winRateContext,
+  avgReturnLabel,
+  avgReturnContext,
+  chartContext
+}: SummaryCardProps) {
   const accentClass = accent === "green" ? "text-emerald-600" : "text-slate-950";
   const borderClass = accent === "green" ? "border-emerald-200 bg-white" : "border-slate-200 bg-white";
   const backingLabel = formatBackingLabel(stats);
@@ -47,6 +65,11 @@ export function SummaryCard({ title, stats, accent, description, eyebrow }: Summ
       <div className="flex items-start justify-between gap-4">
         <div>
           {eyebrow ? <p className="pt-0.5 text-[11px] font-bold text-muted">{eyebrow}</p> : null}
+          {eyebrow && benchmarkContext ? (
+            <p className="mt-1 text-[11px] font-semibold text-slate-500">
+              {benchmarkContext}
+            </p>
+          ) : null}
           <h2 className="mt-1 text-[22px] font-black leading-tight text-ink">{title}</h2>
           {description ? <p className="mt-3 max-w-[44ch] text-[11px] font-semibold leading-5 text-muted">{description}</p> : null}
         </div>
@@ -55,17 +78,28 @@ export function SummaryCard({ title, stats, accent, description, eyebrow }: Summ
 
       <div className="mt-6 flex items-end gap-3 border-b border-slate-200 pb-5">
         <p className={`text-4xl font-black tracking-normal ${accentClass}`}>{formatPct(displayedWinRate)}</p>
-        <p className="pb-1 text-xs font-bold text-muted">Win rate</p>
+        <p className="pb-1 text-xs font-bold text-muted">
+          Win rate
+          {winRateContext ? <span className="ml-1 font-semibold text-slate-400">({winRateContext})</span> : null}
+        </p>
       </div>
+      {interpretationLabel ? (
+        <p className="mt-2 text-[11px] font-semibold text-slate-500">{interpretationLabel}</p>
+      ) : null}
 
       <div className="mt-6 grid grid-cols-2 gap-4 pb-1">
-        <Metric label="Avg Return (per trade)" value={formatPct(stats.avgReturnPct, true)} positive />
+        <Metric
+          label={avgReturnLabel ?? "Avg Return (per trade)"}
+          value={formatPct(stats.avgReturnPct, true)}
+          positive
+          context={avgReturnContext ?? null}
+        />
         <LossProfile lossRate={displayedLossRate} largeLossRate={largeLossRate} />
       </div>
 
       <div className="mt-6">
         <p className="text-[11px] font-bold text-muted">Trade Outcome Profile</p>
-        <p className="mt-1 text-[11px] text-muted">Distribution of trade outcomes (last 30 days)</p>
+        <p className="mt-1 text-[11px] text-muted">{chartContext ?? "Distribution of trade outcomes (last 30 days)"}</p>
         <div className="mt-2 h-40 rounded-md border border-slate-100 bg-slate-50/50 px-2 py-2">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={distribution} margin={{ top: 4, right: 4, left: -20, bottom: 16 }} barCategoryGap="20%">
@@ -111,16 +145,19 @@ function Metric({
   label,
   value,
   positive,
-  danger
+  danger,
+  context
 }: {
   label: string;
   value: string;
   positive?: boolean;
   danger?: boolean;
+  context?: string | null;
 }) {
   return (
     <div>
       <p className="text-[11px] font-bold text-muted">{label}</p>
+      {context ? <p className="mt-1 text-[11px] font-semibold text-slate-400">{context}</p> : null}
       <p className={`mt-2 text-[28px] leading-none font-black ${positive ? "text-emerald-600" : ""} ${danger ? "text-red-600" : ""}`}>
         {value}
       </p>

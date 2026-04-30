@@ -176,6 +176,21 @@ def load_latest_sector_outlook():
         if "quant_rating" in ticker_df.columns:
             ticker_df["quant_rating"] = ticker_df["quant_rating"].astype(str).str.strip()
 
+        # Ticker Summary is already one row per ticker, so we can rank sectors from
+        # single-ticker contributions without reintroducing option-row duplication.
+        ticker_level_df = ticker_df[["ticker", "sector"]].copy()
+        ticker_level_df["avg_score"] = pd.to_numeric(ticker_df.get("avg_score"), errors="coerce")
+        ticker_level_df["conviction_score"] = pd.to_numeric(ticker_df.get("conviction_score"), errors="coerce")
+        ticker_level_df["num_a"] = pd.to_numeric(ticker_df.get("num_a"), errors="coerce").fillna(0.0)
+        ticker_level_df["total_signals"] = pd.to_numeric(ticker_df.get("total_signals"), errors="coerce").fillna(0.0)
+
+        # Use avg_score as the primary per-ticker quality proxy because conviction_score
+        # is more affected by repeat signal volume. Fall back to conviction_score if needed.
+        ticker_level_df["best_score"] = ticker_level_df["avg_score"].where(
+            ticker_level_df["avg_score"].notna(),
+            ticker_level_df["conviction_score"]
+        )
+
         sector_a_counts = {}
         if "num_a" in ticker_df.columns:
             sector_a_counts = (
@@ -192,6 +207,15 @@ def load_latest_sector_outlook():
         density = sector_df["strong_signal_count"] / total_signal_series.replace(0, pd.NA)
         sector_df["a_tier_density"] = density.fillna(0.0)
         sector_df["focus_score"] = (avg_score_series.fillna(0.0) * sector_df["a_tier_density"]).fillna(0.0)
+        previous_rank_df = sector_df.copy()
+        previous_sort_cols = [c for c in ["focus_score", "conviction_score", "net_score", "total_signals"] if c in previous_rank_df.columns]
+        if previous_sort_cols:
+            previous_rank_df = previous_rank_df.sort_values(by=previous_sort_cols, ascending=[False] * len(previous_sort_cols))
+        previous_rank_map = {
+            str(row.get("sector")).strip(): rank
+            for rank, (_, row) in enumerate(previous_rank_df.iterrows(), start=1)
+            if str(row.get("sector")).strip()
+        }
 
         ticker_sort_cols = []
         for col in ["num_a", "conviction_score", "total_signals", "net_score"]:
@@ -233,15 +257,61 @@ def load_latest_sector_outlook():
                 return "Put-led"
             return "Balanced"
 
-        sectors = []
-        sort_cols = [c for c in ["focus_score", "conviction_score", "net_score", "total_signals"] if c in sector_df.columns]
-        if sort_cols:
-            sector_df = sector_df.sort_values(by=sort_cols, ascending=[False] * len(sort_cols))
+        sector_metric_rows = []
+        for sector_name, group in ticker_level_df.groupby("sector", dropna=False):
+            ranked_group = group.sort_values(by=["best_score", "num_a", "total_signals"], ascending=[False, False, False])
+            ticker_count = int(ranked_group["ticker"].nunique())
+            a_tier_ticker_count = int((ranked_group["num_a"] > 0).sum())
+            avg_best_score = pd.to_numeric(ranked_group["best_score"], errors="coerce").mean()
+            top5_avg_score = pd.to_numeric(ranked_group["best_score"], errors="coerce").head(5).mean()
 
-        for rank, (_, row) in enumerate(sector_df.iterrows(), start=1):
-            sector_name = str(row.get("sector")).strip()
+            contribution_group = ranked_group.sort_values(by=["num_a", "best_score", "total_signals"], ascending=[False, False, False])
+            contribution_weights = pd.to_numeric(contribution_group["num_a"], errors="coerce").fillna(0.0).clip(lower=0.0)
+            total_contribution = float(contribution_weights.sum())
+            top1_share = float(contribution_weights.iloc[0] / total_contribution * 100.0) if total_contribution > 0 and len(contribution_weights) > 0 else 0.0
+            top3_share = float(contribution_weights.head(3).sum() / total_contribution * 100.0) if total_contribution > 0 else 0.0
+
+            raw_breadth = math.log1p(ticker_count)
+            capped_breadth = min(raw_breadth, 6.0)
+            sector_score = (
+                0.5 * (float(top5_avg_score) if pd.notna(top5_avg_score) else 0.0) +
+                0.3 * (float(avg_best_score) if pd.notna(avg_best_score) else 0.0) +
+                0.2 * capped_breadth
+            )
+
+            sector_metric_rows.append(
+                {
+                    "sector": str(sector_name).strip(),
+                    "tickerCount": ticker_count,
+                    "aTierTickerCount": a_tier_ticker_count,
+                    "avgBestScore": None if pd.isna(avg_best_score) else float(avg_best_score),
+                    "top5AvgScore": None if pd.isna(top5_avg_score) else float(top5_avg_score),
+                    "top1Share": top1_share,
+                    "top3Share": top3_share,
+                    "sectorScore": sector_score,
+                    "rawBreadth": raw_breadth,
+                    "cappedBreadth": capped_breadth,
+                }
+            )
+
+        sector_metrics_df = pd.DataFrame(sector_metric_rows)
+        if not sector_metrics_df.empty:
+            sector_metrics_df = sector_metrics_df.sort_values(
+                by=["sectorScore", "top5AvgScore", "avgBestScore", "tickerCount"],
+                ascending=[False, False, False, False]
+            )
+
+        sectors = []
+        sector_lookup_df = sector_df.set_index("sector", drop=False)
+        for rank, (_, metric_row) in enumerate(sector_metrics_df.iterrows(), start=1):
+            sector_name = str(metric_row.get("sector")).strip()
             if not sector_name:
                 continue
+
+            if sector_name not in sector_lookup_df.index:
+                continue
+
+            row = sector_lookup_df.loc[sector_name]
 
             etf_info = etf_overlay_map.get(sector_name, {})
             fallback_etf = SECTOR_TO_ETF_FALLBACK.get(sector_name)
@@ -249,6 +319,13 @@ def load_latest_sector_outlook():
             net_score = float(row.get("net_score")) if pd.notna(row.get("net_score")) else None
             conviction_score = float(row.get("conviction_score")) if pd.notna(row.get("conviction_score")) else None
             a_tier_density = float(row.get("a_tier_density")) if pd.notna(row.get("a_tier_density")) else None
+            avg_best_score = metric_row.get("avgBestScore")
+            top5_avg_score = metric_row.get("top5AvgScore")
+            sector_score = metric_row.get("sectorScore")
+            top1_share = metric_row.get("top1Share")
+            top3_share = metric_row.get("top3Share")
+            raw_breadth = metric_row.get("rawBreadth")
+            capped_breadth = metric_row.get("cappedBreadth")
 
             sectors.append({
                 "rank": rank,
@@ -261,7 +338,17 @@ def load_latest_sector_outlook():
                 "netScore": round(net_score, 2) if net_score is not None else None,
                 "convictionScore": round(conviction_score, 4) if conviction_score is not None else None,
                 "flowSkew": classify_flow(row.get("call_score_sum"), row.get("put_score_sum")),
-                "topTickers": top_tickers_by_sector.get(sector_name, [])
+                "topTickers": top_tickers_by_sector.get(sector_name, []),
+                "tickerCount": int(metric_row.get("tickerCount") or 0),
+                "aTierTickerCount": int(metric_row.get("aTierTickerCount") or 0),
+                "top1Share": round(float(top1_share), 1) if top1_share is not None and not pd.isna(top1_share) else None,
+                "top3Share": round(float(top3_share), 1) if top3_share is not None and not pd.isna(top3_share) else None,
+                "avgBestScore": round(float(avg_best_score), 4) if avg_best_score is not None and not pd.isna(avg_best_score) else None,
+                "top5AvgScore": round(float(top5_avg_score), 4) if top5_avg_score is not None and not pd.isna(top5_avg_score) else None,
+                "sectorScore": round(float(sector_score), 4) if sector_score is not None and not pd.isna(sector_score) else None,
+                "rawBreadth": round(float(raw_breadth), 4) if raw_breadth is not None and not pd.isna(raw_breadth) else None,
+                "cappedBreadth": round(float(capped_breadth), 4) if capped_breadth is not None and not pd.isna(capped_breadth) else None,
+                "previousRank": previous_rank_map.get(sector_name)
             })
 
         return {

@@ -177,6 +177,16 @@ export type SectorOutlook = {
   convictionScore: number | null;
   flowSkew: string;
   visibleSetups?: number;
+  tickerCount?: number | null;
+  aTierTickerCount?: number | null;
+  top1Share?: number | null;
+  top3Share?: number | null;
+  avgBestScore?: number | null;
+  top5AvgScore?: number | null;
+  sectorScore?: number | null;
+  rawBreadth?: number | null;
+  cappedBreadth?: number | null;
+  previousRank?: number | null;
   topTickers: SectorOutlookTicker[];
 };
 

@@ -1,14 +1,9 @@
+import { useState } from "react";
 import { formatNumber } from "@/lib/format";
 import type { SectorOutlook } from "@/types/dashboard";
 
 export function SectorContextCards({ sectors }: { sectors: SectorOutlook[] }) {
-  const focusSectors = sectors.slice(0, 2);
-  const avoidSectors = sectors.slice(Math.max(sectors.length - 2, 0));
-  const densityRanks = new Map(
-    [...sectors]
-      .sort((a, b) => (b.aTierDensity ?? -1) - (a.aTierDensity ?? -1))
-      .map((sector, index) => [sector.sector, index + 1])
-  );
+  const [showHowToRead, setShowHowToRead] = useState(false);
 
   return (
     <section className="rounded-lg border border-slate-200 bg-white px-5 py-4 shadow-soft">
@@ -16,27 +11,42 @@ export function SectorContextCards({ sectors }: { sectors: SectorOutlook[] }) {
         <div>
           <h2 className="text-lg font-black text-ink">Sector Outlook</h2>
           <p className="mt-1 text-xs font-semibold text-muted">
-            Where long-call pressure is clustering in the broader daily run.
+            Where opportunity is broad vs concentrated today.
           </p>
-          {sectors.length > 0 ? (
-            <div className="mt-3 inline-flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-[linear-gradient(180deg,rgba(248,250,252,1),rgba(241,245,249,0.92))] px-3 py-2 shadow-[0_8px_18px_rgba(15,23,42,0.06)]">
-              <span className="text-[11px] font-black uppercase tracking-[0.08em] text-blue-700">Focus Today</span>
-              {focusSectors.map((sector, index) => (
-                <span key={`focus-${sector.sector}`} className={focusPillClass(index === 0 ? 1 : 2)}>
-                  {sector.sector}
-                </span>
-              ))}
-              <span className="ml-2 text-[11px] font-black uppercase tracking-[0.08em] text-red-700">Avoid</span>
-              {avoidSectors.map((sector, index) => (
-                <span
-                  key={`avoid-${sector.sector}`}
-                  className={focusPillClass(index === avoidSectors.length - 1 ? "avoid-1" : "avoid-2")}
-                >
-                  {sector.sector}
-                </span>
-              ))}
+          <p className="mt-2 max-w-4xl text-[11px] font-semibold leading-5 text-slate-500">
+            Based on how A-tier signals are distributed across sectors and tickers.
+          </p>
+          <div className="mt-2">
+            <button
+              type="button"
+              aria-expanded={showHowToRead}
+              aria-controls="sector-how-to-read"
+              onClick={() => setShowHowToRead((current) => !current)}
+              className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-600 transition hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-1"
+            >
+              <span aria-hidden="true">{showHowToRead ? "▼" : "▶"}</span>
+              <span>How to read this</span>
+            </button>
+          </div>
+          <div
+            id="sector-how-to-read"
+            className={`overflow-hidden transition-all duration-200 ease-out ${showHowToRead ? "mt-2 max-h-64 opacity-100" : "max-h-0 opacity-0"}`}
+          >
+            <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-3">
+              <p className="text-[11px] font-black text-ink">What this tracks</p>
+              <p className="mt-1 text-[11px] font-semibold leading-5 text-slate-600">
+                This view aggregates A-tier trade signals and evaluates how they are distributed across each sector, separating signal quality from participation breadth.
+              </p>
+              <p className="mt-2 text-[11px] font-black text-ink">Why this matters</p>
+              <p className="mt-1 text-[11px] font-semibold leading-5 text-slate-600">
+                Broad participation tends to support more durable trends, while concentrated activity is often driven by a few dominant names and can be less stable.
+              </p>
+              <p className="mt-2 text-[11px] font-black text-ink">How to use it</p>
+              <p className="mt-1 text-[11px] font-semibold leading-5 text-slate-600">
+                Focus on Broad Strength sectors for consistency, and treat Highly Concentrated sectors as more tactical opportunities.
+              </p>
             </div>
-          ) : null}
+          </div>
         </div>
       </div>
 
@@ -51,118 +61,45 @@ export function SectorContextCards({ sectors }: { sectors: SectorOutlook[] }) {
         ) : null}
 
         {sectors.map((sector) => {
+          const classification = classifySector(sector);
           const topTickers = [...sector.topTickers]
             .sort((a, b) => {
               if ((b.aGradeCount ?? 0) !== (a.aGradeCount ?? 0)) return (b.aGradeCount ?? 0) - (a.aGradeCount ?? 0);
               return (b.signalCount ?? 0) - (a.signalCount ?? 0);
             })
             .slice(0, 3);
+          const topTickerLine = topTickers
+            .map((ticker) => `${ticker.ticker} (${formatNumber(ticker.aGradeCount ?? 0)})`)
+            .join(" • ");
 
           return (
-            <article
-              key={sector.sector}
-              className={`rounded-lg border p-4 ${sectorCardClass(sector.rank, sectors.length)}`}
-            >
+            <article key={sector.sector} className={`rounded-lg border p-4 ${classification.cardClass}`}>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-[11px] font-bold text-muted">{groupLabel(sector.rank, sectors.length)} • Rank #{sector.rank}</p>
-                  <h3 className={`text-base leading-tight text-ink ${sector.rank <= 2 ? "font-black" : "font-extrabold"}`}>{sector.sector}</h3>
-                  <p className="mt-1 text-xs font-semibold text-muted">
-                    {sector.etf} · {sector.bias}
-                  </p>
+                  <p className="text-[11px] font-bold text-muted">#{sector.rank || "-"}</p>
+                  <p className={`text-[11px] font-black ${classification.labelClass}`}>{classification.label}</p>
+                  <h3 className="text-base font-extrabold leading-tight text-ink">{sector.sector}</h3>
+                  <p className="mt-1 text-xs font-semibold text-muted">{formatOverlayLine(sector)}</p>
                 </div>
                 <MiniBadge>{sector.flowSkew}</MiniBadge>
               </div>
 
-              <p className="mt-3 text-sm font-semibold leading-6 text-slate-700">{buildSummary(sector, sectors.length)}</p>
-
-              <div className="mt-4 grid grid-cols-2 gap-4">
-                <Stat label="ETF backdrop" value={sector.bias} />
-                <Stat label="Flow" value={sector.flowSkew} />
-                <Stat
-                  label="A-tier density"
-                  value={formatDensity(sector.aTierDensity)}
-                  detail={formatDensityContext(densityRanks.get(sector.sector) ?? null, sectors.length)}
-                />
-                <Stat label="Active setups today" value={formatNumber(sector.visibleSetups ?? 0)} />
+              <div className="mt-3 space-y-1">
+                <p className="text-sm font-black text-ink">{formatDensity(sector.aTierDensity)} A-tier density</p>
+                <p className="text-xs font-semibold text-muted">
+                  {formatNumber(sector.aTierTickerCount ?? 0)} A-tier tickers of {formatNumber(sector.tickerCount ?? 0)} • Top 3 = {formatShare(sector.top3Share)}
+                </p>
               </div>
+              <p className="mt-3 text-sm font-semibold leading-6 text-slate-700">{classification.description}</p>
 
               <div className="mt-4">
-                <p className="text-[11px] font-bold text-muted">Tickers repeatedly appearing in top-ranked setups</p>
-                <div className="mt-2 space-y-2">
-                  {topTickers.map((ticker) => (
-                    <div
-                      key={`${sector.sector}-${ticker.ticker}`}
-                      className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-md border border-slate-200 bg-white px-3 py-2"
-                    >
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-ink">{ticker.ticker}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-semibold text-muted">A-tier x{formatNumber(ticker.aGradeCount ?? 0)}</span>
-                        {ticker.direction && ticker.direction !== "Neutral" ? <MiniBadge>{ticker.direction}</MiniBadge> : null}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <p className="text-sm font-semibold text-slate-700">{topTickerLine || "No repeated top tickers"}</p>
               </div>
             </article>
           );
         })}
       </div>
     </section>
-  );
-}
-
-function focusPillClass(rank: 1 | 2 | "avoid-1" | "avoid-2") {
-  if (rank === 1) {
-    return "rounded-md bg-blue-700 px-2.5 py-1 text-xs font-black text-white";
-  }
-
-  if (rank === 2) {
-    return "rounded-md bg-blue-500 px-2.5 py-1 text-xs font-black text-white";
-  }
-
-  if (rank === "avoid-1") {
-    return "rounded-md bg-red-500 px-2.5 py-1 text-xs font-black text-white";
-  }
-
-  return "rounded-md bg-red-200 px-2.5 py-1 text-xs font-black text-red-800 ring-1 ring-red-300";
-}
-
-function sectorCardClass(rank: number, total: number) {
-  if (rank === 1) {
-    return "border-blue-500 bg-[linear-gradient(180deg,rgba(29,78,216,0.2),rgba(219,234,254,0.92))] shadow-[0_14px_30px_rgba(37,99,235,0.16)]";
-  }
-
-  if (rank === 2) {
-    return "border-blue-400 bg-[linear-gradient(180deg,rgba(96,165,250,0.16),rgba(239,246,255,0.96))] shadow-[0_10px_22px_rgba(59,130,246,0.1)]";
-  }
-
-  if (rank === total) {
-    return "border-red-400 bg-[linear-gradient(180deg,rgba(239,68,68,0.18),rgba(254,242,242,0.98))] shadow-[0_10px_22px_rgba(239,68,68,0.08)]";
-  }
-
-  if (rank === Math.max(total - 1, 1)) {
-    return "border-red-300 bg-[linear-gradient(180deg,rgba(254,226,226,0.82),rgba(248,250,252,0.98))]";
-  }
-
-  return "border-slate-200 bg-slate-50";
-}
-
-function groupLabel(rank: number, total: number) {
-  if (rank <= 2) return "Focus Today";
-  if (rank >= Math.max(total - 1, 1)) return "Avoid";
-  return "Secondary";
-}
-
-function Stat({ label, value, detail }: { label: string; value: string; detail?: string | null }) {
-  return (
-    <div>
-      <p className="text-[11px] font-bold text-muted">{label}</p>
-      <p className="mt-2 text-lg font-black leading-none text-ink">{value}</p>
-      {detail ? <p className="mt-1 text-[11px] font-semibold text-muted">{detail}</p> : null}
-    </div>
   );
 }
 
@@ -174,25 +111,69 @@ function MiniBadge({ children }: { children: React.ReactNode }) {
   );
 }
 
-function buildSummary(sector: SectorOutlook, total: number) {
-  if (sector.rank <= 2) {
-    return "Primary sector for call exposure today.";
-  }
-
-  if (sector.rank >= Math.max(total - 1, 1)) {
-    return "Lower conviction - avoid aggressive new entries.";
-  }
-
-  return "Secondary exposure - consider after focus sectors.";
-}
-
 function formatDensity(value: number | null | undefined) {
   if (value === null || value === undefined) return "N/A";
   return `${value.toFixed(1)}%`;
 }
 
-function formatDensityContext(rank: number | null, total: number) {
-  if (!rank || total <= 0) return null;
-  const percentile = Math.round((rank / total) * 100);
-  return `Top ${percentile}% by density today`;
+function formatShare(value: number | null | undefined) {
+  if (value === null || value === undefined) return "N/A";
+  return `${value.toFixed(1)}%`;
+}
+
+function classifySector(sector: SectorOutlook) {
+  const tickerCount = Math.max(0, Number(sector.tickerCount ?? 0));
+  const aTierTickerCount = Math.max(0, Number(sector.aTierTickerCount ?? 0));
+  const top3Share = Number(sector.top3Share ?? 0);
+  const breadthRatio = tickerCount > 0 ? aTierTickerCount / tickerCount : 0;
+
+  if (top3Share > 70) {
+    return {
+      label: "Highly Concentrated",
+      description: "Driven by a few dominant names. Higher risk, less diversification.",
+      labelClass: "text-red-700",
+      cardClass: "border-red-300 bg-[linear-gradient(180deg,rgba(254,226,226,0.82),rgba(255,255,255,0.98))]"
+    };
+  }
+
+  if (breadthRatio > 0.06 && top3Share < 40) {
+    return {
+      label: "Broad Strength",
+      description: "Strong participation across multiple tickers. More durable moves.",
+      labelClass: "text-emerald-700",
+      cardClass: "border-emerald-300 bg-[linear-gradient(180deg,rgba(220,252,231,0.85),rgba(255,255,255,0.98))]"
+    };
+  }
+
+  if (breadthRatio < 0.03) {
+    return {
+      label: "Narrow Opportunity",
+      description: "Limited participation across the sector. Opportunities are selective.",
+      labelClass: "text-amber-700",
+      cardClass: "border-amber-300 bg-[linear-gradient(180deg,rgba(254,243,199,0.72),rgba(255,255,255,0.98))]"
+    };
+  }
+
+  if (top3Share >= 50 && top3Share <= 75) {
+    return {
+      label: "Moderately Concentrated",
+      description: "Participation is uneven with emerging leaders.",
+      labelClass: "text-orange-700",
+      cardClass: "border-orange-300 bg-[linear-gradient(180deg,rgba(255,237,213,0.78),rgba(255,255,255,0.98))]"
+    };
+  }
+
+  return {
+    label: "Balanced Opportunity",
+    description: "Moderate participation with no clear dominance.",
+    labelClass: "text-slate-700",
+    cardClass: "border-slate-200 bg-slate-50"
+  };
+}
+
+function formatOverlayLine(sector: SectorOutlook) {
+  const fallbackTicker = String(sector.etf ?? "").trim() || "N/A";
+  const bias = String(sector.bias ?? "").trim().toLowerCase();
+  if (!bias || bias === "no overlay") return fallbackTicker;
+  return `${fallbackTicker} - ${sector.bias}`;
 }
