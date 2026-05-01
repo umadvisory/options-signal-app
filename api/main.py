@@ -982,16 +982,6 @@ def build_ranked_trade_slice(df: pd.DataFrame):
     return ranked.head(25).copy()
 
 
-def build_trade_action_from_score(score):
-    score_value = pd.to_numeric(pd.Series([score]), errors="coerce").iloc[0]
-    if pd.isna(score_value):
-        return "WATCH"
-    if score_value >= 1.8:
-        return "ENTER"
-    if score_value >= 1.3:
-        return "WATCH"
-    return "WAIT"
-
 def safe_pct_distance_value(strike, spot):
     strike_v = pd.to_numeric(pd.Series([strike]), errors="coerce").iloc[0]
     spot_v = pd.to_numeric(pd.Series([spot]), errors="coerce").iloc[0]
@@ -1006,19 +996,21 @@ def build_trade_action_from_entry_profile(row):
     rsi_value = 0 if pd.isna(rsi) else float(rsi)
     distance_value = 0 if distance_pct is None or pd.isna(distance_pct) else float(distance_pct)
 
-    if rsi_value < 60:
+    if rsi_value < 55:
         rsi_score = 0.9
-    elif rsi_value <= 78:
-        rsi_score = 0.55
+    elif rsi_value <= 70:
+        rsi_score = 0.7
+    elif rsi_value <= 80:
+        rsi_score = 0.5
     else:
-        rsi_score = 0.15
+        rsi_score = 0.2
 
     distance_score = max(0.0, min(1.0, 1 - distance_value / 15))
     entry_score = round(rsi_score * 0.6 + distance_score * 0.4, 2)
 
-    if rsi_value > 78 or entry_score < 0.35:
+    if rsi_value > 85 or entry_score < 0.3:
         return "WAIT"
-    if entry_score >= 0.6:
+    if entry_score >= 0.5:
         return "ENTER"
     return "WATCH"
 
@@ -1402,22 +1394,20 @@ def build_top_trades_payload(include_pass: bool = True):
                 return "WEAK"
 
         df_filtered["signal_strength"] = df_filtered.apply(build_signal, axis=1)
-        
-        def build_tier(row):
-            score = pd.to_numeric(row.get("adaptive_score_final"), errors="coerce")
-
-            if pd.isna(score):
-                return "N/A"
-            if score >= 1.9:
-                return "A+"
-            elif score >= 1.8:
-                return "A"
-            elif score >= 1.6:
-                return "A-"
-            elif score >= 1.3:
-                return "B+"
-            else:
+        def build_tier_from_rank(rank_position: int, total_trades: int):
+            if total_trades <= 0:
                 return "B"
+
+            percentile = rank_position / total_trades
+            if percentile <= 0.05:
+                return "A+"
+            if percentile <= 0.15:
+                return "A"
+            if percentile <= 0.30:
+                return "A-"
+            if percentile <= 0.50:
+                return "B+"
+            return "B"
         
         # --- SAFE HELPERS ---
         def safe_int(val):
@@ -1594,8 +1584,8 @@ def build_top_trades_payload(include_pass: bool = True):
             sector = sector_raw.strip() if sector_raw else None
             etf_info = etf_overlay_map.get(sector, {}) if sector else {}
             fallback_etf = SECTOR_TO_ETF_FALLBACK.get(sector) if sector else None
-            action = build_trade_action_from_score(row.get("adaptive_score_final"))
-            tier = build_tier(row)
+            action = build_trade_action_from_entry_profile(row)
+            tier = build_tier_from_rank(i, candidate_total)
             strike_distance = safe_pct_distance(row.get("strike"), row.get("underlyingPrice"))
             strike_pos_label = build_strike_position_label(row.get("itm_flag"), strike_distance)
             strike_pos_text = build_strike_position_text(strike_distance)
@@ -1632,6 +1622,7 @@ def build_top_trades_payload(include_pass: bool = True):
                 "companyName": safe_str(row.get("company_name")),
                 "tier": tier,
                 "action": action,
+                "action_override": False,
                 "optionType": option_type,
                 "signalStrength": build_signal(row),
 
@@ -1774,7 +1765,14 @@ def build_top_trades_payload(include_pass: bool = True):
                 },
 
             })
-        
+
+        enter_count_before_override = sum(1 for trade in response if str(trade.get("action") or "").strip().upper() == "ENTER")
+        if enter_count_before_override == 0 and response:
+            override_count = min(2, len(response))
+            for idx in range(override_count):
+                response[idx]["action"] = "ENTER"
+                response[idx]["action_override"] = True
+
         if not include_pass:
             response = [trade for trade in response if str(trade.get("action") or "").strip().upper() != "WAIT"]
 

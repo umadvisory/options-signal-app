@@ -6,7 +6,6 @@ import { TopTradesTable } from "@/components/dashboard/TopTradesTable";
 import { TradeFilters, type TradeFiltersState } from "@/components/dashboard/TradeFilters";
 import { WatchlistBar } from "@/components/dashboard/WatchlistBar";
 import { YesterdayStatusSection } from "@/components/dashboard/YesterdayStatusSection";
-import { getDecisionState } from "@/lib/trade-decision";
 import type { DashboardData, TopTrade } from "@/types/dashboard";
 
 export function Dashboard({
@@ -48,14 +47,14 @@ export function Dashboard({
   userEmail?: string | null;
   onLogout?: () => void;
 }) {
-  const enterCount = data.trades.filter((trade) => getDecisionState(trade).action === "ENTER").length;
-  const watchCount = data.trades.filter((trade) => getDecisionState(trade).action === "WATCH").length;
+  const enterCount = data.trades.filter((trade) => trade.action === "ENTER").length;
+  const watchCount = data.trades.filter((trade) => trade.action === "WATCH").length;
   const workbenchActionMap = Object.fromEntries(
-    data.trades.map((trade) => [trade.ticker, getDecisionState(trade).action])
+    data.trades.map((trade) => [trade.ticker, trade.action])
   ) as Record<string, "ENTER" | "WATCH" | "WAIT">;
-  const leadingEnterTrade = data.trades.find((trade) => getDecisionState(trade).action === "ENTER") ?? null;
+  const leadingEnterTrade = data.trades.find((trade) => trade.action === "ENTER") ?? null;
   const resolvedHeroTrade = heroTrade ?? null;
-  const heroDecision = resolvedHeroTrade ? getDecisionState(resolvedHeroTrade) : null;
+  const heroDecision = resolvedHeroTrade ? resolvedHeroTrade.action : null;
   const resolvedTopRankedTrade = topRankedTrade ?? null;
 
   return (
@@ -112,11 +111,13 @@ export function Dashboard({
           <section className="rounded-lg border border-blue-300 bg-slate-950 px-6 py-4 text-white shadow-[0_18px_42px_rgba(15,23,42,0.18)]">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
-                <p className="text-xs font-bold tracking-[0.06em] text-blue-200">Best Entry Now</p>
+                <p className="text-xs font-bold tracking-[0.06em] text-blue-200">
+                  {heroDecision === "ENTER" ? "Best Entry Now" : "Best Setup (Timing Developing)"}
+                </p>
                 <div className="mt-3 flex flex-wrap items-center gap-3">
                   <h2 className="text-[34px] font-black leading-none text-white">{resolvedHeroTrade.ticker}</h2>
                   <span className={heroGradeClass(resolvedHeroTrade.tier)}>{resolvedHeroTrade.tier}</span>
-                  <span className={heroActionClass(heroDecision.action)}>{heroDecision.action}</span>
+                  <span className={heroActionClass(heroDecision)}>{heroDecision}</span>
                 </div>
                 <p className="mt-2 text-xs font-semibold text-slate-400">Ranked #{resolvedHeroTrade.rank} overall</p>
                 {resolvedHeroTrade.companyName ? (
@@ -129,7 +130,7 @@ export function Dashboard({
                           ...resolvedTopRankedTrade,
                           action:
                             fullWorkbenchActionMap?.[resolvedTopRankedTrade.ticker] ??
-                            getDecisionState(resolvedTopRankedTrade).action
+                            resolvedTopRankedTrade.action
                         }
                       : null,
                     trades: data.trades

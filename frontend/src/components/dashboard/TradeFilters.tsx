@@ -1,5 +1,4 @@
 import type { TradeAction, TradeTier, TopTrade } from "@/types/dashboard";
-import { getDecisionState } from "@/lib/trade-decision";
 
 export type TradeFiltersState = {
   action: TradeAction | "ALL";
@@ -106,8 +105,7 @@ export function applyTradeFilters(trades: TopTrade[], filters: TradeFiltersState
   const selectedAction = normalizeActionOption(filters.action);
 
   return trades.filter((trade) => {
-    const decisionAction = getDecisionState(trade).action;
-    const normalizedTradeAction = normalizeActionOption(decisionAction);
+    const normalizedTradeAction = normalizeActionOption(trade.action);
     if (showReview && normalizedTradeAction !== "ENTER") return false;
     if (selectedAction !== "ALL" && normalizedTradeAction !== selectedAction) return false;
     if (filters.tier !== "ALL" && trade.tier !== filters.tier) return false;

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-01T11:35:48.123635+00:00",
+  "generatedAt": "2026-05-01T12:01:25.869709+00:00",
   "signalDate": "2026-04-30",
   "sourceFiles": {
     "predictionCsv": "sample_predictions_with_tiers_20260430.csv",
@@ -35,7 +35,7 @@
       "shockDay": false,
       "trendStrength": 0.27
     },
-    "insight": "System Insight: No clean entries yet; several setups remain on watch for better timing."
+    "insight": "System Insight: Multiple entry-grade setups available; prioritize clean entries over extended momentum."
   },
   "strategyStats": {
     "highConviction": {
@@ -551,7 +551,7 @@
       "grade": "A",
       "signalDate": "2026-04-29",
       "currentDate": "2026-04-30",
-      "originalAction": "WATCH",
+      "originalAction": "ENTER",
       "todayAction": "ENTER",
       "snapshotPrice": 205.66,
       "yesterdayEntryPrice": 205.66,
@@ -560,8 +560,8 @@
       "typicalHoldDays": 8,
       "status": "Still valid",
       "statusNote": null,
-      "rawFollowupAction": "WATCH",
-      "cappedFollowupAction": "WATCH",
+      "rawFollowupAction": "ENTER",
+      "cappedFollowupAction": "ENTER",
       "followupState": "STABLE",
       "stillInTodayList": true
     },
@@ -570,8 +570,8 @@
       "grade": "A",
       "signalDate": "2026-04-29",
       "currentDate": "2026-04-30",
-      "originalAction": "WATCH",
-      "todayAction": "WATCH",
+      "originalAction": "ENTER",
+      "todayAction": "ENTER",
       "snapshotPrice": 209.25,
       "yesterdayEntryPrice": 209.25,
       "currentPrice": 199.57,
@@ -579,8 +579,8 @@
       "typicalHoldDays": 8,
       "status": "Weak - needs confirmation",
       "statusNote": null,
-      "rawFollowupAction": "WATCH (near entry)",
-      "cappedFollowupAction": "WATCH (near entry)",
+      "rawFollowupAction": "ENTER (better price)",
+      "cappedFollowupAction": "ENTER (better price)",
       "followupState": "PULLBACK",
       "stillInTodayList": true
     },
@@ -589,8 +589,8 @@
       "grade": "A",
       "signalDate": "2026-04-29",
       "currentDate": "2026-04-30",
-      "originalAction": "WAIT",
-      "todayAction": "WAIT",
+      "originalAction": "ENTER",
+      "todayAction": "WATCH",
       "snapshotPrice": 156.57,
       "yesterdayEntryPrice": 156.57,
       "currentPrice": 165.15,
@@ -609,7 +609,7 @@
       "signalDate": "2026-04-29",
       "currentDate": "2026-04-30",
       "originalAction": "WATCH",
-      "todayAction": "WATCH",
+      "todayAction": "ENTER",
       "snapshotPrice": 114.19,
       "yesterdayEntryPrice": 114.19,
       "currentPrice": 111.6,
@@ -628,16 +628,16 @@
       "signalDate": "2026-04-29",
       "currentDate": "2026-04-30",
       "originalAction": "ENTER",
-      "todayAction": "WATCH",
+      "todayAction": "ENTER",
       "snapshotPrice": 163.83,
       "yesterdayEntryPrice": 163.83,
       "currentPrice": 161.39,
       "priceChangePct": -1.5,
       "typicalHoldDays": 8,
-      "status": "Prior setup near entry, but today's signal remains WATCH",
-      "statusNote": "Prior setup near entry, but today's signal remains WATCH",
+      "status": "Still valid",
+      "statusNote": null,
       "rawFollowupAction": "ENTER",
-      "cappedFollowupAction": "WATCH",
+      "cappedFollowupAction": "ENTER",
       "followupState": "STABLE",
       "stillInTodayList": true
     },
@@ -665,8 +665,8 @@
       "grade": "B",
       "signalDate": "2026-04-29",
       "currentDate": "2026-04-30",
-      "originalAction": "WATCH",
-      "todayAction": "WAIT",
+      "originalAction": "ENTER",
+      "todayAction": "WATCH",
       "snapshotPrice": 201.69,
       "yesterdayEntryPrice": 201.69,
       "currentPrice": 210.32,
@@ -704,7 +704,7 @@
       "signalDate": "2026-04-29",
       "currentDate": "2026-04-30",
       "originalAction": "WATCH",
-      "todayAction": "WATCH",
+      "todayAction": "ENTER",
       "snapshotPrice": 115.67,
       "yesterdayEntryPrice": 115.67,
       "currentPrice": 122.28,
@@ -722,7 +722,7 @@
       "grade": "B",
       "signalDate": "2026-04-29",
       "currentDate": "2026-04-30",
-      "originalAction": "WAIT",
+      "originalAction": "WATCH",
       "todayAction": null,
       "snapshotPrice": 140.55,
       "yesterdayEntryPrice": 140.55,
@@ -779,7 +779,7 @@
       "grade": "B",
       "signalDate": "2026-04-29",
       "currentDate": "2026-04-30",
-      "originalAction": "WATCH",
+      "originalAction": "ENTER",
       "todayAction": null,
       "snapshotPrice": 137.97,
       "yesterdayEntryPrice": 137.97,
@@ -788,8 +788,8 @@
       "typicalHoldDays": 8,
       "status": "Still valid",
       "statusNote": null,
-      "rawFollowupAction": "WATCH",
-      "cappedFollowupAction": "WATCH",
+      "rawFollowupAction": "ENTER",
+      "cappedFollowupAction": "ENTER",
       "followupState": "STABLE",
       "stillInTodayList": false
     },
@@ -874,8 +874,8 @@
       "grade": "B",
       "signalDate": "2026-04-29",
       "currentDate": "2026-04-30",
-      "originalAction": "WATCH",
-      "todayAction": "WATCH",
+      "originalAction": "ENTER",
+      "todayAction": "ENTER",
       "snapshotPrice": 147.75,
       "yesterdayEntryPrice": 147.75,
       "currentPrice": 147.23,
@@ -883,8 +883,8 @@
       "typicalHoldDays": 8,
       "status": "Still valid",
       "statusNote": null,
-      "rawFollowupAction": "WATCH",
-      "cappedFollowupAction": "WATCH",
+      "rawFollowupAction": "ENTER",
+      "cappedFollowupAction": "ENTER",
       "followupState": "STABLE",
       "stillInTodayList": true
     },
@@ -988,7 +988,7 @@
       "grade": "B",
       "signalDate": "2026-04-28",
       "currentDate": "2026-04-30",
-      "originalAction": "WATCH",
+      "originalAction": "ENTER",
       "todayAction": null,
       "snapshotPrice": 142.16,
       "yesterdayEntryPrice": 142.16,
@@ -1026,7 +1026,7 @@
       "grade": "A",
       "signalDate": "2026-04-27",
       "currentDate": "2026-04-30",
-      "originalAction": "WATCH",
+      "originalAction": "ENTER",
       "todayAction": null,
       "snapshotPrice": 25.8,
       "yesterdayEntryPrice": 25.8,
@@ -1035,8 +1035,8 @@
       "typicalHoldDays": 9,
       "status": "Weak - needs confirmation",
       "statusNote": null,
-      "rawFollowupAction": "WATCH",
-      "cappedFollowupAction": "WATCH",
+      "rawFollowupAction": "ENTER",
+      "cappedFollowupAction": "ENTER",
       "followupState": "STABLE",
       "stillInTodayList": false
     },
@@ -1083,7 +1083,7 @@
       "grade": "A",
       "signalDate": "2026-04-24",
       "currentDate": "2026-04-30",
-      "originalAction": "WATCH",
+      "originalAction": "ENTER",
       "todayAction": null,
       "snapshotPrice": 120.7,
       "yesterdayEntryPrice": 120.7,
@@ -1092,8 +1092,8 @@
       "typicalHoldDays": 8,
       "status": "Weak - needs confirmation",
       "statusNote": null,
-      "rawFollowupAction": "WATCH (near entry)",
-      "cappedFollowupAction": "WATCH (near entry)",
+      "rawFollowupAction": "ENTER (better price)",
+      "cappedFollowupAction": "ENTER (better price)",
       "followupState": "PULLBACK",
       "stillInTodayList": false
     },
@@ -1102,7 +1102,7 @@
       "grade": "A",
       "signalDate": "2026-04-24",
       "currentDate": "2026-04-30",
-      "originalAction": "WATCH",
+      "originalAction": "ENTER",
       "todayAction": null,
       "snapshotPrice": 109.79,
       "yesterdayEntryPrice": 109.79,
@@ -1111,8 +1111,8 @@
       "typicalHoldDays": 8,
       "status": "Weak - needs confirmation",
       "statusNote": null,
-      "rawFollowupAction": "WATCH (near entry)",
-      "cappedFollowupAction": "WATCH (near entry)",
+      "rawFollowupAction": "ENTER (better price)",
+      "cappedFollowupAction": "ENTER (better price)",
       "followupState": "PULLBACK",
       "stillInTodayList": false
     },
@@ -1198,8 +1198,9 @@
       "rank": 1,
       "ticker": "NBIS",
       "companyName": "Nebius Group N.V.",
-      "tier": "A-",
+      "tier": "A+",
       "action": "WATCH",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "MODERATE",
       "contract": {
@@ -1331,8 +1332,9 @@
       "rank": 2,
       "ticker": "MRVL",
       "companyName": "Marvell Technology, Inc.",
-      "tier": "B",
-      "action": "WAIT",
+      "tier": "A",
+      "action": "WATCH",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "MODERATE",
       "contract": {
@@ -1405,11 +1407,13 @@
         ],
         "caution": [
           "No live sector overlay; use price action to confirm.",
-          "Momentum extended; avoid chasing strength.",
-          "Short duration: time decay risk is higher."
+          "Qualified but needs cleaner confirmation.",
+          "Momentum extended; avoid chasing strength."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum rolls over after extension.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -1433,7 +1437,7 @@
           "matchStrength": "setup",
           "supportLabel": "Strong"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Qualified setup, but entry quality matters more than signal strength here.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -1446,7 +1450,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Valid setup, but follow-through matters more than immediacy.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -1464,8 +1468,9 @@
       "rank": 3,
       "ticker": "DELL",
       "companyName": "Dell Technologies Inc.",
-      "tier": "B+",
-      "action": "WATCH",
+      "tier": "A",
+      "action": "ENTER",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "MODERATE",
       "contract": {
@@ -1533,10 +1538,11 @@
         "openInterestOk": true
       },
       "executionGuidance": {
-        "favorable": [],
+        "favorable": [
+          "Higher-priority candidate in today's list."
+        ],
         "caution": [
           "No live sector overlay; use price action to confirm.",
-          "Qualified but needs cleaner confirmation.",
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
@@ -1566,7 +1572,7 @@
           "matchStrength": "setup",
           "supportLabel": "Strong"
         },
-        "translation": "Qualified setup, but entry quality matters more than signal strength here.",
+        "translation": "Higher-priority setup with a clean enough entry profile.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -1579,7 +1585,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Valid setup, but follow-through matters more than immediacy.",
+          "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -1597,8 +1603,9 @@
       "rank": 4,
       "ticker": "AAPL",
       "companyName": "Apple Inc.",
-      "tier": "B",
-      "action": "WAIT",
+      "tier": "A-",
+      "action": "ENTER",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "MODERATE",
       "contract": {
@@ -1667,6 +1674,7 @@
       },
       "executionGuidance": {
         "favorable": [
+          "Higher-priority candidate in today's list.",
           "ITM structure supports follow-through if trend holds."
         ],
         "caution": [
@@ -1674,7 +1682,9 @@
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum weakens.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -1698,7 +1708,7 @@
           "matchStrength": "setup",
           "supportLabel": "Strong"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Higher-priority setup with a clean enough entry profile.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -1711,7 +1721,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -1729,8 +1739,9 @@
       "rank": 5,
       "ticker": "ORCL",
       "companyName": "Oracle Corporation",
-      "tier": "B",
-      "action": "WAIT",
+      "tier": "A-",
+      "action": "ENTER",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -1798,14 +1809,18 @@
         "openInterestOk": true
       },
       "executionGuidance": {
-        "favorable": [],
+        "favorable": [
+          "Higher-priority candidate in today's list."
+        ],
         "caution": [
           "No live sector overlay; use price action to confirm.",
           "OTM structure: avoid paying up if move is already extended.",
           "Momentum extended; avoid chasing strength."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum rolls over after extension.",
+          "Avoid if bid/ask widens materially."
         ]
       },
       "decisionContext": {
@@ -1829,7 +1844,7 @@
           "matchStrength": "setup",
           "supportLabel": "Limited history"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Strong continuation setup, but timing matters because momentum is already extended.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -1842,7 +1857,7 @@
         ],
         "expectation": {
           "timeframe": "8 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
           "risk": "Premium can decay quickly if the move stalls."
         }
       },
@@ -1860,8 +1875,9 @@
       "rank": 6,
       "ticker": "FORM",
       "companyName": "FormFactor, Inc.",
-      "tier": "B",
-      "action": "WAIT",
+      "tier": "A-",
+      "action": "WATCH",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -1932,11 +1948,13 @@
         "favorable": [],
         "caution": [
           "No live sector overlay; use price action to confirm.",
-          "OTM structure: avoid paying up if move is already extended.",
-          "Momentum extended; avoid chasing strength."
+          "Qualified but needs cleaner confirmation.",
+          "OTM structure: avoid paying up if move is already extended."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum rolls over after extension.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -1960,7 +1978,7 @@
           "matchStrength": "setup",
           "supportLabel": "Limited history"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Qualified setup, but entry quality matters more than signal strength here.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -1973,7 +1991,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Valid setup, but follow-through matters more than immediacy.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -1991,8 +2009,9 @@
       "rank": 7,
       "ticker": "ANET",
       "companyName": "Arista Networks, Inc.",
-      "tier": "B",
-      "action": "WAIT",
+      "tier": "A-",
+      "action": "ENTER",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -2060,14 +2079,18 @@
         "openInterestOk": true
       },
       "executionGuidance": {
-        "favorable": [],
+        "favorable": [
+          "Higher-priority candidate in today's list."
+        ],
         "caution": [
           "No live sector overlay; use price action to confirm.",
           "Momentum extended; avoid chasing strength.",
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum rolls over after extension.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -2091,7 +2114,7 @@
           "matchStrength": "setup",
           "supportLabel": "Strong"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Strong continuation setup, but timing matters because momentum is already extended.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -2104,7 +2127,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -2122,8 +2145,9 @@
       "rank": 8,
       "ticker": "NVDA",
       "companyName": "NVIDIA Corporation",
-      "tier": "B",
-      "action": "WAIT",
+      "tier": "B+",
+      "action": "ENTER",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -2192,13 +2216,16 @@
       },
       "executionGuidance": {
         "favorable": [
+          "Higher-priority candidate in today's list.",
           "ITM structure supports follow-through if trend holds."
         ],
         "caution": [
           "No live sector overlay; use price action to confirm."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum weakens.",
+          "Avoid if bid/ask widens materially."
         ]
       },
       "decisionContext": {
@@ -2222,7 +2249,7 @@
           "matchStrength": "setup",
           "supportLabel": "Moderate"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Strong continuation setup, but timing matters because momentum is already extended.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -2235,7 +2262,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
           "risk": "The edge weakens if momentum cools and sector support fades."
         }
       },
@@ -2253,8 +2280,9 @@
       "rank": 9,
       "ticker": "LSCC",
       "companyName": "Lattice Semiconductor Corporation",
-      "tier": "B",
-      "action": "WAIT",
+      "tier": "B+",
+      "action": "ENTER",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -2322,14 +2350,18 @@
         "openInterestOk": true
       },
       "executionGuidance": {
-        "favorable": [],
+        "favorable": [
+          "Higher-priority candidate in today's list."
+        ],
         "caution": [
           "No live sector overlay; use price action to confirm.",
           "OTM structure: avoid paying up if move is already extended.",
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum weakens.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -2353,7 +2385,7 @@
           "matchStrength": "setup",
           "supportLabel": "Limited history"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Higher-priority setup with a clean enough entry profile.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -2366,7 +2398,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -2384,8 +2416,9 @@
       "rank": 10,
       "ticker": "ABVX",
       "companyName": "ABIVAX SociÃ©tÃ© Anonyme",
-      "tier": "B",
-      "action": "WAIT",
+      "tier": "B+",
+      "action": "ENTER",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -2453,14 +2486,18 @@
         "openInterestOk": true
       },
       "executionGuidance": {
-        "favorable": [],
+        "favorable": [
+          "Higher-priority candidate in today's list."
+        ],
         "caution": [
           "No live sector overlay; use price action to confirm.",
           "OTM structure: avoid paying up if move is already extended.",
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum weakens.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -2484,7 +2521,7 @@
           "matchStrength": "setup",
           "supportLabel": "Limited history"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Higher-priority setup with a clean enough entry profile.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -2497,7 +2534,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -2515,8 +2552,9 @@
       "rank": 11,
       "ticker": "RDDT",
       "companyName": "Reddit, Inc.",
-      "tier": "B",
-      "action": "WAIT",
+      "tier": "B+",
+      "action": "ENTER",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -2584,14 +2622,18 @@
         "openInterestOk": true
       },
       "executionGuidance": {
-        "favorable": [],
+        "favorable": [
+          "Higher-priority candidate in today's list."
+        ],
         "caution": [
           "No live sector overlay; use price action to confirm.",
           "OTM structure: avoid paying up if move is already extended.",
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum weakens.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -2615,7 +2657,7 @@
           "matchStrength": "setup",
           "supportLabel": "Limited history"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Higher-priority setup with a clean enough entry profile.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -2628,7 +2670,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -2646,8 +2688,9 @@
       "rank": 12,
       "ticker": "SATS",
       "companyName": "EchoStar Corporation",
-      "tier": "B",
-      "action": "WAIT",
+      "tier": "B+",
+      "action": "ENTER",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -2715,13 +2758,17 @@
         "openInterestOk": true
       },
       "executionGuidance": {
-        "favorable": [],
+        "favorable": [
+          "Higher-priority candidate in today's list."
+        ],
         "caution": [
           "No live sector overlay; use price action to confirm.",
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum weakens.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -2745,7 +2792,7 @@
           "matchStrength": "setup",
           "supportLabel": "Strong"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Higher-priority setup with a clean enough entry profile.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -2758,7 +2805,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -2777,7 +2824,8 @@
       "ticker": "QCOM",
       "companyName": "QUALCOMM Incorporated",
       "tier": "B",
-      "action": "WAIT",
+      "action": "WATCH",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "MODERATE",
       "contract": {
@@ -2850,10 +2898,13 @@
         ],
         "caution": [
           "No live sector overlay; use price action to confirm.",
+          "Qualified but needs cleaner confirmation.",
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum weakens.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -2877,7 +2928,7 @@
           "matchStrength": "setup",
           "supportLabel": "Strong"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Qualified setup, but entry quality matters more than signal strength here.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -2890,7 +2941,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Valid setup, but follow-through matters more than immediacy.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -2909,7 +2960,8 @@
       "ticker": "ENTG",
       "companyName": "Entegris, Inc.",
       "tier": "B",
-      "action": "WAIT",
+      "action": "ENTER",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -2977,13 +3029,17 @@
         "openInterestOk": true
       },
       "executionGuidance": {
-        "favorable": [],
+        "favorable": [
+          "Higher-priority candidate in today's list."
+        ],
         "caution": [
           "No live sector overlay; use price action to confirm.",
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum weakens.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -3007,7 +3063,7 @@
           "matchStrength": "setup",
           "supportLabel": "Strong"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Higher-priority setup with a clean enough entry profile.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -3020,7 +3076,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -3039,7 +3095,8 @@
       "ticker": "DUOL",
       "companyName": "Duolingo, Inc.",
       "tier": "B",
-      "action": "WAIT",
+      "action": "ENTER",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -3107,14 +3164,18 @@
         "openInterestOk": true
       },
       "executionGuidance": {
-        "favorable": [],
+        "favorable": [
+          "Higher-priority candidate in today's list."
+        ],
         "caution": [
           "No live sector overlay; use price action to confirm.",
           "OTM structure: avoid paying up if move is already extended.",
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum weakens.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -3138,7 +3199,7 @@
           "matchStrength": "setup",
           "supportLabel": "Limited history"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Higher-priority setup with a clean enough entry profile.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -3151,7 +3212,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -3170,7 +3231,8 @@
       "ticker": "TSEM",
       "companyName": "Tower Semiconductor Ltd.",
       "tier": "B",
-      "action": "WAIT",
+      "action": "WATCH",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "MODERATE",
       "contract": {
@@ -3241,11 +3303,13 @@
         "favorable": [],
         "caution": [
           "No live sector overlay; use price action to confirm.",
-          "OTM structure: avoid paying up if move is already extended.",
-          "Momentum extended; avoid chasing strength."
+          "Qualified but needs cleaner confirmation.",
+          "OTM structure: avoid paying up if move is already extended."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum rolls over after extension.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -3269,7 +3333,7 @@
           "matchStrength": "setup",
           "supportLabel": "Limited history"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Qualified setup, but entry quality matters more than signal strength here.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -3282,7 +3346,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Valid setup, but follow-through matters more than immediacy.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -3301,7 +3365,8 @@
       "ticker": "CHTR",
       "companyName": "Charter Communications, Inc.",
       "tier": "B",
-      "action": "WAIT",
+      "action": "ENTER",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -3369,13 +3434,17 @@
         "openInterestOk": true
       },
       "executionGuidance": {
-        "favorable": [],
+        "favorable": [
+          "Higher-priority candidate in today's list."
+        ],
         "caution": [
           "No live sector overlay; use price action to confirm.",
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum weakens.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -3399,7 +3468,7 @@
           "matchStrength": "setup",
           "supportLabel": "Strong"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Higher-priority setup with a clean enough entry profile.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -3412,7 +3481,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -3431,7 +3500,8 @@
       "ticker": "SIMO",
       "companyName": "Silicon Motion Technology Corporation",
       "tier": "B",
-      "action": "WAIT",
+      "action": "ENTER",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -3500,6 +3570,7 @@
       },
       "executionGuidance": {
         "favorable": [
+          "Higher-priority candidate in today's list.",
           "ITM structure supports follow-through if trend holds."
         ],
         "caution": [
@@ -3507,7 +3578,9 @@
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum weakens.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -3531,7 +3604,7 @@
           "matchStrength": "setup",
           "supportLabel": "Strong"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Higher-priority setup with a clean enough entry profile.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -3544,7 +3617,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -3563,7 +3636,8 @@
       "ticker": "ASND",
       "companyName": "Ascendis Pharma A/S",
       "tier": "B",
-      "action": "WAIT",
+      "action": "ENTER",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -3631,13 +3705,17 @@
         "openInterestOk": true
       },
       "executionGuidance": {
-        "favorable": [],
+        "favorable": [
+          "Higher-priority candidate in today's list."
+        ],
         "caution": [
           "No live sector overlay; use price action to confirm.",
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum weakens.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -3661,7 +3739,7 @@
           "matchStrength": "setup",
           "supportLabel": "Strong"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Higher-priority setup with a clean enough entry profile.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -3674,7 +3752,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -3693,7 +3771,8 @@
       "ticker": "MSTR",
       "companyName": "Strategy Inc",
       "tier": "B",
-      "action": "WAIT",
+      "action": "WATCH",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "MODERATE",
       "contract": {
@@ -3766,10 +3845,13 @@
         ],
         "caution": [
           "No live sector overlay; use price action to confirm.",
+          "Qualified but needs cleaner confirmation.",
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum weakens.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -3793,7 +3875,7 @@
           "matchStrength": "setup",
           "supportLabel": "Strong"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Qualified setup, but entry quality matters more than signal strength here.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -3806,7 +3888,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Valid setup, but follow-through matters more than immediacy.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -3825,7 +3907,8 @@
       "ticker": "CRWV",
       "companyName": "CoreWeave, Inc.",
       "tier": "B",
-      "action": "WAIT",
+      "action": "ENTER",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "MODERATE",
       "contract": {
@@ -3894,6 +3977,7 @@
       },
       "executionGuidance": {
         "favorable": [
+          "Higher-priority candidate in today's list.",
           "ITM structure supports follow-through if trend holds."
         ],
         "caution": [
@@ -3902,7 +3986,9 @@
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum rolls over after extension.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -3926,7 +4012,7 @@
           "matchStrength": "setup",
           "supportLabel": "Strong"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Strong continuation setup, but timing matters because momentum is already extended.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -3939,7 +4025,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -3958,7 +4044,8 @@
       "ticker": "ALAB",
       "companyName": "Astera Labs, Inc.",
       "tier": "B",
-      "action": "WAIT",
+      "action": "ENTER",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "MODERATE",
       "contract": {
@@ -4026,14 +4113,18 @@
         "openInterestOk": true
       },
       "executionGuidance": {
-        "favorable": [],
+        "favorable": [
+          "Higher-priority candidate in today's list."
+        ],
         "caution": [
           "No live sector overlay; use price action to confirm.",
           "Momentum extended; avoid chasing strength.",
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum rolls over after extension.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -4057,7 +4148,7 @@
           "matchStrength": "setup",
           "supportLabel": "Strong"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Strong continuation setup, but timing matters because momentum is already extended.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -4070,7 +4161,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -4089,7 +4180,8 @@
       "ticker": "AXSM",
       "companyName": "Axsome Therapeutics, Inc.",
       "tier": "B",
-      "action": "WAIT",
+      "action": "ENTER",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -4157,13 +4249,17 @@
         "openInterestOk": true
       },
       "executionGuidance": {
-        "favorable": [],
+        "favorable": [
+          "Higher-priority candidate in today's list."
+        ],
         "caution": [
           "No live sector overlay; use price action to confirm.",
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum weakens.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -4187,7 +4283,7 @@
           "matchStrength": "setup",
           "supportLabel": "Strong"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Strong continuation setup, but timing matters because momentum is already extended.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -4200,7 +4296,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -4219,7 +4315,8 @@
       "ticker": "ARM",
       "companyName": "Arm Holdings plc",
       "tier": "B",
-      "action": "WAIT",
+      "action": "WATCH",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "MODERATE",
       "contract": {
@@ -4292,10 +4389,13 @@
         ],
         "caution": [
           "No live sector overlay; use price action to confirm.",
+          "Qualified but needs cleaner confirmation.",
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum weakens.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -4319,7 +4419,7 @@
           "matchStrength": "setup",
           "supportLabel": "Strong"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Qualified setup, but entry quality matters more than signal strength here.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -4332,7 +4432,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Valid setup, but follow-through matters more than immediacy.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },
@@ -4351,7 +4451,8 @@
       "ticker": "CF",
       "companyName": "CF Industries Holdings, Inc.",
       "tier": "B",
-      "action": "WAIT",
+      "action": "ENTER",
+      "action_override": false,
       "optionType": "call",
       "signalStrength": "WEAK",
       "contract": {
@@ -4419,13 +4520,17 @@
         "openInterestOk": true
       },
       "executionGuidance": {
-        "favorable": [],
+        "favorable": [
+          "Higher-priority candidate in today's list."
+        ],
         "caution": [
           "No live sector overlay; use price action to confirm.",
           "Short duration: time decay risk is higher."
         ],
         "unfavorable": [
-          "Behind stronger names today; only revisit if conditions improve."
+          "Avoid if price action weakens.",
+          "Avoid if momentum weakens.",
+          "Avoid if the move does not start quickly (decay)."
         ]
       },
       "decisionContext": {
@@ -4449,7 +4554,7 @@
           "matchStrength": "setup",
           "supportLabel": "Strong"
         },
-        "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+        "translation": "Higher-priority setup with a clean enough entry profile.",
         "executionEdge": [
           "Spread and liquidity snapshot support cleaner fills.",
           "No live sector overlay, so price action matters more than backdrop.",
@@ -4462,7 +4567,7 @@
         ],
         "expectation": {
           "timeframe": "8-9 trading days",
-          "baseCase": "Secondary setup unless the tape improves.",
+          "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
           "risk": "Time decay becomes the main risk if price chops sideways."
         }
       },

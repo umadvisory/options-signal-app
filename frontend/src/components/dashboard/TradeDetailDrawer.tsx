@@ -2,6 +2,7 @@
 
 import { ActionBadge, TierBadge } from "@/components/ui/Badge";
 import { formatCurrency, formatExpiry, formatNumber, formatPct } from "@/lib/format";
+import { actionExplanation, actionTone } from "@/lib/trade-decision";
 import type { MarketRegime, TopTrade } from "@/types/dashboard";
 
 export function TradeDetailDrawer({
@@ -21,8 +22,11 @@ export function TradeDetailDrawer({
 
   const conviction = getConvictionLabel(trade);
   const tradeability = getTradeabilityLabel(trade);
-  const entryPosture = getEntryPosture(trade);
-  const decisionState = getDecisionState(trade);
+  const decisionState = {
+    action: trade.action,
+    explanation: actionExplanation(trade.action),
+    tone: actionTone(trade.action)
+  };
   const decisionContext = trade.decisionContext;
   const signalLabel = trade.signalStrength === "UNKNOWN" ? trade.action : trade.signalStrength;
   const showSignal = signalLabel.trim().toLowerCase() !== conviction.trim().toLowerCase();
@@ -89,7 +93,7 @@ export function TradeDetailDrawer({
           <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
             <Metric label="Action" value={decisionState.action} detail={decisionState.explanation} tone={decisionState.tone} emphasize />
             <Metric label="Rank" value={`#${trade.rank}`} tone="blue" emphasize />
-            <Metric label="Entry posture" value={entryPosture.label} detail={entryPosture.note} tone={entryPosture.tone} emphasize />
+            <Metric label="Entry posture" value={entryPostureLabel(trade.action)} detail={entryPostureNote(trade.action)} tone={decisionState.tone} emphasize />
             <Metric label="Tradeability" value={tradeability} />
             <Metric label="Structure" value={`${trade.contract.strikePositionLabel} ${trade.optionType}`} />
           </section>
@@ -324,12 +328,10 @@ function getTradeabilityLabel(trade: TopTrade) {
 }
 
 function buildSummary(trade: TopTrade) {
-  const decision = getDecisionState(trade);
-
   const actionCall =
-    decision.action === "ENTER"
+    trade.action === "ENTER"
       ? "Entry candidate if pricing stays clean."
-      : decision.action === "WATCH"
+      : trade.action === "WATCH"
         ? "Qualified, but wait for a cleaner entry."
         : "Valid setup, but extension argues for patience over chasing.";
 
@@ -357,13 +359,11 @@ function getActionLabel(trade: TopTrade) {
 }
 
 function buildActionRationale(trade: TopTrade) {
-  const decision = getDecisionState(trade);
-
-  if (decision.action === "ENTER") {
+  if (trade.action === "ENTER") {
     return "Higher-priority candidate. Take it only if live quote and depth still look clean.";
   }
 
-  if (decision.action === "WATCH") {
+  if (trade.action === "WATCH") {
     return "Worth tracking. Prefer confirmation and a better entry over forcing it.";
   }
 
@@ -371,7 +371,6 @@ function buildActionRationale(trade: TopTrade) {
 }
 
 function buildBeforeActChecklist(trade: TopTrade) {
-  const decision = getDecisionState(trade);
   const checklist = [
     "Confirm the live bid/ask and avoid stale quotes.",
     "Avoid chasing if the underlying has moved sharply since the snapshot.",
@@ -379,7 +378,7 @@ function buildBeforeActChecklist(trade: TopTrade) {
     "Check for earnings, major news, or market-moving events before entry."
   ];
 
-  if (decision.action !== "ENTER") {
+  if (trade.action !== "ENTER") {
     checklist.unshift("Treat this as a monitor/review candidate unless live conditions improve.");
   }
 
@@ -391,13 +390,12 @@ function buildBeforeActChecklist(trade: TopTrade) {
 }
 
 function buildLowerCostIdea(trade: TopTrade) {
-  const decision = getDecisionState(trade);
   const spread = buildSpreadSketch(trade);
   if (!spread) {
     return "If premium is elevated vs recent levels or IV is high, use the live chain to compare a same-expiry vertical before taking the outright option.";
   }
 
-  if (decision.action === "ENTER") {
+  if (trade.action === "ENTER") {
     return `If premium is elevated vs recent levels or IV is high, tighten this into a same-expiry ${trade.optionType.toLowerCase()} spread using the current strike as the anchor.`;
   }
 
@@ -405,7 +403,6 @@ function buildLowerCostIdea(trade: TopTrade) {
 }
 
 function buildLowerCostChecklist(trade: TopTrade) {
-  const decision = getDecisionState(trade);
   const spread = buildSpreadSketch(trade);
   const widthText = spread ? formatCurrency(spread.width) : "the spread width";
   const checklist = [
@@ -415,7 +412,7 @@ function buildLowerCostChecklist(trade: TopTrade) {
     "Confirm the short strike exists with usable depth on the live chain."
   ];
 
-  if (decision.action !== "ENTER") {
+  if (trade.action !== "ENTER") {
     checklist.unshift("Wait for confirmation before committing to the spread.");
   }
 
@@ -488,60 +485,16 @@ function buildSpreadSketch(trade: TopTrade) {
   };
 }
 
-function getEntryPosture(trade: TopTrade) {
-  const rsi = Number.isFinite(trade.context.rsi) ? trade.context.rsi : 0;
-  const distancePct = Math.abs(Number.isFinite(trade.contract.distanceToStrikePct) ? trade.contract.distanceToStrikePct : 0);
-  const rsiScore = rsi < 60 ? 0.9 : rsi <= 78 ? 0.55 : 0.15;
-  const distanceScore = Math.min(1, Math.max(0, 1 - distancePct / 15));
-  const entryScore = Number((rsiScore * 0.6 + distanceScore * 0.4).toFixed(2));
-
-  if (rsi > 78 || entryScore < 0.35) {
-    return {
-      label: "Wait",
-      note: "Momentum extended",
-      tone: "red" as const
-    };
-  }
-
-  if (entryScore >= 0.6) {
-    return {
-      label: "Favorable",
-      note: "Not extended",
-      tone: "green" as const
-    };
-  }
-
-  return {
-    label: "Caution",
-    note: "Timing not ideal",
-    tone: "amber" as const
-  };
+function entryPostureLabel(action: TopTrade["action"]) {
+  if (action === "ENTER") return "Favorable";
+  if (action === "WAIT") return "Wait";
+  return "Caution";
 }
 
-function getDecisionState(trade: TopTrade) {
-  const posture = getEntryPosture(trade);
-
-  if (posture.label === "Favorable") {
-    return {
-      action: "ENTER",
-      explanation: "Good entry zone",
-      tone: "green" as const
-    } as const;
-  }
-
-  if (posture.label === "Wait") {
-    return {
-      action: "WAIT",
-      explanation: "Momentum extended - wait",
-      tone: "red" as const
-    } as const;
-  }
-
-  return {
-    action: "WATCH",
-    explanation: "Setup valid, timing not ideal",
-    tone: "amber" as const
-  } as const;
+function entryPostureNote(action: TopTrade["action"]) {
+  if (action === "ENTER") return "Not extended";
+  if (action === "WAIT") return "Momentum extended";
+  return "Timing not ideal";
 }
 
 function inferSpreadWidth(strike: number, underlyingPrice: number) {

@@ -55,9 +55,36 @@ export function YesterdayStatusSection({
 
   if (!activeRows.length) return null;
 
-  const reEntryRows = activeRows.filter((row) => row.group === "REENTRY");
-  const nearEntryRows = activeRows.filter((row) => row.group === "NEAR_ENTRY");
-  const passiveMonitorRows = activeRows.filter((row) => row.group === "PASSIVE_MONITOR");
+  const signalDateOptions = useMemo(
+    () =>
+      Array.from(new Set(activeRows.map((row) => row.displaySignalDate))).sort(
+        (a, b) => toSortTime(b) - toSortTime(a)
+      ),
+    [activeRows]
+  );
+  const [selectedSignalDate, setSelectedSignalDate] = useState("");
+  useEffect(() => {
+    if (!signalDateOptions.length) {
+      setSelectedSignalDate("ALL");
+      return;
+    }
+    if (!selectedSignalDate) {
+      setSelectedSignalDate(signalDateOptions[0]);
+      return;
+    }
+    if (selectedSignalDate !== "ALL" && !signalDateOptions.includes(selectedSignalDate)) {
+      setSelectedSignalDate(signalDateOptions[0]);
+    }
+  }, [selectedSignalDate, signalDateOptions]);
+
+  const scopedRows = useMemo(() => {
+    if (selectedSignalDate === "ALL") return activeRows;
+    return activeRows.filter((row) => row.displaySignalDate === selectedSignalDate);
+  }, [activeRows, selectedSignalDate]);
+
+  const reEntryRows = scopedRows.filter((row) => row.group === "REENTRY");
+  const nearEntryRows = scopedRows.filter((row) => row.group === "NEAR_ENTRY");
+  const passiveMonitorRows = scopedRows.filter((row) => row.group === "PASSIVE_MONITOR");
   const [showAllMonitor, setShowAllMonitor] = useState(false);
   const [activeOnlyMonitor, setActiveOnlyMonitor] = useState(false);
   const monitorCollapsedByDefault = passiveMonitorRows.length > 0;
@@ -84,9 +111,26 @@ export function YesterdayStatusSection({
             Tracks recent signals through their active lifecycle based on price action.
           </p>
         </div>
-        <p className="text-xs font-black text-muted">
-          {reEntryRows.length} re-entry · {nearEntryRows.length} near entry · {passiveMonitorRows.length} monitor
-        </p>
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-2 text-xs font-semibold text-muted">
+            <span>Signal Date</span>
+            <select
+              value={selectedSignalDate}
+              onChange={(event) => setSelectedSignalDate(event.target.value)}
+              className="h-8 rounded-md border border-slate-200 bg-slate-50 px-2 text-xs font-bold text-ink outline-none transition focus:border-blue-400 focus:bg-white"
+            >
+              <option value="ALL">All dates</option>
+              {signalDateOptions.map((date) => (
+                <option key={date} value={date}>
+                  {formatSignalDate(date)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <p className="text-xs font-black text-muted">
+            {reEntryRows.length} re-entry · {nearEntryRows.length} near entry · {passiveMonitorRows.length} monitor
+          </p>
+        </div>
       </div>
 
       <div className="mt-4 space-y-5">

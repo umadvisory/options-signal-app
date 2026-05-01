@@ -1,6 +1,6 @@
 import { ActionBadge, Badge, TierBadge } from "@/components/ui/Badge";
 import { formatCurrency, formatExpiry, formatNumber } from "@/lib/format";
-import { getDecisionState } from "@/lib/trade-decision";
+import { actionExplanation } from "@/lib/trade-decision";
 import type { TopTrade, WatchlistItem } from "@/types/dashboard";
 
 export function TopTradesTable({
@@ -57,7 +57,6 @@ export function TopTradesTable({
             ) : null}
 
             {trades.map((trade) => {
-              const decision = getDecisionState(trade);
               const isHero = heroTicker === trade.ticker;
 
               return (
@@ -116,8 +115,8 @@ export function TopTradesTable({
                   </td>
                   <td className="px-3 py-4">
                     <div className="space-y-1">
-                      <ActionBadge action={decision.action} />
-                      <p className={`text-[11px] font-semibold ${isHero ? "text-slate-300" : "text-muted"}`}>{decision.explanation}</p>
+                      <ActionBadge action={trade.action} />
+                      <p className={`text-[11px] font-semibold ${isHero ? "text-slate-300" : "text-muted"}`}>{actionExplanation(trade.action)}</p>
                     </div>
                   </td>
                   <td className="px-3 py-4">

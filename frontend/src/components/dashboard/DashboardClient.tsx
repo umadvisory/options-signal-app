@@ -7,7 +7,6 @@ import { TradeDetailDrawer } from "@/components/dashboard/TradeDetailDrawer";
 import { applyTradeFilters, type TradeFiltersState } from "@/components/dashboard/TradeFilters";
 import { fetchDashboardData } from "@/lib/api/options-client";
 import { supabase } from "@/lib/supabaseClient";
-import { getDecisionState } from "@/lib/trade-decision";
 import type { DashboardData, SectorOutlook, TopTrade, WatchlistItem } from "@/types/dashboard";
 
 type LoadState =
@@ -172,39 +171,47 @@ function DashboardWithState({
   userEmail: string | null;
   onLogout: () => void;
 }) {
+  const rankedTrades = useMemo(
+    () => [...data.trades].sort((a, b) => {
+      const rankA = Number.isFinite(a.rank) ? a.rank : Number.MAX_SAFE_INTEGER;
+      const rankB = Number.isFinite(b.rank) ? b.rank : Number.MAX_SAFE_INTEGER;
+      return rankA - rankB;
+    }),
+    [data.trades]
+  );
   const heroTrade = useMemo(
     () =>
-      data.trades.find((trade) => getDecisionState(trade).action === "ENTER") ??
-      data.trades.find((trade) => getDecisionState(trade).action === "WATCH") ??
-      data.trades[0] ??
+      rankedTrades.find((trade) => trade.action === "ENTER") ??
+      rankedTrades.find((trade) => trade.action === "WATCH") ??
+      rankedTrades[0] ??
       null,
-    [data.trades]
+    [rankedTrades]
   );
-  const topRankedTrade = useMemo(() => data.trades.find((trade) => trade.rank === 1) ?? null, [data.trades]);
+  const topRankedTrade = useMemo(() => rankedTrades.find((trade) => trade.rank === 1) ?? null, [rankedTrades]);
   const sectors = useMemo(
-    () => Array.from(new Set(data.trades.map((trade) => trade.context.sector).filter(Boolean))).sort(),
-    [data.trades]
+    () => Array.from(new Set(rankedTrades.map((trade) => trade.context.sector).filter(Boolean))).sort(),
+    [rankedTrades]
   );
-  const filteredTrades = useMemo(() => applyTradeFilters(data.trades, filters, showReview), [data.trades, filters, showReview]);
+  const filteredTrades = useMemo(() => applyTradeFilters(rankedTrades, filters, showReview), [rankedTrades, filters, showReview]);
   const actionableTrades = useMemo(
-    () => filteredTrades.filter((trade) => getDecisionState(trade).action === "ENTER"),
+    () => filteredTrades.filter((trade) => trade.action === "ENTER"),
     [filteredTrades]
   );
   const displayedTrades = useMemo(() => (showReview ? actionableTrades.slice(0, 5) : filteredTrades), [actionableTrades, filteredTrades, showReview]);
   const sectorOutlook = useMemo(() => enrichSectorOutlook(data.sectorOutlook, displayedTrades), [data.sectorOutlook, displayedTrades]);
   const actionableCount = useMemo(
-    () => filteredTrades.filter((trade) => getDecisionState(trade).action === "ENTER").length,
+    () => filteredTrades.filter((trade) => trade.action === "ENTER").length,
     [filteredTrades]
   );
   const fullWorkbenchActionMap = useMemo(
     () =>
       Object.fromEntries(
-        data.trades.map((trade) => [trade.ticker, getDecisionState(trade).action])
+        rankedTrades.map((trade) => [trade.ticker, trade.action])
       ) as Record<string, "ENTER" | "WATCH" | "WAIT">,
-    [data.trades]
+    [rankedTrades]
   );
   const computedTradeEmptyState = useMemo(() => buildTradeEmptyState(filters, showReview), [filters, showReview]);
-  const systemInsight = useMemo(() => buildSystemInsight(data.marketRegime, data.trades), [data.marketRegime, data.trades]);
+  const systemInsight = useMemo(() => buildSystemInsight(data.marketRegime, rankedTrades), [data.marketRegime, rankedTrades]);
 
   return (
     <>
@@ -212,7 +219,7 @@ function DashboardWithState({
         data={{ ...data, watchlist, trades: displayedTrades, sectorOutlook }}
         heroTrade={heroTrade}
         topRankedTrade={topRankedTrade}
-        totalTrades={data.trades.length}
+        totalTrades={rankedTrades.length}
         filters={filters}
         sectors={sectors}
         showReview={showReview}
@@ -307,7 +314,7 @@ function buildTradeEmptyState(filters: TradeFiltersState, showReview: boolean): 
 function buildSystemInsight(marketRegime: DashboardData["marketRegime"], trades: TopTrade[]) {
   const rows = trades.map((trade) => ({
     trade,
-    action: getDecisionState(trade).action
+    action: trade.action
   }));
   const enterCount = rows.filter((row) => row.action === "ENTER").length;
   const watchCount = rows.filter((row) => row.action === "WATCH").length;
