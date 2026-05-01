@@ -12,6 +12,7 @@ export function Dashboard({
   data,
   heroTrade,
   topRankedTrade,
+  allTrades,
   totalTrades,
   filters,
   sectors,
@@ -31,6 +32,7 @@ export function Dashboard({
   data: DashboardData;
   heroTrade?: TopTrade | null;
   topRankedTrade?: TopTrade | null;
+  allTrades?: TopTrade[];
   totalTrades?: number;
   filters?: TradeFiltersState;
   sectors?: string[];
@@ -105,7 +107,13 @@ export function Dashboard({
           leadingTicker={leadingEnterTrade?.ticker ?? resolvedTopRankedTrade?.ticker ?? null}
         />
 
-        <WatchlistBar items={data.watchlist} />
+        <WatchlistBar
+          items={data.watchlist}
+          allTrades={allTrades ?? data.trades}
+          yesterdayStatus={data.yesterdayStatus}
+          currentActionByTicker={fullWorkbenchActionMap}
+          onSelectTrade={onSelectTrade}
+        />
 
         {resolvedHeroTrade && heroDecision ? (
           <section className="rounded-lg border border-blue-300 bg-slate-950 px-6 py-4 text-white shadow-[0_18px_42px_rgba(15,23,42,0.18)]">
@@ -190,6 +198,7 @@ export function Dashboard({
         <section className="flex flex-col gap-3">
           <TopTradesTable
             trades={data.trades}
+            sectorOutlook={data.sectorOutlook}
             watchlist={data.watchlist}
             heroTicker={resolvedHeroTrade?.ticker ?? null}
             emptyState={tradeEmptyState ?? null}
