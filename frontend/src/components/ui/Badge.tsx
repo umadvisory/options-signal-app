@@ -40,8 +40,15 @@ export function Badge({ children, tone = "neutral", className = "" }: BadgeProps
 }
 
 export function ActionBadge({ action }: { action: UiAction }) {
+  const actionTooltip: Record<UiAction, string> = {
+    ENTER: "Good entry conditions",
+    WATCH: "Valid setup, timing not ideal",
+    WAIT: "Extended or no clean entry"
+  };
   return (
     <span
+      title={actionTooltip[action]}
+      aria-label={actionTooltip[action]}
       className={`inline-flex h-9 min-w-[86px] items-center justify-center rounded-md px-4 text-[11px] font-black uppercase tracking-wide ${actionStyles[action]}`}
     >
       {action}

@@ -59,16 +59,21 @@ export function YesterdayStatusSection({
   const nearEntryRows = activeRows.filter((row) => row.group === "NEAR_ENTRY");
   const passiveMonitorRows = activeRows.filter((row) => row.group === "PASSIVE_MONITOR");
   const [showAllMonitor, setShowAllMonitor] = useState(false);
+  const [activeOnlyMonitor, setActiveOnlyMonitor] = useState(false);
   const monitorCollapsedByDefault = passiveMonitorRows.length > 0;
 
   useEffect(() => {
     setShowAllMonitor(false);
+    setActiveOnlyMonitor(false);
   }, [passiveMonitorRows.length]);
 
   const visibleMonitorRows = useMemo(() => {
-    if (!monitorCollapsedByDefault || showAllMonitor) return passiveMonitorRows;
+    if (!monitorCollapsedByDefault || showAllMonitor) {
+      if (!activeOnlyMonitor) return passiveMonitorRows;
+      return passiveMonitorRows.filter((row) => row.finalAction === "WATCH" || row.finalAction === "ENTER");
+    }
     return [];
-  }, [monitorCollapsedByDefault, passiveMonitorRows, showAllMonitor]);
+  }, [activeOnlyMonitor, monitorCollapsedByDefault, passiveMonitorRows, showAllMonitor]);
 
   return (
     <section className="rounded-lg border border-slate-200 bg-white px-5 py-4 shadow-soft">
@@ -97,15 +102,32 @@ export function YesterdayStatusSection({
               <h3 className="text-xs font-black uppercase tracking-[0.08em] text-muted">
                 Passive Monitor ({passiveMonitorRows.length})
               </h3>
-              <button
-                type="button"
-                onClick={() => setShowAllMonitor((current) => !current)}
-                className="text-xs font-black text-blue-700 transition hover:text-blue-800"
-              >
-                {showAllMonitor ? "Hide Passive Monitor" : `Show Passive Monitor (${passiveMonitorRows.length})`}
-              </button>
+              <div className="flex items-center gap-3">
+                <label className="inline-flex items-center gap-2 text-[11px] font-semibold text-muted">
+                  <input
+                    type="checkbox"
+                    checked={activeOnlyMonitor}
+                    onChange={(event) => setActiveOnlyMonitor(event.target.checked)}
+                    className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600"
+                  />
+                  Active setups only
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowAllMonitor((current) => !current)}
+                  className="text-xs font-black text-blue-700 transition hover:text-blue-800"
+                >
+                  {showAllMonitor ? "Hide Passive Monitor" : `Show Passive Monitor (${passiveMonitorRows.length})`}
+                </button>
+              </div>
             </div>
+            <p className="mt-1 text-[11px] font-semibold text-muted">
+              WATCH = valid setup, timing not ideal • WAIT = extended or no clean entry
+            </p>
             {showAllMonitor ? <FollowUpGroup title="" rows={visibleMonitorRows} hideTitle /> : null}
+            {showAllMonitor && activeOnlyMonitor && visibleMonitorRows.length === 0 ? (
+              <p className="mt-2 text-[11px] font-semibold text-muted">No active setups right now</p>
+            ) : null}
           </div>
         ) : null}
       </div>
@@ -134,7 +156,9 @@ function FollowUpGroup({
               {["Ticker", "Signal Date", "Original Signal", "Underlying Ticker Move %", "Setup Status", "Follow-Up Action"].map((label) => (
                 <th
                   key={label}
-                  className="border-b border-slate-200 px-3 py-2 text-[11px] font-black uppercase tracking-[0.08em] text-muted"
+                  className={`border-b border-slate-200 px-2.5 py-2 text-[11px] font-black uppercase tracking-[0.08em] text-muted ${
+                    label === "Follow-Up Action" ? "pl-4" : ""
+                  } ${label === "Underlying Ticker Move %" ? "text-right" : "text-left"}`}
                 >
                   {label}
                 </th>
@@ -147,26 +171,34 @@ function FollowUpGroup({
 
               return (
                 <tr key={`${row.ticker}-${row.rawSignalDate}`} className="hover:bg-slate-50">
-                  <td className="border-b border-slate-100 px-3 py-3 font-black text-ink">{row.ticker}</td>
-                  <td className="border-b border-slate-100 px-3 py-3 font-semibold text-slate-600">
+                  <td className="border-b border-slate-100 px-2.5 py-2.5 font-black text-ink">{row.ticker}</td>
+                  <td className="border-b border-slate-100 px-2.5 py-2.5 font-semibold text-slate-600">
                     {formatSignalDate(row.displaySignalDate)}
                   </td>
-                  <td className="border-b border-slate-100 px-3 py-3">
-                    <span className={`inline-flex rounded-md px-2 py-1 text-[11px] font-black ${getOriginalActionTone(row.originalAction)}`}>
+                  <td className="border-b border-slate-100 px-2.5 py-2.5">
+                    <span className={`inline-flex rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${getOriginalActionTone(row.originalAction)}`}>
                       {row.originalAction}
                     </span>
                   </td>
-                  <td className="border-b border-slate-100 px-3 py-3 font-semibold text-slate-700">
+                  <td className="border-b border-slate-100 px-2.5 py-2.5 text-right font-semibold tabular-nums text-slate-700">
                     {row.changePct > 0 ? "+" : ""}
                     {row.changePct.toFixed(1)}%
                   </td>
-                  <td className="border-b border-slate-100 px-3 py-3">
+                  <td className="border-b border-slate-100 px-2.5 py-2.5">
                     <span className={`inline-flex rounded-md px-2 py-1 text-[11px] font-black ${tone.badge}`}>
                       {formatStateLabel(row.state)}
                     </span>
                   </td>
-                  <td className="border-b border-slate-100 px-3 py-3">
-                    <div className="font-semibold text-slate-700">{row.finalAction}</div>
+                  <td className="border-b border-slate-100 px-2.5 py-2.5 pl-4">
+                    <span
+                      title={getActionTooltip(row.finalAction)}
+                      aria-label={getActionTooltip(row.finalAction)}
+                      className={`inline-flex h-8 min-w-[102px] items-center justify-center rounded-md px-3.5 text-[11px] font-black uppercase tracking-wide ${getFollowupActionTone(
+                        row.finalAction
+                      )}`}
+                    >
+                      {row.finalAction}
+                    </span>
                     {row.statusNote ? (
                       <div className="mt-1 text-[11px] font-semibold text-muted">{row.statusNote}</div>
                     ) : null}
@@ -302,28 +334,46 @@ function capAction(
   todayAction: TrackerRow["todayAction"],
   fallbackNote: string | null
 ) {
+  const normalizedFallback = normalizeStatusNote(fallbackNote, todayAction);
+
   if (todayAction === "WAIT" && rawAction !== "WAIT" && rawAction !== "DROP") {
     return {
       finalAction: "WAIT" as TrackerAction,
-      statusNote: fallbackNote ?? "Prior setup improved, but today's signal remains WAIT."
+      statusNote: normalizedFallback ?? "Prior setup improved, but today's signal remains WAIT."
     };
   }
 
   if (todayAction === "WATCH" && rawAction.startsWith("ENTER")) {
     return {
       finalAction: "WATCH" as TrackerAction,
-      statusNote: fallbackNote ?? "Prior setup improved, but today's signal remains WATCH."
+      statusNote: normalizedFallback ?? "Prior setup improved, but today's signal remains WATCH."
     };
   }
 
   if (todayAction === "WATCH" && rawAction !== "DROP" && rawAction !== "WAIT") {
     return {
       finalAction: "WATCH" as TrackerAction,
-      statusNote: fallbackNote
+      statusNote: normalizedFallback ?? "Prior setup improved, and today's signal remains WATCH."
     };
   }
 
-  return { finalAction: rawAction, statusNote: fallbackNote };
+  return { finalAction: rawAction, statusNote: normalizedFallback };
+}
+
+function normalizeStatusNote(
+  note: string | null,
+  todayAction: TrackerRow["todayAction"]
+) {
+  if (!note) return null;
+  const text = note.trim();
+  if (!text) return null;
+  if (todayAction === "WATCH" && text.toUpperCase().includes("REMAINS WAIT")) {
+    return "Prior setup improved, and today's signal remains WATCH.";
+  }
+  if (todayAction === "WAIT" && text.toUpperCase().includes("REMAINS WATCH")) {
+    return "Prior setup improved, but today's signal remains WAIT.";
+  }
+  return text;
 }
 
 function getGroup(action: TrackerAction): GroupKey | null {
@@ -357,30 +407,34 @@ function formatStateLabel(state: TrackerState) {
 }
 
 function getStateTone(state: TrackerState) {
-  switch (state) {
-    case "PULLBACK":
-      return { badge: "bg-blue-50 text-blue-700" };
-    case "STABLE":
-      return { badge: "bg-emerald-50 text-emerald-700" };
-    case "EXTENDED":
-      return { badge: "bg-amber-50 text-amber-700" };
-    case "BROKEN":
-      return { badge: "bg-slate-100 text-slate-600" };
-    case "OVEREXTENDED":
-    case "PLAYED OUT":
-      return { badge: "bg-red-50 text-red-700" };
-  }
+  return { badge: "bg-slate-100 text-slate-600 ring-1 ring-slate-200 text-[10px] font-semibold" };
 }
 
 function getOriginalActionTone(action: TrackerRow["originalAction"]) {
   switch (action) {
     case "ENTER":
-      return "bg-emerald-50 text-emerald-700";
+      return "bg-slate-100 text-slate-500";
     case "WATCH":
-      return "bg-amber-50 text-amber-700";
+      return "bg-slate-100 text-slate-500";
     case "WAIT":
-      return "bg-slate-100 text-slate-700";
+      return "bg-slate-100 text-slate-500";
   }
+}
+
+function getFollowupActionTone(action: TrackerAction) {
+  if (action === "ENTER" || action === "ENTER (better price)") {
+    return "bg-emerald-600 text-white ring-1 ring-emerald-300 shadow-[0_10px_24px_rgba(5,150,105,0.28)]";
+  }
+  if (action === "WATCH" || action === "WATCH (near entry)") {
+    return "bg-amber-500 text-white shadow-[0_8px_18px_rgba(245,158,11,0.22)]";
+  }
+  return "bg-red-600 text-white shadow-[0_8px_18px_rgba(220,38,38,0.22)]";
+}
+
+function getActionTooltip(action: TrackerAction) {
+  if (action === "ENTER" || action === "ENTER (better price)") return "Good entry conditions";
+  if (action === "WATCH" || action === "WATCH (near entry)") return "Valid setup, timing not ideal";
+  return "Extended or no clean entry";
 }
 
 function calculateChangePct(snapshotPrice: number, currentPrice: number) {

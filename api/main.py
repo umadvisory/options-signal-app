@@ -965,11 +965,13 @@ def build_ranked_trade_slice(df: pd.DataFrame):
     tradeable_source = working["is_tradeable"] if "is_tradeable" in working.columns else pd.Series([0] * len(working), index=working.index)
     working["is_tradeable"] = tradeable_source.isin([True, 1, "1", "true", "True"]).astype(int)
 
-    ranked = working[
-        (working["predicted_tier_cal"] == "A") &
-        (working["filteredtier"] == "A") &
-        (working["is_tradeable"] == 1)
-    ].copy()
+    print("API using CORE-only trade selection")
+    if "trade_class" in working.columns:
+        ranked = working[working["trade_class"].astype(str).str.strip() == "CORE"].copy()
+    else:
+        live_source = working["live_eligible"] if "live_eligible" in working.columns else pd.Series([0] * len(working), index=working.index)
+        working["live_eligible"] = pd.to_numeric(live_source, errors="coerce").fillna(0).astype(int)
+        ranked = working[working["live_eligible"] == 1].copy()
 
     if ranked.empty:
         return ranked

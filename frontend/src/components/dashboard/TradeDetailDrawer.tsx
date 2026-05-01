@@ -24,6 +24,18 @@ export function TradeDetailDrawer({
   const entryPosture = getEntryPosture(trade);
   const decisionState = getDecisionState(trade);
   const decisionContext = trade.decisionContext;
+  const signalLabel = trade.signalStrength === "UNKNOWN" ? trade.action : trade.signalStrength;
+  const showSignal = signalLabel.trim().toLowerCase() !== conviction.trim().toLowerCase();
+  const setupRows: [string, string][] = [["Conviction", conviction]];
+  if (showSignal) {
+    setupRows.push(["Signal", signalLabel]);
+  }
+  const executionEdgeItems = decisionContext
+    ? sanitizeExecutionItems(
+        decisionContext.executionEdge.map((item) => tightenExecutionEdgeCopy(item)),
+        decisionContext.invalidation
+      )
+    : [];
   const checks = [
     ["Tradeable contract", trade.execution.liveEligible],
     ["Liquidity screen", trade.risk.liquidityOk],
@@ -86,14 +98,14 @@ export function TradeDetailDrawer({
             <section className="rounded-lg border border-emerald-200 bg-emerald-50 p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.14em] text-emerald-700">Why This Trade Made The Cut</p>
+                  <p className="text-[11px] font-black uppercase tracking-[0.14em] text-emerald-700">Trade Playbook</p>
                   <h3 className="mt-2 text-xl font-black text-ink">
                     {trade.ticker} - {trade.tier} Setup
                   </h3>
                 </div>
-                <div className="rounded-md bg-white/80 px-3 py-2 text-right">
+                <div className="rounded-md bg-white/80 px-3 py-2 text-left">
                   <p className="text-[10px] font-black uppercase tracking-[0.12em] text-muted">Translation</p>
-                  <p className="mt-1 text-sm font-bold text-ink">{decisionContext.translation || buildSummary(trade)}</p>
+                  <p className="mt-1 text-sm font-bold text-ink">{refineTranslation(decisionContext.translation || buildSummary(trade))}</p>
                 </div>
               </div>
 
@@ -137,7 +149,7 @@ export function TradeDetailDrawer({
               </div>
 
               <div className="mt-4 grid gap-4 lg:grid-cols-3">
-                <ExecutionColumn title="Execution Edge" tone="green" items={decisionContext.executionEdge} />
+                <ExecutionColumn title="Execution Edge" tone="green" items={executionEdgeItems} />
                 <ExecutionColumn title="Skip Conditions" tone="amber" items={decisionContext.invalidation} />
                 <ExpectationPanel
                   timeframe={decisionContext.expectation.timeframe}
@@ -267,20 +279,12 @@ export function TradeDetailDrawer({
                 title="Market Context"
                 rows={[
                   ["Sector", trade.context.sector],
-                  ["ETF", `${trade.etfOverlay.etf} / ${trade.etfOverlay.bias}`],
-                  ["Macro", marketRegime?.regime || "N/A"],
-                  ["Sector Signal Strength", `Win Rate (4d): ${formatPct(trade.etfOverlay.winRate4d)}`],
-                  ["Participation", `${formatNumber(trade.etfOverlay.breadth)} stocks`]
+                  ["ETF", `${trade.etfOverlay.etf} / ${trade.etfOverlay.bias}`]
                 ]}
               />
             <InfoPanel
               title="Setup Profile"
-              rows={[
-                ["Conviction", conviction],
-                ["Tradeability", tradeability],
-                ["Signal", trade.signalStrength === "UNKNOWN" ? trade.action : trade.signalStrength],
-                ["Market Regime", trade.classification.vixBucket || "Normal"]
-              ]}
+              rows={setupRows}
             />
           </section>
 
@@ -528,7 +532,7 @@ function getDecisionState(trade: TopTrade) {
   if (posture.label === "Wait") {
     return {
       action: "WAIT",
-      explanation: "Momentum extended â€” wait",
+      explanation: "Momentum extended - wait",
       tone: "red" as const
     } as const;
   }
@@ -628,6 +632,44 @@ function buildHistoryStats(winRate: number | null, sampleSize: number | null) {
   const trades = sampleSize ?? 0;
   const rate = winRate === null || winRate === undefined ? "N/A" : `${winRate}%`;
   return `Win Rate: ${rate} | Trades: ${trades}`;
+}
+
+function refineTranslation(text: string) {
+  if (!text) return text;
+  return text.replace(
+    "Qualified setup, but entry quality matters more than signal strength here.",
+    "Valid setup — entry quality matters more than signal strength."
+  );
+}
+
+function tightenExecutionEdgeCopy(text: string) {
+  if (!text) return text;
+  const normalized = text.trim().toLowerCase();
+  if (normalized === "sector ranks #1 in today's conviction map") {
+    return "Sector leadership supports continuation";
+  }
+  if (normalized.includes("sector signal strength")) {
+    return "Sector backdrop supportive";
+  }
+  return text;
+}
+
+function sanitizeExecutionItems(executionItems: string[], invalidationItems: string[]) {
+  const invalidationSet = new Set(invalidationItems.map((item) => item.trim().toLowerCase()));
+  const seen = new Set<string>();
+  const cleaned: string[] = [];
+
+  for (const raw of executionItems) {
+    const item = raw.trim();
+    if (!item) continue;
+    const key = item.toLowerCase();
+    if (invalidationSet.has(key)) continue;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    cleaned.push(item);
+  }
+
+  return cleaned;
 }
 
 function buildHistoryBreadth(sampleSize: number | null, distinctTickerCount: number | null) {
