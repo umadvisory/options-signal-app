@@ -976,7 +976,8 @@ def build_ranked_trade_slice(df: pd.DataFrame):
     if ranked.empty:
         return ranked
 
-    ranked = ranked.sort_values(by="adaptive_score_final", ascending=False)
+    rank_col = "adaptive_score_for_rank" if "adaptive_score_for_rank" in ranked.columns else "adaptive_score_final"
+    ranked = ranked.sort_values(by=rank_col, ascending=False)
     ranked = ranked.drop_duplicates(subset=["ticker"])
     return ranked.head(25).copy()
 
@@ -990,6 +991,36 @@ def build_trade_action_from_score(score):
     if score_value >= 1.3:
         return "WATCH"
     return "WAIT"
+
+def safe_pct_distance_value(strike, spot):
+    strike_v = pd.to_numeric(pd.Series([strike]), errors="coerce").iloc[0]
+    spot_v = pd.to_numeric(pd.Series([spot]), errors="coerce").iloc[0]
+    if pd.isna(strike_v) or pd.isna(spot_v) or spot_v == 0:
+        return None
+    return abs(round(((strike_v - spot_v) / spot_v) * 100, 1))
+
+def build_trade_action_from_entry_profile(row):
+    rsi = pd.to_numeric(pd.Series([row.get("rsi")]), errors="coerce").iloc[0]
+    distance_pct = safe_pct_distance_value(row.get("strike"), row.get("underlyingPrice"))
+
+    rsi_value = 0 if pd.isna(rsi) else float(rsi)
+    distance_value = 0 if distance_pct is None or pd.isna(distance_pct) else float(distance_pct)
+
+    if rsi_value < 60:
+        rsi_score = 0.9
+    elif rsi_value <= 78:
+        rsi_score = 0.55
+    else:
+        rsi_score = 0.15
+
+    distance_score = max(0.0, min(1.0, 1 - distance_value / 15))
+    entry_score = round(rsi_score * 0.6 + distance_score * 0.4, 2)
+
+    if rsi_value > 78 or entry_score < 0.35:
+        return "WAIT"
+    if entry_score >= 0.6:
+        return "ENTER"
+    return "WATCH"
 
 def classify_yesterday_status(price_change_pct):
     if price_change_pct is None:
@@ -1086,7 +1117,7 @@ def build_yesterday_status(today_df: pd.DataFrame, current_file: str | None, his
         if not ticker:
             continue
         today_in_list.add(ticker)
-        today_actions[ticker] = build_trade_action_from_score(row.get("adaptive_score_final"))
+        today_actions[ticker] = build_trade_action_from_entry_profile(row)
 
     items_by_ticker = {}
     for prior_file in recent_files:
@@ -1117,7 +1148,7 @@ def build_yesterday_status(today_df: pd.DataFrame, current_file: str | None, his
             if state in {"BROKEN", "OVEREXTENDED", "PLAYED_OUT"}:
                 continue
 
-            original_action = build_trade_action_from_score(row.get("adaptive_score_final"))
+            original_action = build_trade_action_from_entry_profile(row)
             raw_followup_action = map_followup_action(original_action, state)
             if raw_followup_action == "DROP":
                 continue

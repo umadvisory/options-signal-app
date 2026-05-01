@@ -53,6 +53,7 @@ export function Dashboard({
   const workbenchActionMap = Object.fromEntries(
     data.trades.map((trade) => [trade.ticker, getDecisionState(trade).action])
   ) as Record<string, "ENTER" | "WATCH" | "WAIT">;
+  const leadingEnterTrade = data.trades.find((trade) => getDecisionState(trade).action === "ENTER") ?? null;
   const resolvedHeroTrade = heroTrade ?? null;
   const heroDecision = resolvedHeroTrade ? getDecisionState(resolvedHeroTrade) : null;
   const resolvedTopRankedTrade = topRankedTrade ?? null;
@@ -99,7 +100,11 @@ export function Dashboard({
           </div>
         </div>
 
-        <MarketRegimeStrip regime={data.marketRegime} insight={systemInsight ?? data.marketRegime?.insight ?? null} />
+        <MarketRegimeStrip
+          regime={data.marketRegime}
+          insight={systemInsight ?? data.marketRegime?.insight ?? null}
+          leadingTicker={leadingEnterTrade?.ticker ?? resolvedTopRankedTrade?.ticker ?? null}
+        />
 
         <WatchlistBar items={data.watchlist} />
 

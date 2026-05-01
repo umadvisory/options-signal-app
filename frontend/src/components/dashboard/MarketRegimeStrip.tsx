@@ -1,7 +1,15 @@
 import { formatPct } from "@/lib/format";
 import type { MarketRegime } from "@/types/dashboard";
 
-export function MarketRegimeStrip({ regime, insight }: { regime: MarketRegime | null; insight?: string | null }) {
+export function MarketRegimeStrip({
+  regime,
+  insight,
+  leadingTicker
+}: {
+  regime: MarketRegime | null;
+  insight?: string | null;
+  leadingTicker?: string | null;
+}) {
   if (!regime) {
     return (
       <section className="rounded-lg border border-slate-200 bg-white px-6 py-5 shadow-soft">
@@ -16,10 +24,13 @@ export function MarketRegimeStrip({ regime, insight }: { regime: MarketRegime | 
     );
   }
 
-  const displayRegime = regime.regime === "Neutral-to-Supportive" ? "Neutral → Slightly Supportive" : regime.regime;
-  const contextLine = "Moderate volatility. Mixed conditions.";
-  const actionLine = "Wait for confirmation. Avoid heavy directional exposure.";
-  const opportunityLine = "Clean setups exist — focus on top-ranked names (CRDO leading).";
+  const displayRegime = regime.regime === "Neutral-to-Supportive" ? "Neutral \u2192 Slightly Supportive" : regime.regime;
+  const regimeMode = resolveRegimeMode(regime);
+  const contextLine = resolveContextLine(regime);
+  const actionLine = resolveActionLine(regimeMode);
+  const opportunityLine = leadingTicker
+    ? `Clean setups exist - focus on top-ranked names (${leadingTicker} leading).`
+    : "Clean setups exist - focus on top-ranked names.";
 
   return (
     <section className="rounded-lg border border-blue-200 bg-white px-6 py-5 shadow-soft">
@@ -28,7 +39,7 @@ export function MarketRegimeStrip({ regime, insight }: { regime: MarketRegime | 
           <p className="text-xs font-bold text-muted">Market Regime</p>
           <h2 className="mt-1 text-[30px] font-black leading-none text-ink">{displayRegime}</h2>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <p className="inline-flex rounded-sm bg-amber-100 px-2.5 py-0.5 text-xs font-black text-amber-800">Cautious Mode</p>
+            <p className={modeClass(regimeMode)}>{regimeMode}</p>
             <span className={badgeClass(regime.risk.shockDay)}>{regime.risk.shockDay ? "Elevated macro event risk" : "Stable event backdrop"}</span>
           </div>
           <p className="mt-3 max-w-xl text-sm leading-6 text-muted">{contextLine}</p>
@@ -65,6 +76,39 @@ export function MarketRegimeStrip({ regime, insight }: { regime: MarketRegime | 
       </div>
     </section>
   );
+}
+
+function resolveRegimeMode(regime: MarketRegime) {
+  const regimeLabel = (regime.regime || "").toLowerCase();
+  if (regimeLabel.includes("risk-off")) return "Defensive Mode";
+  if (regimeLabel.includes("cautious")) return "Cautious Mode";
+  if (regimeLabel.includes("supportive")) return "Opportunity Mode";
+  return "Balanced Mode";
+}
+
+function resolveContextLine(regime: MarketRegime) {
+  const volPct = regime.vix.percentile;
+  const summary = (regime.summary || "").trim();
+  if (summary) return summary;
+  if (volPct == null) return "Macro conditions are mixed.";
+  if (volPct >= 70) return "Elevated volatility. Conditions are unstable.";
+  if (volPct >= 40) return "Moderate volatility. Mixed conditions.";
+  return "Calmer volatility backdrop. Conditions are improving.";
+}
+
+function resolveActionLine(mode: string) {
+  if (mode === "Defensive Mode") return "Protect capital first. Avoid heavy directional exposure.";
+  if (mode === "Cautious Mode") return "Wait for confirmation. Avoid heavy directional exposure.";
+  if (mode === "Opportunity Mode") return "Prioritize clean entries. Add exposure selectively.";
+  return "Stay selective. Focus on high-quality execution.";
+}
+
+function modeClass(mode: string) {
+  const base = "inline-flex rounded-sm px-2.5 py-0.5 text-xs font-black";
+  if (mode === "Defensive Mode") return `${base} bg-red-100 text-red-800`;
+  if (mode === "Cautious Mode") return `${base} bg-amber-100 text-amber-800`;
+  if (mode === "Opportunity Mode") return `${base} bg-emerald-100 text-emerald-800`;
+  return `${base} bg-slate-200 text-slate-700`;
 }
 
 function MacroMetric({ label, value, sublabel, tooltip }: { label: string; value: string; sublabel: string; tooltip?: string }) {
