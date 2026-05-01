@@ -219,6 +219,7 @@ function DashboardWithState({
         data={{ ...data, watchlist, trades: displayedTrades, sectorOutlook }}
         heroTrade={heroTrade}
         topRankedTrade={topRankedTrade}
+        allTrades={rankedTrades}
         totalTrades={rankedTrades.length}
         filters={filters}
         sectors={sectors}

@@ -39,7 +39,7 @@ export function Badge({ children, tone = "neutral", className = "" }: BadgeProps
   );
 }
 
-export function ActionBadge({ action }: { action: UiAction }) {
+export function ActionBadge({ action, className = "" }: { action: UiAction; className?: string }) {
   const actionTooltip: Record<UiAction, string> = {
     ENTER: "Good entry conditions",
     WATCH: "Valid setup, timing not ideal",
@@ -49,17 +49,17 @@ export function ActionBadge({ action }: { action: UiAction }) {
     <span
       title={actionTooltip[action]}
       aria-label={actionTooltip[action]}
-      className={`inline-flex h-9 min-w-[86px] items-center justify-center rounded-md px-4 text-[11px] font-black uppercase tracking-wide ${actionStyles[action]}`}
+      className={`inline-flex h-9 min-w-[86px] items-center justify-center rounded-md px-4 text-[11px] font-black uppercase tracking-wide ${actionStyles[action]} ${className}`}
     >
       {action}
     </span>
   );
 }
 
-export function TierBadge({ tier }: { tier: TradeTier }) {
+export function TierBadge({ tier, className = "" }: { tier: TradeTier; className?: string }) {
   return (
     <span
-      className={`inline-flex h-8 min-w-[46px] items-center justify-center rounded-md px-3 text-[11px] font-black uppercase ${tierStyles[tier]}`}
+      className={`inline-flex h-8 min-w-[46px] items-center justify-center rounded-md px-3 text-[11px] font-black uppercase ${tierStyles[tier]} ${className}`}
     >
       {tier}
     </span>
