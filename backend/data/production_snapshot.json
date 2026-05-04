@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T13:09:55.805681+00:00",
+  "generatedAt": "2026-05-04T13:17:49.095809+00:00",
   "signalDate": "2026-05-01",
   "sourceFiles": {
     "predictionCsv": "sample_predictions_with_tiers_20260501.csv",
@@ -16,24 +16,24 @@
     "sectorCount": 6
   },
   "marketRegime": {
-    "date": "2026-04-24",
+    "date": "2026-05-01",
     "regime": "Neutral-to-Supportive",
-    "summary": "VIX is moderate at 18.7, SPY trend is mildly supportive, and shock-day risk is off.",
+    "summary": "VIX is moderate at 17.0, SPY trend is mildly supportive, and shock-day risk is off.",
     "vix": {
-      "level": 18.71,
+      "level": 16.99,
       "label": "Moderate",
-      "momentum3d": -0.26,
-      "percentile": 68.6
+      "momentum3d": -0.28,
+      "percentile": 50.4
     },
     "spy": {
-      "return1d": 0.8,
-      "trend3d": 0.5,
-      "trend5d": 0.1,
+      "return1d": 0.3,
+      "trend3d": 0.4,
+      "trend5d": 0.2,
       "trendLabel": "Mildly Supportive"
     },
     "risk": {
       "shockDay": false,
-      "trendStrength": 0.63
+      "trendStrength": 0.78
     },
     "insight": "System Insight: Multiple entry-grade setups available; prioritize clean entries over extended momentum."
   },
