@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Dashboard } from "@/components/dashboard/Dashboard";
 import { DashboardEmptyState, DashboardErrorState, DashboardLoadingState } from "@/components/dashboard/DashboardStates";
 import { TradeDetailDrawer } from "@/components/dashboard/TradeDetailDrawer";
@@ -15,6 +15,8 @@ type LoadState =
   | { status: "empty"; data: DashboardData; error: null }
   | { status: "error"; data: null; error: string };
 
+type DatasetKey = "default" | "extended";
+
 export function DashboardClient() {
   const [state, setState] = useState<LoadState>({ status: "loading", data: null, error: null });
   const [selectedTrade, setSelectedTrade] = useState<TopTrade | null>(null);
@@ -26,8 +28,31 @@ export function DashboardClient() {
   });
   const [showExtended, setShowExtended] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [dataCache, setDataCache] = useState<Partial<Record<DatasetKey, DashboardData>>>({});
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const dataCacheRef = useRef<Partial<Record<DatasetKey, DashboardData>>>({});
+
+  function resolveDatasetKey(includeExtended: boolean): DatasetKey {
+    return includeExtended ? "extended" : "default";
+  }
+
+  function commitDashboardData(data: DashboardData) {
+    setSelectedTrade(null);
+    setState({
+      status: data.trades.length > 0 ? "ready" : "empty",
+      data,
+      error: null
+    });
+  }
+
+  function storeDashboardData(key: DatasetKey, data: DashboardData) {
+    dataCacheRef.current = {
+      ...dataCacheRef.current,
+      [key]: data
+    };
+    setDataCache(dataCacheRef.current);
+  }
 
   useEffect(() => {
     try {
@@ -78,26 +103,48 @@ export function DashboardClient() {
     };
   }, []);
 
-  async function loadDashboard(includeExtended: boolean, signal?: AbortSignal) {
+  async function loadDashboard(
+    includeExtended: boolean,
+    signal?: AbortSignal,
+    options?: { preferCache?: boolean; forceRefresh?: boolean; backgroundOnly?: boolean }
+  ) {
+    const datasetKey = resolveDatasetKey(includeExtended);
+    const cachedData = dataCacheRef.current[datasetKey];
     const hasExistingData = state.data !== null;
+    const preferCache = options?.preferCache ?? false;
+    const forceRefresh = options?.forceRefresh ?? false;
+    const backgroundOnly = options?.backgroundOnly ?? false;
 
-    if (hasExistingData) {
+    if (cachedData && preferCache && !forceRefresh) {
+      if (!backgroundOnly) {
+        commitDashboardData(cachedData);
+      }
+      return;
+    }
+
+    if (!backgroundOnly && hasExistingData) {
+      if (cachedData && !forceRefresh) {
+        commitDashboardData(cachedData);
+      }
       setIsRefreshing(true);
-    } else {
+    } else if (!backgroundOnly) {
       setState({ status: "loading", data: null, error: null });
     }
 
     try {
       const data = await fetchDashboardData(includeExtended, signal);
       console.log("Dashboard API payload loaded", data);
-      setSelectedTrade(null);
-      setState({
-        status: data.trades.length > 0 ? "ready" : "empty",
-        data,
-        error: null
-      });
+      storeDashboardData(datasetKey, data);
+      if (!backgroundOnly) {
+        commitDashboardData(data);
+      }
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
+
+      if (backgroundOnly) {
+        console.error("Unable to prefetch dashboard data", error);
+        return;
+      }
 
       if (hasExistingData) {
         console.error("Unable to refresh dashboard data", error);
@@ -111,16 +158,31 @@ export function DashboardClient() {
         error: error instanceof Error ? error.message : "Unable to load dashboard data."
       });
     } finally {
-      setIsRefreshing(false);
+      if (!backgroundOnly) {
+        setIsRefreshing(false);
+      }
     }
   }
 
   useEffect(() => {
     const controller = new AbortController();
-    void loadDashboard(showExtended, controller.signal);
+    void loadDashboard(showExtended, controller.signal, { preferCache: true });
 
     return () => controller.abort();
   }, [showExtended]);
+
+  useEffect(() => {
+    if (state.status !== "ready" && state.status !== "empty") return;
+
+    const targetExtended = !showExtended;
+    const targetKey = resolveDatasetKey(targetExtended);
+    if (dataCache[targetKey]) return;
+
+    const controller = new AbortController();
+    void loadDashboard(targetExtended, controller.signal, { forceRefresh: false, backgroundOnly: true });
+
+    return () => controller.abort();
+  }, [state.status, showExtended, dataCache]);
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -151,7 +213,7 @@ export function DashboardClient() {
         onToggleWatchlist={(trade) => setWatchlist((current) => toggleWatch(current, trade))}
         onSelectTrade={setSelectedTrade}
         onCloseTrade={() => setSelectedTrade(null)}
-        onRefresh={() => void loadDashboard(showExtended)}
+        onRefresh={() => void loadDashboard(showExtended, undefined, { forceRefresh: true })}
         userEmail={userEmail}
         onLogout={() => void handleLogout()}
     />
