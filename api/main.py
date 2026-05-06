@@ -6,6 +6,7 @@ import os
 import math
 import json
 import re
+from copy import deepcopy
 from datetime import datetime, timezone
 
 app = FastAPI()
@@ -71,9 +72,12 @@ REPORTS_DIR = ROOT_DIR / "data" / "master" / "reports"
 MACRO_DIR = ROOT_DIR / "data" / "macro"
 TRADES_DB_PATH = ROOT_DIR / "data" / "master" / "trades_master.duckdb"
 SNAPSHOT_PATH = ROOT_DIR / "backend" / "data" / "production_snapshot.json"
+TOP_TRADES_OUTPUT_PATH = ROOT_DIR / "data" / "outputs" / "top_trades_latest.csv"
+RANKED_TRADES_OUTPUT_PATH = ROOT_DIR / "data" / "outputs" / "ranked_trades_latest.csv"
 ETF_SHEET_NAME = "ETF_Overlay_Summary"
 SECTOR_SUMMARY_SHEET = "Sector Summary"
 TICKER_SUMMARY_SHEET = "Ticker Summary"
+TOP_TRADES_PAYLOAD_CACHE = {}
 
 SECTOR_TO_ETF_FALLBACK = {
     "Basic Materials": "XLB",
@@ -1305,7 +1309,76 @@ def apply_include_pass_to_payload(payload, include_pass: bool):
     return filtered_payload
 
 
-def build_top_trades_payload(include_pass: bool = True):
+def load_selector_trade_rows(include_extended: bool) -> pd.DataFrame:
+    selector_path = RANKED_TRADES_OUTPUT_PATH if include_extended else TOP_TRADES_OUTPUT_PATH
+    if not selector_path.exists():
+        raise FileNotFoundError(
+            f"Selector output not found at {selector_path}. Run post_processing/top_trades_selector.py first."
+        )
+
+    selector_df = pd.read_csv(selector_path, low_memory=False)
+    if selector_df.empty:
+        return selector_df
+
+    selector_df = selector_df.copy().reset_index(drop=True)
+    if "optionSymbol" not in selector_df.columns:
+        raise ValueError(f"Selector output {selector_path} is missing required column optionSymbol.")
+
+    selector_df["optionSymbol"] = selector_df["optionSymbol"].astype(str).str.strip()
+    selector_df["final_tier"] = selector_df.get("final_tier", pd.Series(index=selector_df.index)).astype(str).str.strip()
+
+    allowed_tiers = ["A+", "A", "B"] if include_extended else ["A+", "A"]
+    selector_df = selector_df[selector_df["final_tier"].isin(allowed_tiers)].copy()
+    selector_df["selector_rank"] = range(1, len(selector_df) + 1)
+    return selector_df
+
+
+def build_top_trades_cache_signature(include_extended: bool):
+    latest_prediction_file = get_latest_file()
+    latest_workbook = get_latest_matching_file(ML_DIR, "ml_predictions_summary_*.xlsx")
+    selector_path = RANKED_TRADES_OUTPUT_PATH if include_extended else TOP_TRADES_OUTPUT_PATH
+    macro_file = MACRO_DIR / "macro_regime_enriched.csv"
+
+    def path_signature(path_like):
+        if not path_like:
+            return None
+
+        path = Path(path_like)
+        if not path.exists():
+            return None
+
+        stat = path.stat()
+        return (str(path.resolve()), stat.st_mtime_ns, stat.st_size)
+
+    return (
+        include_extended,
+        path_signature(latest_prediction_file),
+        path_signature(selector_path),
+        path_signature(latest_workbook),
+        path_signature(macro_file),
+        path_signature(TRADES_DB_PATH),
+    )
+
+
+def get_cached_top_trades_payload(include_extended: bool):
+    cache_key = ("top-trades", include_extended)
+    signature = build_top_trades_cache_signature(include_extended)
+    cached = TOP_TRADES_PAYLOAD_CACHE.get(cache_key)
+
+    if cached and cached.get("signature") == signature:
+        return deepcopy(cached["payload"])
+
+    payload = _build_top_trades_payload_uncached(include_extended=include_extended)
+    if isinstance(payload, dict) and "error" not in payload:
+        TOP_TRADES_PAYLOAD_CACHE[cache_key] = {
+            "signature": signature,
+            "payload": deepcopy(payload),
+        }
+
+    return payload
+
+
+def _build_top_trades_payload_uncached(include_extended: bool = False):
     historical_con = None
     try:
         file = get_latest_file()
@@ -1313,18 +1386,15 @@ def build_top_trades_payload(include_pass: bool = True):
         if not file:
             return {"error": "No CSV file found. Run your ML script first."}
 
-        df = pd.read_csv(file, low_memory=False)
-
-        # --- NORMALIZATION ---
-        df["optiontype"] = df.get("optiontype", df.get("optionType")).astype(str).str.lower()
-        df["adaptive_tier"] = df["adaptive_tier"].astype(str).str.strip()
-        df["predicted_tier_cal"] = df["predicted_tier_cal"].astype(str).str.strip()
-        df["live_eligible"] = pd.to_numeric(df["live_eligible"], errors="coerce").fillna(0).astype(int)
-
-        # --- FILTER / SORT ---
-        df_filtered = build_ranked_trade_slice(df)
-        candidate_total = len(df_filtered)
+        selector_df = load_selector_trade_rows(include_extended=include_extended)
+        candidate_total = len(selector_df)
         yesterday_status = []
+
+        df = pd.read_csv(file, low_memory=False)
+        if "optionSymbol" not in df.columns:
+            return {"error": "Latest ML CSV is missing optionSymbol; cannot join selector output."}
+        df["optionSymbol"] = df["optionSymbol"].astype(str).str.strip()
+        df = df.drop_duplicates(subset=["optionSymbol"], keep="first").copy()
 
         cols = [
             "ticker",
@@ -1335,8 +1405,16 @@ def build_top_trades_payload(include_pass: bool = True):
             "expiryDate",
             "dte",
             "adaptive_score_final",
+            "adjusted_score_final",
             "adaptive_score",
             "adaptive_rank",
+            "score_decile",
+            "baseline_wr",
+            "recent_wr",
+            "recent_n",
+            "degradation",
+            "regime_state",
+            "regime_multiplier",
             "adaptive_tier",
             "predicted_tier_cal",
             "predicted_tier_raw",
@@ -1378,8 +1456,15 @@ def build_top_trades_payload(include_pass: bool = True):
             "itm_flag"
         ]
 
-        cols = [c for c in cols if c in df_filtered.columns]
-        df_filtered = df_filtered[cols].head(25).copy()
+        cols = [c for c in cols if c in df.columns]
+        df = df[cols].copy()
+        df_filtered = selector_df.merge(df, on="optionSymbol", how="left", suffixes=("", "_ml"))
+        for base_col in ["ticker", "signal_date", "optionType", "dte", "adaptive_score_final"]:
+            ml_col = f"{base_col}_ml"
+            if ml_col in df_filtered.columns:
+                df_filtered[base_col] = df_filtered[base_col].where(df_filtered[base_col].notna(), df_filtered[ml_col])
+        if "ticker_ml" in df_filtered.columns:
+            df_filtered = df_filtered.drop(columns=[c for c in df_filtered.columns if c.endswith("_ml")])
 
         # --- SIGNAL LABEL ---
         def build_signal(row):
@@ -1394,20 +1479,6 @@ def build_top_trades_payload(include_pass: bool = True):
                 return "WEAK"
 
         df_filtered["signal_strength"] = df_filtered.apply(build_signal, axis=1)
-        def build_tier_from_rank(rank_position: int, total_trades: int):
-            if total_trades <= 0:
-                return "B"
-
-            percentile = rank_position / total_trades
-            if percentile <= 0.05:
-                return "A+"
-            if percentile <= 0.15:
-                return "A"
-            if percentile <= 0.30:
-                return "A-"
-            if percentile <= 0.50:
-                return "B+"
-            return "B"
         
         # --- SAFE HELPERS ---
         def safe_int(val):
@@ -1455,8 +1526,6 @@ def build_top_trades_payload(include_pass: bool = True):
                 print(f"[HISTORICAL CONTEXT] Failed to connect: {e}")
                 historical_con = None
                 latest_hist_entry_time = None
-
-        yesterday_status = build_yesterday_status(df, file, historical_con)
         
         def safe_pct_distance(strike, spot):
             strike_v = pd.to_numeric(pd.Series([strike]), errors="coerce").iloc[0]
@@ -1579,13 +1648,14 @@ def build_top_trades_payload(include_pass: bool = True):
         # --- RESPONSE ---
         response = []
 
-        for i, (_, row) in enumerate(df_filtered.iterrows(), start=1):
+        for _, row in df_filtered.iterrows():
+            selector_rank = safe_int(row.get("selector_rank")) or len(response) + 1
             sector_raw = safe_str(row.get("sector"))
             sector = sector_raw.strip() if sector_raw else None
             etf_info = etf_overlay_map.get(sector, {}) if sector else {}
             fallback_etf = SECTOR_TO_ETF_FALLBACK.get(sector) if sector else None
             action = build_trade_action_from_entry_profile(row)
-            tier = build_tier_from_rank(i, candidate_total)
+            tier = safe_str(row.get("final_tier")) or "B"
             strike_distance = safe_pct_distance(row.get("strike"), row.get("underlyingPrice"))
             strike_pos_label = build_strike_position_label(row.get("itm_flag"), strike_distance)
             strike_pos_text = build_strike_position_text(strike_distance)
@@ -1613,18 +1683,24 @@ def build_top_trades_payload(include_pass: bool = True):
                 dte=current_dte
             )
 
-            today_top_pct = math.ceil((i / candidate_total) * 100) if candidate_total else None
-            today_score = round(100 * ((candidate_total - i + 1) / candidate_total)) if candidate_total else None
+            today_top_pct = math.ceil((selector_rank / candidate_total) * 100) if candidate_total else None
+            today_score = round(100 * ((candidate_total - selector_rank + 1) / candidate_total)) if candidate_total else None
 
             response.append({
-                "rank": i,
+                "rank": selector_rank,
+                "selector_rank": selector_rank,
                 "ticker": safe_str(row.get("ticker")),
+                "signal_date": safe_str(row.get("signal_date")),
                 "companyName": safe_str(row.get("company_name")),
                 "tier": tier,
+                "final_tier": tier,
                 "action": action,
                 "action_override": False,
                 "optionType": option_type,
                 "signalStrength": build_signal(row),
+                "segmented_percentile": safe_float(row.get("segmented_percentile"), 6),
+                "global_percentile": safe_float(row.get("global_percentile"), 6),
+                "adaptive_score_final": safe_float(row.get("adaptive_score_final"), 6),
 
                 "contract": {
                     "optionSymbol": safe_str(row.get("optionSymbol")),
@@ -1662,8 +1738,15 @@ def build_top_trades_payload(include_pass: bool = True):
 
                 "scores": {
                     "adaptiveScoreFinal": safe_float(row.get("adaptive_score_final"), 3),
+                    "adjustedScoreFinal": safe_float(row.get("adjusted_score_final"), 3),
                     "adaptiveScore": safe_float(row.get("adaptive_score"), 3),
                     "adaptiveRank": safe_int(row.get("adaptive_rank")),
+                    "scoreDecile": safe_int(row.get("score_decile")),
+                    "baselineWr": safe_float(row.get("baseline_wr"), 4),
+                    "recentWr": safe_float(row.get("recent_wr"), 4),
+                    "recentN": safe_int(row.get("recent_n")),
+                    "degradation": safe_float(row.get("degradation"), 4),
+                    "regimeMultiplier": safe_float(row.get("regime_multiplier"), 3),
                     "priorityScore": safe_float(row.get("priority_score"), 3),
                     "probCalibrated": safe_float(row.get("prob_calibrated"), 3),
                     "expectedValue": safe_float(row.get("expected_value"), 3),
@@ -1679,6 +1762,7 @@ def build_top_trades_payload(include_pass: bool = True):
                     "predictedTierRaw": safe_str(row.get("predicted_tier_raw")),
                     "adaptiveTier": safe_str(row.get("adaptive_tier")),
                     "filteredTier": safe_str(row.get("filteredtier")),
+                    "regimeState": safe_str(row.get("regime_state")),
                     "dteBucket": safe_str(row.get("dte_bucket")),
                     "vixBucket": safe_str(row.get("vix_bucket"))
                 },
@@ -1714,7 +1798,7 @@ def build_top_trades_payload(include_pass: bool = True):
 
                 "decisionContext": {
                     "today": {
-                        "rank": i,
+                        "rank": selector_rank,
                         "candidateCount": candidate_total,
                         "topPercent": today_top_pct,
                         "todayScore": today_score
@@ -1756,6 +1840,7 @@ def build_top_trades_payload(include_pass: bool = True):
 
                 "provenance": {
                     "sourceFile": os.path.basename(file),
+                    "selectorFile": TOP_TRADES_OUTPUT_PATH.name if not include_extended else RANKED_TRADES_OUTPUT_PATH.name,
                     "strategyStatsFile": strategy_stats.get("sourceFile"),
                     "mlModelVersion": safe_str(row.get("ml_model_version")),
                     "filterVersion": safe_str(row.get("filter_version")),
@@ -1773,14 +1858,10 @@ def build_top_trades_payload(include_pass: bool = True):
                 response[idx]["action"] = "ENTER"
                 response[idx]["action_override"] = True
 
-        if not include_pass:
-            response = [trade for trade in response if str(trade.get("action") or "").strip().upper() != "WAIT"]
-
         if historical_con is not None:
             historical_con.close()
             historical_con = None
 
-        previous_file = get_previous_file(file)
         signal_date = response[0]["provenance"]["signalDate"] if response else None
         market_regime_payload = dict(market_regime) if isinstance(market_regime, dict) else market_regime
         if isinstance(market_regime_payload, dict):
@@ -1790,7 +1871,7 @@ def build_top_trades_payload(include_pass: bool = True):
             "signalDate": signal_date,
             "sourceFiles": {
                 "predictionCsv": os.path.basename(file),
-                "previousPredictionCsv": os.path.basename(previous_file) if previous_file else None,
+                "selectorCsv": RANKED_TRADES_OUTPUT_PATH.name if include_extended else TOP_TRADES_OUTPUT_PATH.name,
                 "strategyStats": strategy_stats.get("sourceFile"),
                 "sectorOutlookWorkbook": sector_outlook.get("sourceFile"),
                 "marketRegime": MACRO_DIR.joinpath("macro_regime_enriched.csv").name if (MACRO_DIR / "macro_regime_enriched.csv").exists() else None,
@@ -1822,11 +1903,12 @@ def build_top_trades_payload(include_pass: bool = True):
         }
 
 
-@app.get("/top-trades")
-def top_trades(include_pass: bool = True):
-    snapshot_payload = load_production_snapshot()
-    if snapshot_payload is not None:
-        return apply_include_pass_to_payload(snapshot_payload, include_pass)
+def build_top_trades_payload(include_pass: bool = True, include_extended: bool = False):
+    payload = get_cached_top_trades_payload(include_extended=include_extended)
+    return apply_include_pass_to_payload(payload, include_pass)
 
-    return build_top_trades_payload(include_pass=include_pass)
+
+@app.get("/top-trades")
+def top_trades(include_pass: bool = True, include_extended: bool = False):
+    return build_top_trades_payload(include_pass=include_pass, include_extended=include_extended)
 

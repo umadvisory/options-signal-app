@@ -28,8 +28,9 @@ const emptyStats: StrategyStats = {
   equityCurve: []
 };
 
-export async function fetchDashboardData(signal?: AbortSignal): Promise<DashboardData> {
-  const response = await fetch(DASHBOARD_ENDPOINT, {
+export async function fetchDashboardData(includeExtended = false, signal?: AbortSignal): Promise<DashboardData> {
+  const endpoint = includeExtended ? `${DASHBOARD_ENDPOINT}?include_extended=true` : DASHBOARD_ENDPOINT;
+  const response = await fetch(endpoint, {
     method: "GET",
     cache: "no-store",
     signal
@@ -119,14 +120,16 @@ function normalizeStats(stats: Partial<StrategyStats> | null | undefined): Strat
 function normalizeTrade(trade: TopTrade): TopTrade {
   const optionType = String(trade.optionType || "CALL").toUpperCase() === "PUT" ? "PUT" : "CALL";
   const action = normalizeAction(String(trade.action || ""));
-  const tier = ["A+", "A", "A-", "B+", "B"].includes(String(trade.tier)) ? trade.tier : "B";
+  const rawTier = String((trade as TopTrade & { final_tier?: string }).final_tier || trade.tier || "B");
+  const tier = ["A+", "A", "B"].includes(rawTier) ? (rawTier as TopTrade["tier"]) : "B";
   const signalStrength = ["STRONG", "MODERATE", "WEAK", "UNKNOWN"].includes(String(trade.signalStrength))
     ? trade.signalStrength
     : "UNKNOWN";
+  const selectorRank = Number((trade as TopTrade & { selector_rank?: unknown }).selector_rank) || Number(trade.rank) || 0;
 
   return {
     ...trade,
-    rank: Number(trade.rank) || 0,
+    rank: selectorRank,
     ticker: String(trade.ticker || "N/A"),
     companyName: trade.companyName ?? null,
     tier,
@@ -161,8 +164,15 @@ function normalizeTrade(trade: TopTrade): TopTrade {
     },
     scores: {
       adaptiveScoreFinal: numberOrNull(trade.scores?.adaptiveScoreFinal),
+      adjustedScoreFinal: numberOrNull((trade.scores as { adjustedScoreFinal?: unknown })?.adjustedScoreFinal),
       adaptiveScore: numberOrNull(trade.scores?.adaptiveScore),
       adaptiveRank: numberOrNull(trade.scores?.adaptiveRank),
+      scoreDecile: numberOrNull((trade.scores as { scoreDecile?: unknown })?.scoreDecile),
+      baselineWr: numberOrNull((trade.scores as { baselineWr?: unknown })?.baselineWr),
+      recentWr: numberOrNull((trade.scores as { recentWr?: unknown })?.recentWr),
+      recentN: numberOrNull((trade.scores as { recentN?: unknown })?.recentN),
+      degradation: numberOrNull((trade.scores as { degradation?: unknown })?.degradation),
+      regimeMultiplier: numberOrNull((trade.scores as { regimeMultiplier?: unknown })?.regimeMultiplier),
       priorityScore: numberOrNull(trade.scores?.priorityScore),
       probCalibrated: numberOrNull(trade.scores?.probCalibrated),
       expectedValue: numberOrNull(trade.scores?.expectedValue),
@@ -177,6 +187,7 @@ function normalizeTrade(trade: TopTrade): TopTrade {
       predictedTierRaw: trade.classification?.predictedTierRaw ?? null,
       adaptiveTier: trade.classification?.adaptiveTier ?? null,
       filteredTier: trade.classification?.filteredTier ?? null,
+      regimeState: (trade.classification as { regimeState?: string | null })?.regimeState ?? null,
       dteBucket: trade.classification?.dteBucket ?? null,
       vixBucket: trade.classification?.vixBucket ?? null
     },

@@ -92,7 +92,7 @@ export function TradeDetailDrawer({
         <div className="space-y-6 px-6 py-5">
           <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
             <Metric label="Action" value={decisionState.action} detail={decisionState.explanation} tone={decisionState.tone} emphasize />
-            <Metric label="Rank" value={`#${trade.rank}`} tone="blue" emphasize />
+            <Metric label="Priority" value={`#${trade.rank}`} tone="blue" emphasize />
             <Metric label="Entry posture" value={entryPostureLabel(trade.action)} detail={entryPostureNote(trade.action)} tone={decisionState.tone} emphasize />
             <Metric label="Tradeability" value={tradeability} />
             <Metric label="Structure" value={`${trade.contract.strikePositionLabel} ${trade.optionType}`} />
@@ -104,7 +104,7 @@ export function TradeDetailDrawer({
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-[0.14em] text-emerald-700">Trade Playbook</p>
                   <h3 className="mt-2 text-xl font-black text-ink">
-                    {trade.ticker} - {trade.tier} Setup
+                    {trade.ticker} - {trade.tier} Setup Quality
                   </h3>
                 </div>
                 <div className="rounded-md bg-white/80 px-3 py-2 text-left">
@@ -115,13 +115,13 @@ export function TradeDetailDrawer({
 
               <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 <CutStat
-                  label="Today Rank"
+                  label="Today Priority"
                   value={
                     decisionContext.today.rank && decisionContext.today.candidateCount
                       ? `#${decisionContext.today.rank} of ${decisionContext.today.candidateCount}`
                       : `#${trade.rank}`
                   }
-                  sublabel="Live rank inside today's qualified list"
+                  sublabel="Selector priority inside today's qualified list"
                 />
                 <CutStat
                   label="Similar Setup History (Last 90 Days)"
@@ -308,7 +308,7 @@ export function TradeDetailDrawer({
 function getConvictionLabel(trade: TopTrade) {
   if (trade.action === "ENTER" && trade.tier === "A+") return "Very High";
   if (trade.action === "ENTER") return "High";
-  if (trade.tier === "A" || trade.tier === "A-") return "Medium-High";
+  if (trade.tier === "A") return "Medium-High";
   return "Medium";
 }
 

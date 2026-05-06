@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const configuredBackendUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
   const backendUrl =
     process.env.NODE_ENV !== "production"
@@ -17,7 +17,9 @@ export async function GET() {
   }
 
   try {
-    const response = await fetch(`${backendUrl}/top-trades`, {
+    const includeExtended = request.nextUrl.searchParams.get("include_extended") === "true";
+    const backendPath = includeExtended ? `${backendUrl}/top-trades?include_extended=true` : `${backendUrl}/top-trades`;
+    const response = await fetch(backendPath, {
       method: "GET",
       cache: "no-store",
       headers: {

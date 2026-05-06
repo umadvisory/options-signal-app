@@ -59,8 +59,15 @@ export type TopTrade = {
   };
   scores: {
     adaptiveScoreFinal: number | null;
+    adjustedScoreFinal?: number | null;
     adaptiveScore: number | null;
     adaptiveRank: number | null;
+    scoreDecile?: number | null;
+    baselineWr?: number | null;
+    recentWr?: number | null;
+    recentN?: number | null;
+    degradation?: number | null;
+    regimeMultiplier?: number | null;
     priorityScore: number | null;
     probCalibrated: number | null;
     expectedValue: number | null;
@@ -75,6 +82,7 @@ export type TopTrade = {
     predictedTierRaw: string | null;
     adaptiveTier: string | null;
     filteredTier: string | null;
+    regimeState?: string | null;
     dteBucket: string | null;
     vixBucket: string | null;
   };

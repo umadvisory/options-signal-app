@@ -38,8 +38,13 @@ export function TopTradesTable({
               Qualified Setups <span className="text-sm font-bold text-muted">(from High Conviction)</span>
             </h2>
             <p className="mt-1 text-xs font-semibold text-muted">
-              Showing top actionable setups by overall rank.
+              Showing highest-conviction setups based on recent comparable signals.
             </p>
+            {trades.length > 0 && trades.length < 5 ? (
+              <p className="mt-2 text-[11px] font-semibold text-amber-700">
+                High-conviction setups are limited today. Only the strongest signals are shown.
+              </p>
+            ) : null}
           </div>
           <span className="text-xs font-bold text-muted">{trades.length} visible setups</span>
         </div>
@@ -66,7 +71,7 @@ export function TopTradesTable({
             <p className="mt-2 text-[11px] font-black text-ink">ENTER = good timing now</p>
             <p className="mt-1 text-[11px] font-black text-ink">WATCH = valid setup, wait for better entry</p>
             <p className="mt-1 text-[11px] font-black text-ink">WAIT = extended or no clean entry</p>
-            <p className="mt-2 text-[11px] font-semibold leading-5 text-slate-600">Rank = priority</p>
+            <p className="mt-2 text-[11px] font-semibold leading-5 text-slate-600">Priority = selector order</p>
             <p className="text-[11px] font-semibold leading-5 text-slate-600">Action = timing</p>
           </div>
         </div>
@@ -77,8 +82,8 @@ export function TopTradesTable({
           <thead>
             <tr className="bg-slate-50 text-[11px] font-bold text-muted">
               <HeaderCell className="w-12 px-4 py-3" label="Save" tip="Save this setup to the watchlist for quick follow-up." />
-              <HeaderCell className="w-12 px-4 py-3" label="Rank" tip="Original rank among the qualified setups before any filtering." />
-              <HeaderCell className="px-3 py-3" label="Ticker / Context" tip="Ticker, sector context, and grade." />
+              <HeaderCell className="w-12 px-4 py-3" label="Priority" tip="Selector priority from the precomputed API ranking." />
+              <HeaderCell className="px-3 py-3" label="Ticker / Context" tip="Ticker, sector context, and setup quality." />
               <HeaderCell className="px-3 py-3" label="Action" tip="Primary timing cue. ENTER now, WATCH for improved setup, WAIT when extended." />
               <HeaderCell className="px-3 py-3" label="Contract / Expiry" tip="Contract type, strike, expiry, and strike setup context." />
               <HeaderCell className="px-3 py-3" label="Depth" tip="Contract volume and open interest from the signal snapshot." />
@@ -100,6 +105,7 @@ export function TopTradesTable({
 
             {trades.map((trade) => {
               const isHero = heroTicker === trade.ticker;
+              const isExtendedTier = trade.tier === "B";
               const sectorContextLabel = sectorLabelByName.get(trade.context.sector) || "Balanced Opportunity";
 
               return (
@@ -109,6 +115,8 @@ export function TopTradesTable({
                   className={`group cursor-pointer border-t text-sm transition duration-200 ${
                     isHero
                       ? "border-l-[3px] border-l-emerald-500 border-slate-700 bg-slate-800 hover:bg-slate-700 hover:shadow-[inset_0_0_0_1px_rgba(148,163,184,0.24)]"
+                      : isExtendedTier
+                        ? "border-l-[3px] border-l-transparent border-slate-100 bg-slate-50/60 text-slate-500 hover:bg-slate-100/80 hover:shadow-[inset_0_0_0_1px_rgba(148,163,184,0.12)]"
                       : "border-l-[3px] border-l-transparent border-slate-100 hover:bg-blue-50/45 hover:shadow-[inset_0_0_0_1px_rgba(148,163,184,0.18)]"
                   }`}
                 >

@@ -13,9 +13,10 @@ type TradeFiltersProps = {
   totalCount: number;
   visibleCount: number;
   actionableCount: number;
-  showReview: boolean;
+  showExtended: boolean;
+  isRefreshing: boolean;
   onChange: (filters: TradeFiltersState) => void;
-  onToggleReview: () => void;
+  onToggleExtended: () => void;
 };
 
 export function TradeFilters({
@@ -24,9 +25,10 @@ export function TradeFilters({
   totalCount,
   visibleCount,
   actionableCount,
-  showReview,
+  showExtended,
+  isRefreshing,
   onChange,
-  onToggleReview
+  onToggleExtended
 }: TradeFiltersProps) {
   return (
     <section className="rounded-lg border border-slate-200 bg-white px-5 py-3.5 shadow-soft">
@@ -34,7 +36,7 @@ export function TradeFilters({
         <div>
           <p className="text-xs font-bold text-muted">Trade Workbench</p>
           <h2 className="mt-1 text-lg font-black text-ink">
-            {showReview ? `${visibleCount} shown · ${actionableCount} actionable available` : `${visibleCount} visible setups`}
+            {showExtended ? `${visibleCount} visible setups - extended universe` : `${visibleCount} visible setups`}
           </h2>
         </div>
 
@@ -44,9 +46,6 @@ export function TradeFilters({
             value={filters.action}
             onChange={(value) => {
               const nextAction = normalizeActionOption(value);
-              if ((nextAction === "WATCH" || nextAction === "WAIT") && showReview) {
-                onToggleReview();
-              }
               onChange({
                 ...filters,
                 action: nextAction
@@ -60,10 +59,10 @@ export function TradeFilters({
             ]}
           />
           <Select
-            label="Tier"
+            label="Setup Quality"
             value={filters.tier}
             onChange={(value) => onChange({ ...filters, tier: value as TradeFiltersState["tier"] })}
-            options={["ALL", "A+", "A", "A-", "B+", "B"].map((value) => ({ value, label: value }))}
+            options={["ALL", "A+", "A", "B"].map((value) => ({ value, label: value }))}
           />
           <Select
             label="Sector"
@@ -81,17 +80,18 @@ export function TradeFilters({
             />
           </label>
           <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold text-muted">Show actionable setups (ENTER only)</span>
+            <span className="text-[11px] font-bold text-muted">Show Extended Setups</span>
             <button
               type="button"
-              onClick={onToggleReview}
+              onClick={onToggleExtended}
+              disabled={isRefreshing}
               className={`h-10 rounded-md border px-3 text-sm font-black transition ${
-                showReview
+                showExtended
                   ? "border-blue-300 bg-blue-50 text-blue-700"
                   : "border-slate-200 bg-slate-50 text-slate-700 hover:border-blue-300 hover:text-blue-700"
-              }`}
+              } ${isRefreshing ? "cursor-wait opacity-70" : ""}`}
             >
-              {showReview ? "ON" : "OFF"}
+              {isRefreshing ? "Updating..." : showExtended ? "ON" : "OFF"}
             </button>
           </div>
         </div>
@@ -100,13 +100,12 @@ export function TradeFilters({
   );
 }
 
-export function applyTradeFilters(trades: TopTrade[], filters: TradeFiltersState, showReview = false) {
+export function applyTradeFilters(trades: TopTrade[], filters: TradeFiltersState) {
   const query = filters.query.trim().toLowerCase();
   const selectedAction = normalizeActionOption(filters.action);
 
   return trades.filter((trade) => {
     const normalizedTradeAction = normalizeActionOption(trade.action);
-    if (showReview && normalizedTradeAction !== "ENTER") return false;
     if (selectedAction !== "ALL" && normalizedTradeAction !== selectedAction) return false;
     if (filters.tier !== "ALL" && trade.tier !== filters.tier) return false;
     if (filters.sector !== "ALL" && trade.context.sector !== filters.sector) return false;

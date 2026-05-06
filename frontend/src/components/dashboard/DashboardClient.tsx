@@ -24,7 +24,8 @@ export function DashboardClient() {
     sector: "ALL",
     query: ""
   });
-  const [showReview, setShowReview] = useState(true);
+  const [showExtended, setShowExtended] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
@@ -77,11 +78,17 @@ export function DashboardClient() {
     };
   }, []);
 
-  async function loadDashboard(signal?: AbortSignal) {
-    setState({ status: "loading", data: null, error: null });
+  async function loadDashboard(includeExtended: boolean, signal?: AbortSignal) {
+    const hasExistingData = state.data !== null;
+
+    if (hasExistingData) {
+      setIsRefreshing(true);
+    } else {
+      setState({ status: "loading", data: null, error: null });
+    }
 
     try {
-      const data = await fetchDashboardData(signal);
+      const data = await fetchDashboardData(includeExtended, signal);
       console.log("Dashboard API payload loaded", data);
       setSelectedTrade(null);
       setState({
@@ -92,20 +99,28 @@ export function DashboardClient() {
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
 
+      if (hasExistingData) {
+        console.error("Unable to refresh dashboard data", error);
+        setIsRefreshing(false);
+        return;
+      }
+
       setState({
         status: "error",
         data: null,
         error: error instanceof Error ? error.message : "Unable to load dashboard data."
       });
+    } finally {
+      setIsRefreshing(false);
     }
   }
 
   useEffect(() => {
     const controller = new AbortController();
-    void loadDashboard(controller.signal);
+    void loadDashboard(showExtended, controller.signal);
 
     return () => controller.abort();
-  }, []);
+  }, [showExtended]);
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -116,26 +131,27 @@ export function DashboardClient() {
   }
 
   if (state.status === "error") {
-    return <DashboardErrorState message={state.error} onRetry={() => void loadDashboard()} />;
+    return <DashboardErrorState message={state.error} onRetry={() => void loadDashboard(showExtended)} />;
   }
 
   if (state.status === "empty") {
-    return <DashboardEmptyState data={state.data} onRefresh={() => void loadDashboard()} />;
+    return <DashboardEmptyState data={state.data} onRefresh={() => void loadDashboard(showExtended)} />;
   }
 
   return (
       <DashboardWithState
         data={state.data}
         filters={filters}
-        showReview={showReview}
+        showExtended={showExtended}
+        isRefreshing={isRefreshing}
         watchlist={watchlist}
         selectedTrade={selectedTrade}
         onFiltersChange={setFilters}
-        onToggleReview={() => setShowReview((current) => !current)}
+        onToggleExtended={() => setShowExtended((current) => !current)}
         onToggleWatchlist={(trade) => setWatchlist((current) => toggleWatch(current, trade))}
         onSelectTrade={setSelectedTrade}
         onCloseTrade={() => setSelectedTrade(null)}
-        onRefresh={() => void loadDashboard()}
+        onRefresh={() => void loadDashboard(showExtended)}
         userEmail={userEmail}
         onLogout={() => void handleLogout()}
     />
@@ -145,11 +161,12 @@ export function DashboardClient() {
 function DashboardWithState({
   data,
   filters,
-  showReview,
+  showExtended,
+  isRefreshing,
   watchlist,
   selectedTrade,
   onFiltersChange,
-  onToggleReview,
+  onToggleExtended,
   onToggleWatchlist,
   onSelectTrade,
   onCloseTrade,
@@ -159,11 +176,12 @@ function DashboardWithState({
 }: {
   data: DashboardData;
   filters: TradeFiltersState;
-  showReview: boolean;
+  showExtended: boolean;
+  isRefreshing: boolean;
   watchlist: WatchlistItem[];
   selectedTrade: TopTrade | null;
   onFiltersChange: (filters: TradeFiltersState) => void;
-  onToggleReview: () => void;
+  onToggleExtended: () => void;
   onToggleWatchlist: (trade: TopTrade) => void;
   onSelectTrade: (trade: TopTrade) => void;
   onCloseTrade: () => void;
@@ -171,14 +189,7 @@ function DashboardWithState({
   userEmail: string | null;
   onLogout: () => void;
 }) {
-  const rankedTrades = useMemo(
-    () => [...data.trades].sort((a, b) => {
-      const rankA = Number.isFinite(a.rank) ? a.rank : Number.MAX_SAFE_INTEGER;
-      const rankB = Number.isFinite(b.rank) ? b.rank : Number.MAX_SAFE_INTEGER;
-      return rankA - rankB;
-    }),
-    [data.trades]
-  );
+  const rankedTrades = useMemo(() => data.trades, [data.trades]);
   const heroTrade = useMemo(
     () =>
       rankedTrades.find((trade) => trade.action === "ENTER") ??
@@ -192,12 +203,8 @@ function DashboardWithState({
     () => Array.from(new Set(rankedTrades.map((trade) => trade.context.sector).filter(Boolean))).sort(),
     [rankedTrades]
   );
-  const filteredTrades = useMemo(() => applyTradeFilters(rankedTrades, filters, showReview), [rankedTrades, filters, showReview]);
-  const actionableTrades = useMemo(
-    () => filteredTrades.filter((trade) => trade.action === "ENTER"),
-    [filteredTrades]
-  );
-  const displayedTrades = useMemo(() => (showReview ? actionableTrades.slice(0, 5) : filteredTrades), [actionableTrades, filteredTrades, showReview]);
+  const filteredTrades = useMemo(() => applyTradeFilters(rankedTrades, filters), [rankedTrades, filters]);
+  const displayedTrades = useMemo(() => filteredTrades, [filteredTrades]);
   const sectorOutlook = useMemo(() => enrichSectorOutlook(data.sectorOutlook, displayedTrades), [data.sectorOutlook, displayedTrades]);
   const actionableCount = useMemo(
     () => filteredTrades.filter((trade) => trade.action === "ENTER").length,
@@ -210,7 +217,7 @@ function DashboardWithState({
       ) as Record<string, "ENTER" | "WATCH" | "WAIT">,
     [rankedTrades]
   );
-  const computedTradeEmptyState = useMemo(() => buildTradeEmptyState(filters, showReview), [filters, showReview]);
+  const computedTradeEmptyState = useMemo(() => buildTradeEmptyState(filters, showExtended), [filters, showExtended]);
   const systemInsight = useMemo(() => buildSystemInsight(data.marketRegime, rankedTrades), [data.marketRegime, rankedTrades]);
 
   return (
@@ -223,13 +230,13 @@ function DashboardWithState({
         totalTrades={rankedTrades.length}
         filters={filters}
         sectors={sectors}
-        showReview={showReview}
+        showExtended={showExtended}
         actionableCount={actionableCount}
         tradeEmptyState={computedTradeEmptyState}
         systemInsight={systemInsight}
         fullWorkbenchActionMap={fullWorkbenchActionMap}
         onFiltersChange={onFiltersChange}
-        onToggleReview={onToggleReview}
+        onToggleExtended={onToggleExtended}
         onToggleWatchlist={onToggleWatchlist}
         onSelectTrade={onSelectTrade}
         onRefresh={onRefresh}
@@ -277,32 +284,32 @@ function enrichSectorOutlook(outlook: SectorOutlook[], trades: TopTrade[]): Sect
   }));
 }
 
-function buildTradeEmptyState(filters: TradeFiltersState, showReview: boolean): { title: string; message: string } {
+function buildTradeEmptyState(filters: TradeFiltersState, showExtended: boolean): { title: string; message: string } {
   if (filters.action === "ENTER") {
     return {
       title: "No ENTER setups match the current filters.",
-      message: "Try clearing Sector/Search filters or view WATCH setups."
+      message: "Try clearing Sector/Search filters or include extended setups."
     };
   }
 
   if (filters.action === "WATCH") {
     return {
       title: "No WATCH setups match the current filters.",
-      message: "Try clearing Sector/Search filters or view ENTER setups."
+      message: "Try clearing Sector/Search filters or include extended setups."
     };
   }
 
   if (filters.action === "WAIT") {
     return {
       title: "No WAIT setups match the current filters.",
-      message: showReview ? "Turn off actionable view to see WATCH and WAIT setups." : "Try clearing Sector/Search filters."
+      message: showExtended ? "Try clearing Sector/Search filters." : "Extended setups are off, so WAIT setups may be limited."
     };
   }
 
-  if (showReview) {
+  if (!showExtended) {
     return {
-      title: "No actionable setups match the current filters.",
-      message: "Turn off actionable view to see WATCH and WAIT setups."
+      title: "High-conviction setups are limited today.",
+      message: "Only the strongest signals are shown."
     };
   }
 

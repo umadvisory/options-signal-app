@@ -16,13 +16,14 @@ export function Dashboard({
   totalTrades,
   filters,
   sectors,
-  showReview,
+  showExtended,
+  isRefreshing,
   actionableCount,
   tradeEmptyState,
   systemInsight,
   fullWorkbenchActionMap,
   onFiltersChange,
-  onToggleReview,
+  onToggleExtended,
   onToggleWatchlist,
   onSelectTrade,
   onRefresh,
@@ -36,13 +37,14 @@ export function Dashboard({
   totalTrades?: number;
   filters?: TradeFiltersState;
   sectors?: string[];
-  showReview?: boolean;
+  showExtended?: boolean;
+  isRefreshing?: boolean;
   actionableCount?: number;
   tradeEmptyState?: { title: string; message: string } | null;
   systemInsight?: string | null;
   fullWorkbenchActionMap?: Record<string, "ENTER" | "WATCH" | "WAIT">;
   onFiltersChange?: (filters: TradeFiltersState) => void;
-  onToggleReview?: () => void;
+  onToggleExtended?: () => void;
   onToggleWatchlist?: (trade: TopTrade) => void;
   onSelectTrade?: (trade: TopTrade) => void;
   onRefresh?: () => void;
@@ -182,16 +184,17 @@ export function Dashboard({
           />
         </section>
 
-        {filters && onFiltersChange && onToggleReview ? (
+        {filters && onFiltersChange && onToggleExtended ? (
           <TradeFilters
             filters={filters}
             sectors={sectors ?? []}
             totalCount={totalTrades ?? data.trades.length}
             visibleCount={data.trades.length}
             actionableCount={actionableCount ?? 0}
-            showReview={showReview ?? false}
+            showExtended={showExtended ?? false}
+            isRefreshing={isRefreshing ?? false}
             onChange={onFiltersChange}
-            onToggleReview={onToggleReview}
+            onToggleExtended={onToggleExtended}
           />
         ) : null}
 
