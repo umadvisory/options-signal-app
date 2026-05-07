@@ -1246,6 +1246,18 @@ def load_production_snapshot():
     return None
 
 
+def resolve_snapshot_payload_for_mode(snapshot_payload, include_extended: bool):
+    if not isinstance(snapshot_payload, dict):
+        return snapshot_payload
+
+    if "defaultPayload" in snapshot_payload or "extendedPayload" in snapshot_payload:
+        selected = snapshot_payload.get("extendedPayload") if include_extended else snapshot_payload.get("defaultPayload")
+        if isinstance(selected, dict):
+            return hydrate_snapshot_payload(selected)
+
+    return snapshot_payload
+
+
 def hydrate_snapshot_payload(payload):
     if not isinstance(payload, dict):
         return payload
@@ -1633,6 +1645,11 @@ def _build_top_trades_payload_uncached(include_extended: bool = False):
                 print(f"[HISTORICAL CONTEXT] Failed to connect: {e}")
                 historical_con = None
                 latest_hist_entry_time = None
+        try:
+            yesterday_status = build_yesterday_status(df, file, historical_con=historical_con)
+        except Exception as e:
+            print(f"[YESTERDAY STATUS] Failed to build section: {e}")
+            yesterday_status = []
         
         def safe_pct_distance(strike, spot):
             strike_v = pd.to_numeric(pd.Series([strike]), errors="coerce").iloc[0]
@@ -2030,8 +2047,9 @@ def _build_top_trades_payload_uncached(include_extended: bool = False):
 
 
 def build_top_trades_payload(include_pass: bool = True, include_extended: bool = False):
-    snapshot_payload = load_production_snapshot()
-    if not include_extended and snapshot_payload is not None and not TRADES_DB_PATH.exists():
+    raw_snapshot_payload = load_production_snapshot()
+    snapshot_payload = resolve_snapshot_payload_for_mode(raw_snapshot_payload, include_extended=include_extended)
+    if snapshot_payload is not None and not TRADES_DB_PATH.exists():
         return apply_include_pass_to_payload(snapshot_payload, include_pass)
 
     payload = get_cached_top_trades_payload(include_extended=include_extended)
