@@ -1226,16 +1226,22 @@ def home():
 
 
 def load_production_snapshot():
-    if not SNAPSHOT_PATH.exists():
-        return None
-
     try:
-        with SNAPSHOT_PATH.open("r", encoding="utf-8") as handle:
-            payload = json.load(handle)
-        if isinstance(payload, dict):
-            return hydrate_snapshot_payload(payload)
+        if SNAPSHOT_PATH.exists():
+            with SNAPSHOT_PATH.open("r", encoding="utf-8") as handle:
+                payload = json.load(handle)
+            if isinstance(payload, dict):
+                return hydrate_snapshot_payload(payload)
     except Exception as e:
         print(f"[SNAPSHOT] Failed to load production snapshot: {e}")
+
+    try:
+        from backend.production_snapshot_payload import SNAPSHOT_PAYLOAD
+
+        if isinstance(SNAPSHOT_PAYLOAD, dict):
+            return hydrate_snapshot_payload(SNAPSHOT_PAYLOAD)
+    except Exception as e:
+        print(f"[SNAPSHOT] Failed to load embedded production snapshot: {e}")
 
     return None
 
