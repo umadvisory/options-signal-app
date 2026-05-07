@@ -26,6 +26,7 @@
 !/ML/
 /ML/*
 !/ML/sample_predictions_with_tiers_20260423.csv
+!/ML/sample_predictions_with_tiers_20260505.csv
 !/ML/ml_predictions_summary_lgbm_bigwin25_calls_v1_20260423.xlsx
 
 !/data/

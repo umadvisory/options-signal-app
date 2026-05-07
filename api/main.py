@@ -12,6 +12,18 @@ from datetime import datetime, timezone
 app = FastAPI()
 
 
+def extract_yyyymmdd_token(path_like: str | os.PathLike | None):
+    if not path_like:
+        return None
+    match = re.search(r"(20\d{6})", os.path.basename(str(path_like)))
+    if not match:
+        return None
+    try:
+        return datetime.strptime(match.group(1), "%Y%m%d").date()
+    except ValueError:
+        return None
+
+
 # 🔍 Find latest CSV from your ML output
 def get_latest_file():
     base_path = ROOT_DIR / "ML" if "ROOT_DIR" in globals() else Path(__file__).resolve().parents[1] / "ML"
@@ -20,7 +32,13 @@ def get_latest_file():
     if not files:
         return None
     
-    latest_file = max(files, key=os.path.getmtime)
+    latest_file = max(
+        files,
+        key=lambda file_path: (
+            extract_signal_file_date(file_path) or extract_yyyymmdd_token(file_path) or datetime.min.date(),
+            os.path.getmtime(file_path),
+        ),
+    )
     return latest_file
 
 def get_previous_file(current_file: str | None):
@@ -97,7 +115,13 @@ def get_latest_matching_file(folder: Path, pattern: str):
     files = list(folder.glob(pattern))
     if not files:
         return None
-    return max(files, key=lambda f: f.stat().st_mtime)
+    return max(
+        files,
+        key=lambda file_path: (
+            extract_yyyymmdd_token(str(file_path)) or datetime.min.date(),
+            file_path.stat().st_mtime,
+        ),
+    )
 
 def load_latest_etf_overlay():
     latest_xlsx = get_latest_matching_file(ML_DIR, "ml_predictions_summary_*.xlsx")
@@ -1309,6 +1333,29 @@ def apply_include_pass_to_payload(payload, include_pass: bool):
     return filtered_payload
 
 
+def merge_snapshot_trade(snapshot_trade, selector_trade):
+    if not isinstance(snapshot_trade, dict):
+        return selector_trade
+    if not isinstance(selector_trade, dict):
+        return snapshot_trade
+
+    merged = deepcopy(snapshot_trade)
+    merged.update(
+        {
+            "rank": selector_trade.get("rank"),
+            "selector_rank": selector_trade.get("selector_rank"),
+            "signal_date": selector_trade.get("signal_date"),
+            "tier": selector_trade.get("tier"),
+            "final_tier": selector_trade.get("final_tier"),
+            "segmented_percentile": selector_trade.get("segmented_percentile"),
+            "global_percentile": selector_trade.get("global_percentile"),
+            "adaptive_score_final": selector_trade.get("adaptive_score_final"),
+            "provenance": selector_trade.get("provenance"),
+        }
+    )
+    return merged
+
+
 def load_selector_trade_rows(include_extended: bool) -> pd.DataFrame:
     selector_path = RANKED_TRADES_OUTPUT_PATH if include_extended else TOP_TRADES_OUTPUT_PATH
     if not selector_path.exists():
@@ -1382,6 +1429,15 @@ def _build_top_trades_payload_uncached(include_extended: bool = False):
     historical_con = None
     try:
         file = get_latest_file()
+        snapshot_payload = load_production_snapshot()
+        snapshot_trade_map = {}
+        if isinstance(snapshot_payload, dict):
+            for trade in snapshot_payload.get("trades", []):
+                option_symbol = safe_option_symbol = (
+                    str(((trade or {}).get("contract") or {}).get("optionSymbol") or "").strip()
+                )
+                if safe_option_symbol:
+                    snapshot_trade_map[safe_option_symbol] = trade
 
         if not file:
             return {"error": "No CSV file found. Run your ML script first."}
@@ -1517,6 +1573,22 @@ def _build_top_trades_payload_uncached(include_extended: bool = False):
             "sourceFile": None
         }
         market_regime = load_latest_market_regime()
+        if snapshot_payload:
+            if strategy_stats.get("highConviction") is None and strategy_stats.get("broadBase") is None:
+                snapshot_stats = snapshot_payload.get("strategyStats")
+                if isinstance(snapshot_stats, dict):
+                    strategy_stats = {
+                        "highConviction": snapshot_stats.get("highConviction"),
+                        "broadBase": snapshot_stats.get("broadBase"),
+                        "sourceFile": snapshot_payload.get("sourceFiles", {}).get("strategyStats"),
+                    }
+            if market_regime is None and isinstance(snapshot_payload.get("marketRegime"), dict):
+                market_regime = snapshot_payload.get("marketRegime")
+            if not sector_outlook.get("sectors") and isinstance(snapshot_payload.get("sectorOutlook"), list):
+                sector_outlook = {
+                    "sectors": snapshot_payload.get("sectorOutlook", []),
+                    "sourceFile": snapshot_payload.get("sourceFiles", {}).get("sectorOutlookWorkbook"),
+                }
         latest_hist_entry_time = None
         if TRADES_DB_PATH.exists():
             try:
@@ -1650,6 +1722,8 @@ def _build_top_trades_payload_uncached(include_extended: bool = False):
 
         for _, row in df_filtered.iterrows():
             selector_rank = safe_int(row.get("selector_rank")) or len(response) + 1
+            option_symbol = safe_str(row.get("optionSymbol"))
+            snapshot_trade = snapshot_trade_map.get(str(option_symbol or "").strip())
             sector_raw = safe_str(row.get("sector"))
             sector = sector_raw.strip() if sector_raw else None
             etf_info = etf_overlay_map.get(sector, {}) if sector else {}
@@ -1682,11 +1756,14 @@ def _build_top_trades_payload_uncached(include_extended: bool = False):
                 structure_bucket=structure_bucket,
                 dte=current_dte
             )
+            if snapshot_trade and historical_context.get("sampleSize") is None:
+                snapshot_historical = ((snapshot_trade.get("decisionContext") or {}).get("historical") or {})
+                if isinstance(snapshot_historical, dict):
+                    historical_context = snapshot_historical
 
             today_top_pct = math.ceil((selector_rank / candidate_total) * 100) if candidate_total else None
             today_score = round(100 * ((candidate_total - selector_rank + 1) / candidate_total)) if candidate_total else None
-
-            response.append({
+            response_item = {
                 "rank": selector_rank,
                 "selector_rank": selector_rank,
                 "ticker": safe_str(row.get("ticker")),
@@ -1849,7 +1926,21 @@ def _build_top_trades_payload_uncached(include_extended: bool = False):
                     "signalDate": safe_str(row.get("signal_date"))
                 },
 
-            })
+            }
+            if snapshot_trade:
+                snapshot_copy = deepcopy(snapshot_trade)
+                snapshot_copy["rank"] = selector_rank
+                snapshot_copy["selector_rank"] = selector_rank
+                snapshot_copy["signal_date"] = response_item["signal_date"]
+                snapshot_copy["tier"] = response_item["tier"]
+                snapshot_copy["final_tier"] = response_item["final_tier"]
+                snapshot_copy["segmented_percentile"] = response_item["segmented_percentile"]
+                snapshot_copy["global_percentile"] = response_item["global_percentile"]
+                snapshot_copy["adaptive_score_final"] = response_item["adaptive_score_final"]
+                snapshot_copy["provenance"] = response_item["provenance"]
+                response_item = merge_snapshot_trade(snapshot_copy, response_item)
+
+            response.append(response_item)
 
         enter_count_before_override = sum(1 for trade in response if str(trade.get("action") or "").strip().upper() == "ENTER")
         if enter_count_before_override == 0 and response:
