@@ -41,6 +41,11 @@
 /data/master/reports/*
 !/data/master/reports/dec25_jan26_strategy_uplift_20260424_104243.csv
 
+!/data/outputs/
+/data/outputs/*
+!/data/outputs/top_trades_latest.csv
+!/data/outputs/ranked_trades_latest.csv
+
 # General junk / caches / local-only artifacts
 .env
 .env.*
