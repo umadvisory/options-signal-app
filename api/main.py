@@ -1445,6 +1445,11 @@ def _build_top_trades_payload_uncached(include_extended: bool = False):
         selector_df = load_selector_trade_rows(include_extended=include_extended)
         candidate_total = len(selector_df)
         yesterday_status = []
+        selector_signal_date = None
+        if not selector_df.empty and "signal_date" in selector_df.columns:
+            selector_signal_date = safe_str(selector_df.iloc[0].get("signal_date")) if "safe_str" in locals() else (
+                None if pd.isna(selector_df.iloc[0].get("signal_date")) else str(selector_df.iloc[0].get("signal_date"))
+            )
 
         df = pd.read_csv(file, low_memory=False)
         if "optionSymbol" not in df.columns:
@@ -1573,7 +1578,31 @@ def _build_top_trades_payload_uncached(include_extended: bool = False):
             "sourceFile": None
         }
         market_regime = load_latest_market_regime()
-        if snapshot_payload:
+        snapshot_matches_signal = (
+            isinstance(snapshot_payload, dict)
+            and (None if pd.isna(snapshot_payload.get("signalDate")) else str(snapshot_payload.get("signalDate"))) == selector_signal_date
+        )
+        if snapshot_matches_signal:
+            snapshot_stats = snapshot_payload.get("strategyStats")
+            if isinstance(snapshot_stats, dict):
+                strategy_stats = {
+                    "highConviction": snapshot_stats.get("highConviction"),
+                    "broadBase": snapshot_stats.get("broadBase"),
+                    "sourceFile": snapshot_payload.get("sourceFiles", {}).get("strategyStats"),
+                }
+            if isinstance(snapshot_payload.get("marketRegime"), dict):
+                market_regime = snapshot_payload.get("marketRegime")
+            if isinstance(snapshot_payload.get("sectorOutlook"), list):
+                sector_outlook = {
+                    "sectors": snapshot_payload.get("sectorOutlook", []),
+                    "sourceFile": snapshot_payload.get("sourceFiles", {}).get("sectorOutlookWorkbook"),
+                }
+                sector_rank_map = {
+                    str(item.get("sector")).strip(): item.get("rank")
+                    for item in sector_outlook.get("sectors", [])
+                    if item.get("sector")
+                }
+        elif snapshot_payload:
             if strategy_stats.get("highConviction") is None and strategy_stats.get("broadBase") is None:
                 snapshot_stats = snapshot_payload.get("strategyStats")
                 if isinstance(snapshot_stats, dict):
