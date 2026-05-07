@@ -2024,11 +2024,14 @@ def _build_top_trades_payload_uncached(include_extended: bool = False):
 
 
 def build_top_trades_payload(include_pass: bool = True, include_extended: bool = False):
+    snapshot_payload = load_production_snapshot()
+    if not include_extended and snapshot_payload is not None and not TRADES_DB_PATH.exists():
+        return apply_include_pass_to_payload(snapshot_payload, include_pass)
+
     payload = get_cached_top_trades_payload(include_extended=include_extended)
     if isinstance(payload, dict) and payload.get("error"):
         detail = str(payload.get("error") or "")
         if "Selector output not found" in detail:
-            snapshot_payload = load_production_snapshot()
             if snapshot_payload is not None:
                 return apply_include_pass_to_payload(snapshot_payload, include_pass)
     return apply_include_pass_to_payload(payload, include_pass)
