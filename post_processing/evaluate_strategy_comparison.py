@@ -1,8 +1,9 @@
 """
-Offline strategy evaluation script for comparing:
+Offline strategy evaluator for comparing:
 
-1. Baseline strategy
-   - source: ML/sample_predictions_with_tiers_YYYYMMDD.csv
+1. Strategy A (baseline)
+   - rebuilt directly from each historical file:
+     ML/sample_predictions_with_tiers_YYYYMMDD.csv
    - rules:
      * predicted_tier_cal = A
      * filteredtier = A
@@ -10,21 +11,32 @@ Offline strategy evaluation script for comparing:
      * dedupe to one row per ticker
      * keep top 25 by adaptive_score_final
 
-2. Selector strategy
-   - source: data/outputs/top_trades_YYYYMMDD.csv
+2. Strategy B (selector-style)
+   - rebuilt directly from that same historical prediction file
    - rules:
-     * use saved selector outputs only
-     * keep only final_tier in {A+, A}
+     * optionType = call
+     * predicted_tier_cal = A
+     * filteredtier = A
+     * live_eligible = 1 (if present)
+     * dedupe to one row per ticker using highest adaptive_score_final
+     * compute rolling historical percentiles from trades_master using prior scored days only
+     * segmentation: optionType + DTE bucket
+     * keep final_tier in {A+, A}
 
 Why this script exists
 ----------------------
-This script gives us a repeatable, API-independent way to validate whether the
-new selector-based post-processing layer improves trade quality versus the
-baseline v25-style selection logic.
+This script implements the simple historical A-vs-B comparison method used in
+our earlier analysis where the selector materially outperformed the baseline.
+It is intentionally simple and offline:
 
-It does not recompute selector logic, modify ML logic, or depend on the API.
-Instead, it compares already-saved daily signal files against realized outcomes
-stored in data/master/trades_master.duckdb.
+- no API dependency
+- no reliance on saved selector snapshot CSVs
+- no live or unrealized cohort logic
+
+Instead, it reconstructs both strategies from historical daily prediction CSVs
+and joins them to realized outcomes from:
+
+  data/master/trades_master.duckdb
 
 How matching works
 ------------------
@@ -35,46 +47,39 @@ Trades are matched to realized outcomes using:
 Realized return is computed as:
   return_pct = pnl / total_risked_usd * 100
 
-Metrics produced
-----------------
-For each strategy, the script computes:
-  * total_trades
-  * win_rate
-  * avg_return_pct
-  * median_return_pct
-  * avg_win_pct
-  * avg_loss_pct
-  * expected_value_pct
+Important scope
+---------------
+This evaluator only scores signal dates that already have realized rows in
+trades_master. It is therefore a realized / completed-trade validation tool,
+not a mark-to-market monitor for currently open positions.
+
+Where this script lives
+-----------------------
+  post_processing/evaluate_strategy_comparison.py
 
 Files written
 -------------
 1. Summary output
-   data/outputs/strategy_comparison_latest.csv
+   data/outputs/Backtests/strategy_comparison_latest.csv
 
 2. Daily breakdown output
-   data/outputs/strategy_comparison_daily.csv
+   data/outputs/Backtests/strategy_comparison_daily.csv
 
-Important current limitation
-----------------------------
-The script can only evaluate dates that satisfy BOTH:
-  * a dated selector snapshot exists: top_trades_YYYYMMDD.csv
-  * realized outcomes exist in trades_master for that signal date
+CMD-friendly run commands
+-------------------------
+Open Command Prompt, change into the repo root, then run one of:
 
-If selector snapshots are newer than the latest completed realized trade date in
-DuckDB, the script will write empty output files and explain why.
+1. Go to the repo root
+   cd /d C:\\Users\\umarm\\options-mvp
 
-Windows / CMD-friendly run commands
------------------------------------
-From the repo root:
-
-1. Default run
+2. Default run
    C:\\Users\\umarm\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe post_processing\\evaluate_strategy_comparison.py
 
-2. Use a different lookback window
-   C:\\Users\\umarm\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe post_processing\\evaluate_strategy_comparison.py --lookback-days 15
+3. Use a 10-day lookback instead
+   C:\\Users\\umarm\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe post_processing\\evaluate_strategy_comparison.py --lookback-days 10
 
-3. Explicitly pass paths
-   C:\\Users\\umarm\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe post_processing\\evaluate_strategy_comparison.py --outputs-dir data\\outputs --ml-dir ML --trades-db data\\master\\trades_master.duckdb
+4. Explicitly pass paths
+   C:\\Users\\umarm\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe post_processing\\evaluate_strategy_comparison.py --ml-dir ML --trades-db data\\master\\trades_master.duckdb
 """
 
 from __future__ import annotations
@@ -85,22 +90,22 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import duckdb
+import numpy as np
 import pandas as pd
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-OUTPUT_DIR = ROOT_DIR / "data" / "outputs"
+BACKTESTS_DIR = ROOT_DIR / "data" / "outputs" / "Backtests"
 ML_DIR = ROOT_DIR / "ML"
 TRADES_DB_PATH = ROOT_DIR / "data" / "master" / "trades_master.duckdb"
 
-SUMMARY_OUTPUT_PATH = OUTPUT_DIR / "strategy_comparison_latest.csv"
-DAILY_OUTPUT_PATH = OUTPUT_DIR / "strategy_comparison_daily.csv"
+SUMMARY_OUTPUT_PATH = BACKTESTS_DIR / "strategy_comparison_latest.csv"
+DAILY_OUTPUT_PATH = BACKTESTS_DIR / "strategy_comparison_daily.csv"
 
 
 @dataclass(frozen=True)
 class SignalSnapshot:
     signal_date: str
-    selector_path: Path
     prediction_path: Path
 
 
@@ -111,13 +116,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--lookback-days",
         type=int,
-        default=10,
-        help="Maximum number of completed trading days to evaluate (default: 10).",
-    )
-    parser.add_argument(
-        "--outputs-dir",
-        default=str(OUTPUT_DIR),
-        help="Directory containing dated selector outputs.",
+        default=15,
+        help="Maximum number of completed trading days to evaluate (default: 15).",
     )
     parser.add_argument(
         "--ml-dir",
@@ -142,26 +142,22 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def discover_snapshots(outputs_dir: Path, ml_dir: Path, lookback_days: int) -> list[SignalSnapshot]:
-    selector_pattern = re.compile(r"top_trades_(\d{8})\.csv$")
-    prediction_template = "sample_predictions_with_tiers_{date}.csv"
-
+def discover_prediction_snapshots(ml_dir: Path, lookback_days: int, max_realized_signal_date: str | None) -> list[SignalSnapshot]:
+    prediction_pattern = re.compile(r"sample_predictions_with_tiers_(\d{8})\.csv$")
     snapshots: list[SignalSnapshot] = []
-    for selector_path in sorted(outputs_dir.glob("top_trades_*.csv")):
-        match = selector_pattern.match(selector_path.name)
+    for prediction_path in sorted(ml_dir.glob("sample_predictions_with_tiers_*.csv")):
+        match = prediction_pattern.match(prediction_path.name)
         if not match:
             continue
 
         yyyymmdd = match.group(1)
-        prediction_path = ml_dir / prediction_template.format(date=yyyymmdd)
-        if not prediction_path.exists():
+        signal_date = f"{yyyymmdd[0:4]}-{yyyymmdd[4:6]}-{yyyymmdd[6:8]}"
+        if max_realized_signal_date is not None and signal_date > max_realized_signal_date:
             continue
 
-        signal_date = f"{yyyymmdd[0:4]}-{yyyymmdd[4:6]}-{yyyymmdd[6:8]}"
         snapshots.append(
             SignalSnapshot(
                 signal_date=signal_date,
-                selector_path=selector_path,
                 prediction_path=prediction_path,
             )
         )
@@ -229,6 +225,40 @@ def normalize_is_tradeable(series: pd.Series) -> pd.Series:
     return text.isin({"1", "true", "yes", "y"})
 
 
+def normalize_live_eligible(series: pd.Series) -> pd.Series:
+    text = series.astype(str).str.strip().str.lower()
+    return text.isin({"1", "true", "yes", "y"})
+
+
+def dte_bucket(dte: float) -> str:
+    if pd.isna(dte):
+        return "unknown"
+    dte = float(dte)
+    if dte <= 7:
+        return "1-7"
+    if dte <= 21:
+        return "8-21"
+    if dte <= 45:
+        return "22-45"
+    return "46+"
+
+
+def empirical_percentile(sorted_hist: np.ndarray, values: np.ndarray) -> np.ndarray:
+    left = np.searchsorted(sorted_hist, values, side="left")
+    right = np.searchsorted(sorted_hist, values, side="right")
+    return 100.0 * (left + 0.5 * (right - left)) / len(sorted_hist)
+
+
+def classify_selector_tier(segmented_pct: float, global_pct: float) -> str:
+    if segmented_pct >= 99.0 and global_pct >= 92.0:
+        return "A+"
+    if segmented_pct >= 96.0 and global_pct >= 82.0:
+        return "A"
+    if segmented_pct >= 88.0:
+        return "B"
+    return "lower"
+
+
 def build_baseline_selection(prediction_path: Path, signal_date: str) -> pd.DataFrame:
     df = pd.read_csv(prediction_path, low_memory=False)
     required_columns = {"ticker", "optionSymbol", "predicted_tier_cal", "filteredtier", "is_tradeable", "adaptive_score_final"}
@@ -271,24 +301,139 @@ def build_baseline_selection(prediction_path: Path, signal_date: str) -> pd.Data
     )
 
 
-def build_selector_selection(selector_path: Path, signal_date: str) -> pd.DataFrame:
-    df = pd.read_csv(selector_path, low_memory=False)
-    required_columns = {"ticker", "optionSymbol", "final_tier"}
+def load_historical_scores_for_signal_date(trades_db_path: Path, signal_date: str, history_days: int) -> pd.DataFrame:
+    con = duckdb.connect(str(trades_db_path), read_only=True)
+    try:
+        hist = con.execute(
+            """
+            WITH scored AS (
+                SELECT
+                    ticker,
+                    entry_time,
+                    CAST(entry_time AS DATE) AS trade_date,
+                    optionType,
+                    dte,
+                    adaptive_score_final
+                FROM trades_master
+                WHERE adaptive_score_final IS NOT NULL
+                  AND entry_time IS NOT NULL
+            ),
+            hist_days AS (
+                SELECT DISTINCT trade_date
+                FROM scored
+                WHERE trade_date < ?
+                ORDER BY trade_date DESC
+                LIMIT ?
+            )
+            SELECT
+                ticker,
+                entry_time,
+                trade_date,
+                optionType,
+                dte,
+                adaptive_score_final
+            FROM scored
+            WHERE trade_date IN (SELECT trade_date FROM hist_days)
+            """,
+            [signal_date, history_days],
+        ).fetchdf()
+    finally:
+        con.close()
+
+    if hist.empty:
+        return hist
+
+    hist["optionType"] = hist["optionType"].astype(str).str.strip().str.lower()
+    hist["dte"] = pd.to_numeric(hist["dte"], errors="coerce")
+    hist["adaptive_score_final"] = pd.to_numeric(hist["adaptive_score_final"], errors="coerce")
+    hist["dte_bucket"] = hist["dte"].map(dte_bucket)
+    hist["segment"] = hist["optionType"].astype(str) + "|" + hist["dte_bucket"].astype(str)
+    hist = hist.dropna(subset=["adaptive_score_final"]).copy()
+    return hist
+
+
+def build_selector_selection(prediction_path: Path, signal_date: str, trades_db_path: Path, history_days: int = 30, segment_min_history: int = 5000) -> pd.DataFrame:
+    df = pd.read_csv(prediction_path, low_memory=False)
+    required_columns = {"ticker", "optionSymbol", "predicted_tier_cal", "filteredtier", "adaptive_score_final", "optionType", "dte"}
     missing = required_columns - set(df.columns)
     if missing:
-        raise ValueError(f"{selector_path.name} is missing required columns: {sorted(missing)}")
+        raise ValueError(f"{prediction_path.name} is missing required columns: {sorted(missing)}")
 
     work = df.copy()
-    work["final_tier"] = work["final_tier"].astype(str).str.strip()
-    work["optionSymbol"] = work["optionSymbol"].astype(str).str.strip()
     work["ticker"] = work["ticker"].astype(str).str.strip()
+    work["optionSymbol"] = work["optionSymbol"].astype(str).str.strip()
+    work["predicted_tier_cal"] = work["predicted_tier_cal"].astype(str).str.strip()
+    work["filteredtier"] = work["filteredtier"].astype(str).str.strip()
+    work["optionType"] = work["optionType"].astype(str).str.strip().str.lower()
+    work["adaptive_score_final"] = pd.to_numeric(work["adaptive_score_final"], errors="coerce")
+    work["dte"] = pd.to_numeric(work["dte"], errors="coerce")
+
+    if "live_eligible" in work.columns:
+        work["live_eligible_flag"] = normalize_live_eligible(work["live_eligible"])
+    else:
+        work["live_eligible_flag"] = True
+
+    work = work[
+        (work["optionType"] == "call")
+        & (work["predicted_tier_cal"] == "A")
+        & (work["filteredtier"] == "A")
+        & work["live_eligible_flag"]
+        & work["adaptive_score_final"].notna()
+        & work["dte"].notna()
+    ].copy()
+
+    if work.empty:
+        return pd.DataFrame(columns=["signal_date", "optionSymbol", "ticker", "strategy"])
+
+    work["dte_bucket"] = work["dte"].map(dte_bucket)
+    work["segment"] = work["optionType"] + "|" + work["dte_bucket"]
+
+    work = work.sort_values(
+        ["ticker", "adaptive_score_final", "optionSymbol"],
+        ascending=[True, False, True],
+        kind="mergesort",
+    )
+    work = work.drop_duplicates(subset=["ticker"], keep="first").copy()
+
+    hist = load_historical_scores_for_signal_date(trades_db_path, signal_date, history_days)
+    if hist.empty:
+        return pd.DataFrame(columns=["signal_date", "optionSymbol", "ticker", "strategy"])
+
+    global_hist_sorted = np.sort(hist["adaptive_score_final"].to_numpy())
+    work["global_percentile"] = empirical_percentile(global_hist_sorted, work["adaptive_score_final"].to_numpy())
+
+    seg_hist = {
+        seg: np.sort(group["adaptive_score_final"].to_numpy())
+        for seg, group in hist.groupby("segment")
+    }
+    seg_sizes = {seg: len(arr) for seg, arr in seg_hist.items()}
+
+    segmented_percentiles = []
+    for seg, score in zip(work["segment"], work["adaptive_score_final"]):
+        arr = seg_hist.get(seg)
+        if arr is None or len(arr) == 0:
+            segmented_percentiles.append(np.nan)
+        else:
+            segmented_percentiles.append(empirical_percentile(arr, np.array([score]))[0])
+
+    work["segment_hist_n"] = work["segment"].map(seg_sizes).fillna(0).astype(int)
+    work["segment_fallback"] = work["segment_hist_n"] < segment_min_history
+    work["segmented_percentile"] = np.where(
+        work["segment_fallback"],
+        work["global_percentile"],
+        segmented_percentiles,
+    )
+    work["final_tier"] = [
+        classify_selector_tier(seg, glob)
+        for seg, glob in zip(work["segmented_percentile"], work["global_percentile"])
+    ]
     work = work[work["final_tier"].isin(["A+", "A"])].copy()
 
     return pd.DataFrame(
         {
             "signal_date": signal_date,
-            "optionSymbol": work["optionSymbol"],
-            "ticker": work["ticker"],
+            "optionSymbol": work["optionSymbol"].astype(str).str.strip(),
+            "ticker": work["ticker"].astype(str).str.strip(),
             "strategy": "selector",
         }
     )
@@ -325,21 +470,17 @@ def compute_metrics(frame: pd.DataFrame) -> dict[str, float | int | str | None]:
 
 def main() -> None:
     args = parse_args()
-    outputs_dir = Path(args.outputs_dir)
     ml_dir = Path(args.ml_dir)
     trades_db_path = Path(args.trades_db)
     summary_output_path = Path(args.summary_output)
     daily_output_path = Path(args.daily_output)
 
-    snapshots = discover_snapshots(outputs_dir=outputs_dir, ml_dir=ml_dir, lookback_days=args.lookback_days)
-    if not snapshots:
-        raise SystemExit(
-            "No dated selector snapshots found. Save daily top_trades_YYYYMMDD.csv files first, then rerun."
-        )
-
     max_realized_signal_date = fetch_max_realized_signal_date(trades_db_path)
-    if max_realized_signal_date is not None:
-        snapshots = [snapshot for snapshot in snapshots if snapshot.signal_date <= max_realized_signal_date]
+    snapshots = discover_prediction_snapshots(
+        ml_dir=ml_dir,
+        lookback_days=args.lookback_days,
+        max_realized_signal_date=max_realized_signal_date,
+    )
 
     summary_output_path.parent.mkdir(parents=True, exist_ok=True)
     daily_output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -374,7 +515,7 @@ def main() -> None:
         summary_df.to_csv(summary_output_path, index=False)
         daily_df.to_csv(daily_output_path, index=False)
         print(
-            "No selector snapshots fall on completed realized trade dates yet. "
+            "No historical prediction files fall on completed realized trade dates yet. "
             f"Latest realized signal date in trades_master is {max_realized_signal_date or 'N/A'}."
         )
         print(f"Saved empty summary: {summary_output_path}")
@@ -388,7 +529,11 @@ def main() -> None:
     coverage_rows: list[dict[str, object]] = []
     for snapshot in snapshots:
         baseline = build_baseline_selection(snapshot.prediction_path, snapshot.signal_date)
-        selector = build_selector_selection(snapshot.selector_path, snapshot.signal_date)
+        selector = build_selector_selection(
+            prediction_path=snapshot.prediction_path,
+            signal_date=snapshot.signal_date,
+            trades_db_path=trades_db_path,
+        )
 
         for strategy_name, picks in (("baseline", baseline), ("selector", selector)):
             merged = picks.merge(outcomes, on=["optionSymbol", "signal_date"], how="inner")
