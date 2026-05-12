@@ -40,18 +40,25 @@ and joins them to realized outcomes from:
 
 How matching works
 ------------------
-Trades are matched to realized outcomes using:
-  * optionSymbol
-  * signal_date == CAST(entry_time AS DATE)
+This script now uses a two-step matching rule for each selected contract:
+
+1. same-day exact match
+   * optionSymbol
+   * signal_date == CAST(entry_time AS DATE)
+
+2. fallback later match
+   * if no same-day row exists, use the first later realized row found for
+     the same optionSymbol in trades_master
 
 Realized return is computed as:
   return_pct = pnl / total_risked_usd * 100
 
 Important scope
 ---------------
-This evaluator only scores signal dates that already have realized rows in
-trades_master. It is therefore a realized / completed-trade validation tool,
-not a mark-to-market monitor for currently open positions.
+This evaluator is still a realized / completed-trade validation tool, not a
+mark-to-market monitor for currently open positions. It now follows selected
+contracts forward when same-day logging is incomplete, and reports coverage
+explicitly so unresolved picks remain visible.
 
 Where this script lives
 -----------------------
@@ -64,6 +71,12 @@ Files written
 
 2. Daily breakdown output
    data/outputs/Backtests/strategy_comparison_daily.csv
+
+3. Selector action breakdown output
+   data/outputs/Backtests/selector_action_breakdown.csv
+
+4. Selector action daily output
+   data/outputs/Backtests/selector_action_daily.csv
 
 CMD-friendly run commands
 -------------------------
@@ -101,6 +114,8 @@ TRADES_DB_PATH = ROOT_DIR / "data" / "master" / "trades_master.duckdb"
 
 SUMMARY_OUTPUT_PATH = BACKTESTS_DIR / "strategy_comparison_latest.csv"
 DAILY_OUTPUT_PATH = BACKTESTS_DIR / "strategy_comparison_daily.csv"
+ACTION_BREAKDOWN_OUTPUT_PATH = BACKTESTS_DIR / "selector_action_breakdown.csv"
+ACTION_DAILY_OUTPUT_PATH = BACKTESTS_DIR / "selector_action_daily.csv"
 
 
 @dataclass(frozen=True)
@@ -138,6 +153,16 @@ def parse_args() -> argparse.Namespace:
         "--daily-output",
         default=str(DAILY_OUTPUT_PATH),
         help="CSV path for daily strategy breakdown output.",
+    )
+    parser.add_argument(
+        "--action-breakdown-output",
+        default=str(ACTION_BREAKDOWN_OUTPUT_PATH),
+        help="CSV path for selector action breakdown output.",
+    )
+    parser.add_argument(
+        "--action-daily-output",
+        default=str(ACTION_DAILY_OUTPUT_PATH),
+        help="CSV path for selector action daily breakdown output.",
     )
     return parser.parse_args()
 
@@ -205,6 +230,77 @@ def load_realized_outcomes(trades_db_path: Path, signal_dates: list[str]) -> pd.
         outcomes["return_pct"].notna() & outcomes["total_risked_usd"].notna() & (outcomes["total_risked_usd"] != 0)
     ].copy()
     return outcomes
+
+
+def load_first_later_outcomes(trades_db_path: Path, signal_date: str, option_symbols: list[str]) -> pd.DataFrame:
+    if not option_symbols:
+        return pd.DataFrame(
+            columns=[
+                "optionSymbol",
+                "pnl",
+                "total_risked_usd",
+                "win_loss",
+                "return_pct",
+                "resolved_signal_date",
+                "match_type",
+            ]
+        )
+
+    quoted_symbols = ", ".join("'" + str(value).replace("'", "''") + "'" for value in sorted(set(option_symbols)))
+    query = f"""
+        WITH candidates AS (
+            SELECT
+                optionSymbol,
+                CAST(entry_time AS DATE) AS resolved_signal_date,
+                pnl,
+                total_risked_usd,
+                win_loss,
+                ROW_NUMBER() OVER (PARTITION BY optionSymbol ORDER BY entry_time ASC) AS rn
+            FROM trades_master
+            WHERE optionSymbol IN ({quoted_symbols})
+              AND optionSymbol IS NOT NULL
+              AND entry_time IS NOT NULL
+              AND CAST(entry_time AS DATE) > DATE '{signal_date}'
+              AND pnl IS NOT NULL
+              AND total_risked_usd IS NOT NULL
+              AND total_risked_usd != 0
+        )
+        SELECT
+            optionSymbol,
+            resolved_signal_date,
+            pnl,
+            total_risked_usd,
+            win_loss
+        FROM candidates
+        WHERE rn = 1
+    """
+
+    con = duckdb.connect(str(trades_db_path), read_only=True)
+    try:
+        later = con.execute(query).fetchdf()
+    finally:
+        con.close()
+
+    if later.empty:
+        return pd.DataFrame(
+            columns=[
+                "optionSymbol",
+                "pnl",
+                "total_risked_usd",
+                "win_loss",
+                "return_pct",
+                "resolved_signal_date",
+                "match_type",
+            ]
+        )
+
+    later["resolved_signal_date"] = pd.to_datetime(later["resolved_signal_date"]).dt.strftime("%Y-%m-%d")
+    later["pnl"] = pd.to_numeric(later["pnl"], errors="coerce")
+    later["total_risked_usd"] = pd.to_numeric(later["total_risked_usd"], errors="coerce")
+    later["win_loss"] = pd.to_numeric(later["win_loss"], errors="coerce")
+    later["return_pct"] = (later["pnl"] / later["total_risked_usd"]) * 100.0
+    later["match_type"] = "later"
+    return later
 
 
 def fetch_max_realized_signal_date(trades_db_path: Path) -> str | None:
@@ -468,12 +564,235 @@ def compute_metrics(frame: pd.DataFrame) -> dict[str, float | int | str | None]:
     }
 
 
+def safe_pct_distance(strike: object, underlying: object) -> float | None:
+    try:
+        strike_value = float(strike)
+        underlying_value = float(underlying)
+    except (TypeError, ValueError):
+        return None
+    if underlying_value == 0:
+        return None
+    return (strike_value - underlying_value) / underlying_value * 100.0
+
+
+def build_trade_action_from_entry_profile_fields(row: pd.Series) -> str:
+    rsi = pd.to_numeric(pd.Series([row.get("rsi")]), errors="coerce").iloc[0]
+    distance_pct = safe_pct_distance(row.get("strike"), row.get("underlyingPrice"))
+
+    rsi_value = 0 if pd.isna(rsi) else float(rsi)
+    distance_value = 0 if distance_pct is None or pd.isna(distance_pct) else float(distance_pct)
+
+    if rsi_value < 55:
+        rsi_score = 0.9
+    elif rsi_value <= 70:
+        rsi_score = 0.7
+    elif rsi_value <= 80:
+        rsi_score = 0.5
+    else:
+        rsi_score = 0.2
+
+    distance_score = max(0.0, min(1.0, 1 - distance_value / 15))
+    entry_score = round(rsi_score * 0.6 + distance_score * 0.4, 2)
+
+    if rsi_value > 85 or entry_score < 0.3:
+        return "WAIT"
+    if entry_score >= 0.5:
+        return "ENTER"
+    return "WATCH"
+
+
+def resolve_selected_outcomes(
+    picks: pd.DataFrame,
+    same_day_outcomes: pd.DataFrame,
+    trades_db_path: Path,
+    signal_date: str,
+) -> tuple[pd.DataFrame, dict[str, object]]:
+    base_cols = ["signal_date", "optionSymbol", "ticker", "strategy"]
+    same_day = picks.merge(same_day_outcomes, on=["optionSymbol", "signal_date"], how="inner").copy()
+    same_day["match_type"] = "same_day"
+    same_day["resolved_signal_date"] = same_day["signal_date"]
+
+    unmatched = picks[~picks["optionSymbol"].isin(same_day["optionSymbol"])].copy()
+    later = pd.DataFrame()
+    if not unmatched.empty:
+        later_matches = load_first_later_outcomes(
+            trades_db_path=trades_db_path,
+            signal_date=signal_date,
+            option_symbols=unmatched["optionSymbol"].astype(str).tolist(),
+        )
+        if not later_matches.empty:
+            later = unmatched[base_cols].merge(later_matches, on="optionSymbol", how="inner")
+
+    result_frames = [same_day]
+    if not later.empty:
+        result_frames.append(later)
+    resolved = pd.concat(result_frames, ignore_index=True) if result_frames else pd.DataFrame()
+
+    selected_trades = int(len(picks))
+    same_day_matched = int(len(same_day))
+    later_matched = int(len(later))
+    matched_trades = same_day_matched + later_matched
+    unresolved_trades = selected_trades - matched_trades
+    coverage_pct = round(100.0 * matched_trades / selected_trades, 2) if selected_trades else None
+
+    coverage = {
+        "signal_date": signal_date,
+        "strategy": str(picks["strategy"].iloc[0]) if not picks.empty else None,
+        "selected_trades": selected_trades,
+        "matched_trades": matched_trades,
+        "same_day_matched": same_day_matched,
+        "later_matched": later_matched,
+        "unresolved_trades": unresolved_trades,
+        "coverage_pct": coverage_pct,
+    }
+    return resolved, coverage
+
+
+def build_selector_selection_with_context(
+    prediction_path: Path,
+    signal_date: str,
+    trades_db_path: Path,
+    history_days: int = 30,
+    segment_min_history: int = 5000,
+) -> pd.DataFrame:
+    df = pd.read_csv(prediction_path, low_memory=False)
+    required_columns = {
+        "ticker",
+        "optionSymbol",
+        "predicted_tier_cal",
+        "filteredtier",
+        "adaptive_score_final",
+        "optionType",
+        "dte",
+        "rsi",
+        "strike",
+        "underlyingPrice",
+    }
+    missing = required_columns - set(df.columns)
+    if missing:
+        raise ValueError(f"{prediction_path.name} is missing required columns: {sorted(missing)}")
+
+    work = df.copy()
+    work["ticker"] = work["ticker"].astype(str).str.strip()
+    work["optionSymbol"] = work["optionSymbol"].astype(str).str.strip()
+    work["predicted_tier_cal"] = work["predicted_tier_cal"].astype(str).str.strip()
+    work["filteredtier"] = work["filteredtier"].astype(str).str.strip()
+    work["optionType"] = work["optionType"].astype(str).str.strip().str.lower()
+    work["adaptive_score_final"] = pd.to_numeric(work["adaptive_score_final"], errors="coerce")
+    work["dte"] = pd.to_numeric(work["dte"], errors="coerce")
+    work["rsi"] = pd.to_numeric(work["rsi"], errors="coerce")
+    work["strike"] = pd.to_numeric(work["strike"], errors="coerce")
+    work["underlyingPrice"] = pd.to_numeric(work["underlyingPrice"], errors="coerce")
+
+    if "live_eligible" in work.columns:
+        work["live_eligible_flag"] = normalize_live_eligible(work["live_eligible"])
+    else:
+        work["live_eligible_flag"] = True
+
+    work = work[
+        (work["optionType"] == "call")
+        & (work["predicted_tier_cal"] == "A")
+        & (work["filteredtier"] == "A")
+        & work["live_eligible_flag"]
+        & work["adaptive_score_final"].notna()
+        & work["dte"].notna()
+    ].copy()
+
+    if work.empty:
+        return pd.DataFrame(
+            columns=[
+                "signal_date",
+                "optionSymbol",
+                "ticker",
+                "strategy",
+                "final_tier",
+                "action",
+                "rsi",
+                "strike",
+                "underlyingPrice",
+            ]
+        )
+
+    work["dte_bucket"] = work["dte"].map(dte_bucket)
+    work["segment"] = work["optionType"] + "|" + work["dte_bucket"]
+
+    work = work.sort_values(
+        ["ticker", "adaptive_score_final", "optionSymbol"],
+        ascending=[True, False, True],
+        kind="mergesort",
+    )
+    work = work.drop_duplicates(subset=["ticker"], keep="first").copy()
+
+    hist = load_historical_scores_for_signal_date(trades_db_path, signal_date, history_days)
+    if hist.empty:
+        return pd.DataFrame(
+            columns=[
+                "signal_date",
+                "optionSymbol",
+                "ticker",
+                "strategy",
+                "final_tier",
+                "action",
+                "rsi",
+                "strike",
+                "underlyingPrice",
+            ]
+        )
+
+    global_hist_sorted = np.sort(hist["adaptive_score_final"].to_numpy())
+    work["global_percentile"] = empirical_percentile(global_hist_sorted, work["adaptive_score_final"].to_numpy())
+
+    seg_hist = {
+        seg: np.sort(group["adaptive_score_final"].to_numpy())
+        for seg, group in hist.groupby("segment")
+    }
+    seg_sizes = {seg: len(arr) for seg, arr in seg_hist.items()}
+
+    segmented_percentiles = []
+    for seg, score in zip(work["segment"], work["adaptive_score_final"]):
+        arr = seg_hist.get(seg)
+        if arr is None or len(arr) == 0:
+            segmented_percentiles.append(np.nan)
+        else:
+            segmented_percentiles.append(empirical_percentile(arr, np.array([score]))[0])
+
+    work["segment_hist_n"] = work["segment"].map(seg_sizes).fillna(0).astype(int)
+    work["segment_fallback"] = work["segment_hist_n"] < segment_min_history
+    work["segmented_percentile"] = np.where(
+        work["segment_fallback"],
+        work["global_percentile"],
+        segmented_percentiles,
+    )
+    work["final_tier"] = [
+        classify_selector_tier(seg, glob)
+        for seg, glob in zip(work["segmented_percentile"], work["global_percentile"])
+    ]
+    work = work[work["final_tier"].isin(["A+", "A"])].copy()
+    work["action"] = work.apply(build_trade_action_from_entry_profile_fields, axis=1)
+
+    return pd.DataFrame(
+        {
+            "signal_date": signal_date,
+            "optionSymbol": work["optionSymbol"].astype(str).str.strip(),
+            "ticker": work["ticker"].astype(str).str.strip(),
+            "strategy": "selector",
+            "final_tier": work["final_tier"].astype(str).str.strip(),
+            "action": work["action"].astype(str).str.strip(),
+            "rsi": work["rsi"],
+            "strike": work["strike"],
+            "underlyingPrice": work["underlyingPrice"],
+        }
+    )
+
+
 def main() -> None:
     args = parse_args()
     ml_dir = Path(args.ml_dir)
     trades_db_path = Path(args.trades_db)
     summary_output_path = Path(args.summary_output)
     daily_output_path = Path(args.daily_output)
+    action_breakdown_output_path = Path(args.action_breakdown_output)
+    action_daily_output_path = Path(args.action_daily_output)
 
     max_realized_signal_date = fetch_max_realized_signal_date(trades_db_path)
     snapshots = discover_prediction_snapshots(
@@ -484,12 +803,20 @@ def main() -> None:
 
     summary_output_path.parent.mkdir(parents=True, exist_ok=True)
     daily_output_path.parent.mkdir(parents=True, exist_ok=True)
+    action_breakdown_output_path.parent.mkdir(parents=True, exist_ok=True)
+    action_daily_output_path.parent.mkdir(parents=True, exist_ok=True)
 
     if not snapshots:
         summary_df = pd.DataFrame(
             columns=[
                 "strategy",
                 "days_evaluated",
+                "selected_trades",
+                "matched_trades",
+                "same_day_matched",
+                "later_matched",
+                "unresolved_trades",
+                "coverage_pct",
                 "total_trades",
                 "win_rate",
                 "avg_return_pct",
@@ -503,6 +830,45 @@ def main() -> None:
             columns=[
                 "signal_date",
                 "strategy",
+                "selected_trades",
+                "matched_trades",
+                "same_day_matched",
+                "later_matched",
+                "unresolved_trades",
+                "coverage_pct",
+                "total_trades",
+                "win_rate",
+                "avg_return_pct",
+                "median_return_pct",
+                "avg_win_pct",
+                "avg_loss_pct",
+                "expected_value_pct",
+            ]
+        )
+        action_breakdown_df = pd.DataFrame(
+            columns=[
+                "final_tier",
+                "action",
+                "matched_trades",
+                "same_day_matched",
+                "later_matched",
+                "total_trades",
+                "win_rate",
+                "avg_return_pct",
+                "median_return_pct",
+                "avg_win_pct",
+                "avg_loss_pct",
+                "expected_value_pct",
+            ]
+        )
+        action_daily_df = pd.DataFrame(
+            columns=[
+                "signal_date",
+                "final_tier",
+                "action",
+                "matched_trades",
+                "same_day_matched",
+                "later_matched",
                 "total_trades",
                 "win_rate",
                 "avg_return_pct",
@@ -514,12 +880,16 @@ def main() -> None:
         )
         summary_df.to_csv(summary_output_path, index=False)
         daily_df.to_csv(daily_output_path, index=False)
+        action_breakdown_df.to_csv(action_breakdown_output_path, index=False)
+        action_daily_df.to_csv(action_daily_output_path, index=False)
         print(
             "No historical prediction files fall on completed realized trade dates yet. "
             f"Latest realized signal date in trades_master is {max_realized_signal_date or 'N/A'}."
         )
         print(f"Saved empty summary: {summary_output_path}")
         print(f"Saved empty daily breakdown: {daily_output_path}")
+        print(f"Saved empty action breakdown: {action_breakdown_output_path}")
+        print(f"Saved empty action daily breakdown: {action_daily_output_path}")
         return
 
     signal_dates = [snapshot.signal_date for snapshot in snapshots]
@@ -527,6 +897,7 @@ def main() -> None:
 
     strategy_frames: list[pd.DataFrame] = []
     coverage_rows: list[dict[str, object]] = []
+    selector_context_frames: list[pd.DataFrame] = []
     for snapshot in snapshots:
         baseline = build_baseline_selection(snapshot.prediction_path, snapshot.signal_date)
         selector = build_selector_selection(
@@ -534,30 +905,46 @@ def main() -> None:
             signal_date=snapshot.signal_date,
             trades_db_path=trades_db_path,
         )
+        selector_with_context = build_selector_selection_with_context(
+            prediction_path=snapshot.prediction_path,
+            signal_date=snapshot.signal_date,
+            trades_db_path=trades_db_path,
+        )
+        if not selector_with_context.empty:
+            selector_context_frames.append(selector_with_context)
 
         for strategy_name, picks in (("baseline", baseline), ("selector", selector)):
-            merged = picks.merge(outcomes, on=["optionSymbol", "signal_date"], how="inner")
-            coverage_rows.append(
-                {
-                    "signal_date": snapshot.signal_date,
-                    "strategy": strategy_name,
-                    "selected_trades": int(len(picks)),
-                    "realized_trades": int(len(merged)),
-                }
+            resolved, coverage = resolve_selected_outcomes(
+                picks=picks,
+                same_day_outcomes=outcomes,
+                trades_db_path=trades_db_path,
+                signal_date=snapshot.signal_date,
             )
-            strategy_frames.append(merged)
+            coverage_rows.append(coverage)
+            strategy_frames.append(resolved)
 
     results = pd.concat(strategy_frames, ignore_index=True) if strategy_frames else pd.DataFrame()
     if results.empty:
         raise SystemExit("No realized outcomes matched the selected strategies for the available snapshot dates.")
 
     daily_rows: list[dict[str, object]] = []
+    coverage_df = pd.DataFrame(coverage_rows).sort_values(["signal_date", "strategy"]).reset_index(drop=True)
+
     for (signal_date, strategy_name), frame in results.groupby(["signal_date", "strategy"], sort=True):
         metrics = compute_metrics(frame)
+        coverage_row = coverage_df[
+            (coverage_df["signal_date"] == signal_date) & (coverage_df["strategy"] == strategy_name)
+        ].iloc[0].to_dict()
         daily_rows.append(
             {
                 "signal_date": signal_date,
                 "strategy": strategy_name,
+                "selected_trades": coverage_row["selected_trades"],
+                "matched_trades": coverage_row["matched_trades"],
+                "same_day_matched": coverage_row["same_day_matched"],
+                "later_matched": coverage_row["later_matched"],
+                "unresolved_trades": coverage_row["unresolved_trades"],
+                "coverage_pct": coverage_row["coverage_pct"],
                 **metrics,
             }
         )
@@ -567,10 +954,20 @@ def main() -> None:
     summary_rows: list[dict[str, object]] = []
     for strategy_name, frame in results.groupby("strategy", sort=True):
         metrics = compute_metrics(frame)
+        strategy_coverage = coverage_df[coverage_df["strategy"] == strategy_name]
         summary_rows.append(
             {
                 "strategy": strategy_name,
                 "days_evaluated": int(frame["signal_date"].nunique()),
+                "selected_trades": int(strategy_coverage["selected_trades"].sum()),
+                "matched_trades": int(strategy_coverage["matched_trades"].sum()),
+                "same_day_matched": int(strategy_coverage["same_day_matched"].sum()),
+                "later_matched": int(strategy_coverage["later_matched"].sum()),
+                "unresolved_trades": int(strategy_coverage["unresolved_trades"].sum()),
+                "coverage_pct": round(
+                    100.0 * float(strategy_coverage["matched_trades"].sum()) / float(strategy_coverage["selected_trades"].sum()),
+                    2,
+                ) if float(strategy_coverage["selected_trades"].sum()) else None,
                 **metrics,
             }
         )
@@ -580,7 +977,86 @@ def main() -> None:
     summary_df.to_csv(summary_output_path, index=False)
     daily_df.to_csv(daily_output_path, index=False)
 
-    coverage_df = pd.DataFrame(coverage_rows).sort_values(["signal_date", "strategy"]).reset_index(drop=True)
+    if selector_context_frames:
+        selector_context_df = pd.concat(selector_context_frames, ignore_index=True)
+        selector_results = results[results["strategy"] == "selector"].copy()
+        selector_resolved = selector_results.merge(
+            selector_context_df[["signal_date", "optionSymbol", "final_tier", "action"]],
+            on=["signal_date", "optionSymbol"],
+            how="inner",
+        )
+
+        action_breakdown_rows: list[dict[str, object]] = []
+        for (final_tier, action), frame in selector_resolved.groupby(["final_tier", "action"], sort=True):
+            metrics = compute_metrics(frame)
+            action_breakdown_rows.append(
+                {
+                    "final_tier": final_tier,
+                    "action": action,
+                    "matched_trades": int(len(frame)),
+                    "same_day_matched": int((frame["match_type"] == "same_day").sum()),
+                    "later_matched": int((frame["match_type"] == "later").sum()),
+                    **metrics,
+                }
+            )
+        action_breakdown_df = pd.DataFrame(action_breakdown_rows).sort_values(["final_tier", "action"]).reset_index(drop=True)
+
+        action_daily_rows: list[dict[str, object]] = []
+        for (signal_date, final_tier, action), frame in selector_resolved.groupby(
+            ["signal_date", "final_tier", "action"], sort=True
+        ):
+            metrics = compute_metrics(frame)
+            action_daily_rows.append(
+                {
+                    "signal_date": signal_date,
+                    "final_tier": final_tier,
+                    "action": action,
+                    "matched_trades": int(len(frame)),
+                    "same_day_matched": int((frame["match_type"] == "same_day").sum()),
+                    "later_matched": int((frame["match_type"] == "later").sum()),
+                    **metrics,
+                }
+            )
+        action_daily_df = pd.DataFrame(action_daily_rows).sort_values(
+            ["signal_date", "final_tier", "action"]
+        ).reset_index(drop=True)
+    else:
+        action_breakdown_df = pd.DataFrame(
+            columns=[
+                "final_tier",
+                "action",
+                "matched_trades",
+                "same_day_matched",
+                "later_matched",
+                "total_trades",
+                "win_rate",
+                "avg_return_pct",
+                "median_return_pct",
+                "avg_win_pct",
+                "avg_loss_pct",
+                "expected_value_pct",
+            ]
+        )
+        action_daily_df = pd.DataFrame(
+            columns=[
+                "signal_date",
+                "final_tier",
+                "action",
+                "matched_trades",
+                "same_day_matched",
+                "later_matched",
+                "total_trades",
+                "win_rate",
+                "avg_return_pct",
+                "median_return_pct",
+                "avg_win_pct",
+                "avg_loss_pct",
+                "expected_value_pct",
+            ]
+        )
+
+    action_breakdown_df.to_csv(action_breakdown_output_path, index=False)
+    action_daily_df.to_csv(action_daily_output_path, index=False)
 
     print("Strategy Comparison Summary")
     print(summary_df.to_string(index=False))
@@ -590,6 +1066,8 @@ def main() -> None:
     print()
     print(f"Saved summary: {summary_output_path}")
     print(f"Saved daily breakdown: {daily_output_path}")
+    print(f"Saved action breakdown: {action_breakdown_output_path}")
+    print(f"Saved action daily breakdown: {action_daily_output_path}")
 
 
 if __name__ == "__main__":
