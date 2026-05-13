@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import re
+from datetime import datetime, timezone
 from pathlib import Path
 
 import duckdb
@@ -16,6 +17,30 @@ DEFAULT_OUTPUT_DIR = ROOT_DIR / "data" / "outputs"
 DEFAULT_TOP_TRADES_LATEST = DEFAULT_OUTPUT_DIR / "top_trades_latest.csv"
 DEFAULT_RANKED_TRADES_LATEST = DEFAULT_OUTPUT_DIR / "ranked_trades_latest.csv"
 DEFAULT_PERFORMANCE_LOG = DEFAULT_OUTPUT_DIR / "performance_log.csv"
+DEFAULT_SELECTOR_OVERLAP_LATEST = DEFAULT_OUTPUT_DIR / "selector_mode_overlap_latest.csv"
+DEFAULT_SELECTOR_OVERLAP_SUMMARY_LATEST = DEFAULT_OUTPUT_DIR / "selector_mode_overlap_summary_latest.csv"
+
+SELECTOR_MODE_ADAPTIVE = "adaptive"
+SELECTOR_MODE_REGIME_ADJUSTED = "regime_adjusted"
+SELECTOR_MODES = (SELECTOR_MODE_ADAPTIVE, SELECTOR_MODE_REGIME_ADJUSTED)
+SELECTOR_MODE_SCORE_COLUMNS = {
+    SELECTOR_MODE_ADAPTIVE: "adaptive_score_final",
+    SELECTOR_MODE_REGIME_ADJUSTED: "adjusted_score_final",
+}
+
+# Scaffolding only for future experimentation. Current production concentration behavior remains unchanged.
+SELECTOR_MODE_CONCENTRATION_CONFIG = {
+    SELECTOR_MODE_ADAPTIVE: {
+        "stressed": {"top_n": 25},
+        "neutral": {"top_n": 25},
+        "recovery": {"top_n": 25},
+    },
+    SELECTOR_MODE_REGIME_ADJUSTED: {
+        "stressed": {"top_n": 25},
+        "neutral": {"top_n": 25},
+        "recovery": {"top_n": 25},
+    },
+}
 
 PREDICTED_TIER_BONUS = {
     "A": 1.25,
@@ -69,6 +94,17 @@ def parse_args() -> argparse.Namespace:
         description="Select top tradeable options signals from the latest ML output."
     )
     parser.add_argument(
+        "--selector-mode",
+        choices=SELECTOR_MODES,
+        default=SELECTOR_MODE_ADAPTIVE,
+        help="Selector mode to generate. Default preserves the production adaptive selector.",
+    )
+    parser.add_argument(
+        "--generate-parallel-experiment",
+        action="store_true",
+        help="Also generate the side-by-side regime-adjusted selector outputs and comparison artifacts.",
+    )
+    parser.add_argument(
         "--latest-csv",
         type=Path,
         default=None,
@@ -103,6 +139,18 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=DEFAULT_PERFORMANCE_LOG,
         help="Append/update per-run summary metrics here.",
+    )
+    parser.add_argument(
+        "--selector-overlap-output-csv",
+        type=Path,
+        default=DEFAULT_SELECTOR_OVERLAP_LATEST,
+        help="Latest CSV path for adaptive vs regime-adjusted selector overlap details.",
+    )
+    parser.add_argument(
+        "--selector-overlap-summary-output-csv",
+        type=Path,
+        default=DEFAULT_SELECTOR_OVERLAP_SUMMARY_LATEST,
+        help="Latest CSV path for adaptive vs regime-adjusted selector overlap summary metrics.",
     )
     parser.add_argument(
         "--top-n",
@@ -147,6 +195,47 @@ def find_latest_prediction_csv(ml_dir: Path) -> Path:
 
     candidates.sort(key=lambda item: (item[0], item[1]), reverse=True)
     return candidates[0][2]
+
+
+def normalize_selector_mode(selector_mode: str | None) -> str:
+    normalized = str(selector_mode or SELECTOR_MODE_ADAPTIVE).strip().lower()
+    if normalized not in SELECTOR_MODES:
+        raise ValueError(f"Unsupported selector mode: {selector_mode}")
+    return normalized
+
+
+def mode_output_path(base_path: Path, selector_mode: str) -> Path:
+    selector_mode = normalize_selector_mode(selector_mode)
+    if selector_mode == SELECTOR_MODE_ADAPTIVE:
+        return base_path
+
+    stem = base_path.stem
+    suffix = base_path.suffix
+    if stem.endswith("_latest"):
+        stem = stem[: -len("_latest")]
+        return base_path.with_name(f"{stem}_{selector_mode}_latest{suffix}")
+    return base_path.with_name(f"{stem}_{selector_mode}{suffix}")
+
+
+def mode_snapshot_path(base_latest_path: Path, signal_date: pd.Timestamp, selector_mode: str) -> Path:
+    selector_mode = normalize_selector_mode(selector_mode)
+    if selector_mode == SELECTOR_MODE_ADAPTIVE:
+        return snapshot_path(base_latest_path, signal_date)
+    return snapshot_path(mode_output_path(base_latest_path, selector_mode), signal_date)
+
+
+def resolve_score_column(frame: pd.DataFrame, selector_mode: str) -> str:
+    selector_mode = normalize_selector_mode(selector_mode)
+    preferred = SELECTOR_MODE_SCORE_COLUMNS[selector_mode]
+    if preferred in frame.columns:
+        numeric = pd.to_numeric(frame[preferred], errors="coerce")
+        if numeric.notna().any():
+            return preferred
+    return "adaptive_score_final"
+
+
+def utc_timestamp() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
 
 def dte_bucket(dte: float) -> str:
@@ -357,10 +446,25 @@ def load_latest_predictions(csv_path: Path) -> tuple[pd.DataFrame, pd.Timestamp]
     latest["adaptive_score_final"] = pd.to_numeric(
         latest["adaptive_score_final"], errors="coerce"
     )
+    add_optional_numeric_column(latest, "adjusted_score_final")
+    add_optional_numeric_column(latest, "adaptive_score")
+    add_optional_numeric_column(latest, "adaptive_rank")
+    add_optional_numeric_column(latest, "regime_multiplier")
+    add_optional_numeric_column(latest, "adaptive_score_for_rank")
+    add_optional_numeric_column(latest, "rank_score")
+    add_optional_numeric_column(latest, "score_decile")
+    add_optional_numeric_column(latest, "baseline_wr")
+    add_optional_numeric_column(latest, "recent_wr")
+    add_optional_numeric_column(latest, "recent_n")
+    add_optional_numeric_column(latest, "degradation")
+    add_optional_numeric_column(latest, "recent_system_wr")
+    add_optional_numeric_column(latest, "baseline_system_wr")
     if "predicted_tier_cal" in latest.columns:
         latest["predicted_tier_cal"] = latest["predicted_tier_cal"].astype(str).str.strip()
     if "filteredtier" in latest.columns:
         latest["filteredtier"] = latest["filteredtier"].astype(str).str.strip()
+    add_optional_text_column(latest, "regime_state")
+    add_optional_text_column(latest, "regime_mode")
     if "live_eligible" in latest.columns:
         live = latest["live_eligible"]
         if pd.api.types.is_bool_dtype(live):
@@ -399,7 +503,13 @@ def load_historical_scored_rows(
     trades_db: Path,
     signal_date: pd.Timestamp,
     history_days: int,
+    history_score_column: str = "adaptive_score_final",
 ) -> pd.DataFrame:
+    if history_score_column != "adaptive_score_final":
+        raise ValueError(
+            "Historical score loading currently supports only adaptive_score_final. "
+            "This guard preserves existing production behavior while selector-mode experimentation is parallelized."
+        )
     con = duckdb.connect(str(trades_db), read_only=True)
     try:
         hist = con.execute(
@@ -458,11 +568,21 @@ def build_top_trades(
     hist_df: pd.DataFrame,
     top_n: int,
     segment_min_history: int,
+    selector_mode: str = SELECTOR_MODE_ADAPTIVE,
+    score_column: str = "adaptive_score_final",
+    selector_generation_timestamp: str | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, int | float | str]]:
+    selector_mode = normalize_selector_mode(selector_mode)
     latest = latest_df.copy()
     hist = hist_df.copy()
+    selector_generation_timestamp = selector_generation_timestamp or utc_timestamp()
 
-    counts = {"before_filter": len(latest)}
+    counts = {
+        "before_filter": len(latest),
+        "selector_mode": selector_mode,
+        "score_column_used": score_column,
+        "selector_generation_timestamp": selector_generation_timestamp,
+    }
 
     latest = latest[latest["optionType"] == "call"].copy()
     if "predicted_tier_cal" in latest.columns:
@@ -477,10 +597,10 @@ def build_top_trades(
     latest["segment"] = latest[["optionType", "dte_bucket"]].astype(str).agg("|".join, axis=1)
     hist["segment"] = hist[["optionType", "dte_bucket"]].astype(str).agg("|".join, axis=1)
 
-    # Keep one live candidate per ticker using the best adaptive_score_final.
+    # Keep one live candidate per ticker using the configured score column.
     latest = (
         latest.sort_values(
-            ["ticker", "adaptive_score_final", "entry_time"],
+            ["ticker", score_column, "entry_time"],
             ascending=[True, False, False],
         )
         .drop_duplicates(subset=["ticker"], keep="first")
@@ -491,7 +611,7 @@ def build_top_trades(
     global_hist_sorted = np.sort(hist["adaptive_score_final"].to_numpy())
     latest["global_percentile"] = empirical_percentile(
         global_hist_sorted,
-        latest["adaptive_score_final"].to_numpy(),
+        latest[score_column].to_numpy(),
     )
 
     seg_hist = {
@@ -501,7 +621,7 @@ def build_top_trades(
     seg_sizes = {seg: len(arr) for seg, arr in seg_hist.items()}
 
     segmented_raw = []
-    for seg, score in zip(latest["segment"], latest["adaptive_score_final"]):
+    for seg, score in zip(latest["segment"], latest[score_column]):
         hist_scores = seg_hist.get(seg)
         if hist_scores is None or len(hist_scores) == 0:
             segmented_raw.append(np.nan)
@@ -527,51 +647,65 @@ def build_top_trades(
     )
 
     latest["signal_date"] = latest["entry_time"].dt.strftime("%Y-%m-%d")
+    latest["selector_mode"] = selector_mode
+    latest["score_column_used"] = score_column
+    latest["selector_generation_timestamp"] = selector_generation_timestamp
     latest["signal_id"] = [
         build_signal_id(ticker, pd.Timestamp(signal_date))
         for ticker, signal_date in zip(latest["ticker"], latest["entry_time"].dt.normalize())
     ]
 
-    ranked_universe = latest[
-        [
-            "signal_id",
-            "ticker",
-            "optionSymbol",
-            "signal_date",
-            "optionType",
-            "dte",
-            "dte_bucket",
-            "adaptive_score_final",
-            "segmented_percentile",
-            "global_percentile",
-            "final_tier",
-            "segment_hist_n",
-            "segment_fallback",
-            "context_rerank_score",
-            "selector_rank_score",
-            "predicted_tier_cal",
-            "filteredtier",
-            "growth",
-            "momentum",
-            "eps_rev",
-            "quant_rating",
-            "bias",
-            "iv_crush_risk",
-            "gamma_penalty_flag",
-            "sector_score",
-            "rsi_score",
-            "priority_score",
-            "prob_calibrated",
-            "score_trend_adj_raw",
-            "score_iv_context",
-        ]
-    ].copy()
+    ranked_universe_columns = [
+        "signal_id",
+        "ticker",
+        "optionSymbol",
+        "signal_date",
+        "optionType",
+        "dte",
+        "dte_bucket",
+        "adaptive_score_final",
+        "segmented_percentile",
+        "global_percentile",
+        "final_tier",
+        "segment_hist_n",
+        "segment_fallback",
+        "context_rerank_score",
+        "selector_rank_score",
+        "predicted_tier_cal",
+        "filteredtier",
+        "growth",
+        "momentum",
+        "eps_rev",
+        "quant_rating",
+        "bias",
+        "iv_crush_risk",
+        "gamma_penalty_flag",
+        "sector_score",
+        "rsi_score",
+        "priority_score",
+        "prob_calibrated",
+        "score_trend_adj_raw",
+        "score_iv_context",
+    ]
+    if selector_mode != SELECTOR_MODE_ADAPTIVE:
+        ranked_universe_columns.extend(
+            [
+                "selector_mode",
+                "score_column_used",
+                "selector_generation_timestamp",
+                "adjusted_score_final",
+                "regime_state",
+                "regime_mode",
+                "regime_multiplier",
+            ]
+        )
     tier_rank_order = {"A+": 0, "A": 1, "B": 2, "lower": 3}
+    common_sort_cols = ["_tier_order", "selector_rank_score", "segmented_percentile", "global_percentile", score_column, "ticker"]
+    common_sort_dirs = [True, False, False, False, False, True]
+
+    ranked_universe = latest[ranked_universe_columns].copy()
     ranked_universe["_tier_order"] = ranked_universe["final_tier"].map(tier_rank_order).fillna(9)
-    ranked_universe = ranked_universe.sort_values(
-        ["_tier_order", "selector_rank_score", "segmented_percentile", "global_percentile", "adaptive_score_final"],
-        ascending=[True, False, False, False, False],
-    )
+    ranked_universe = ranked_universe.sort_values(common_sort_cols, ascending=common_sort_dirs)
     ranked_universe = ranked_universe.drop(columns=["_tier_order"])
 
     counts["total_a_plus"] = int((latest["final_tier"] == "A+").sum())
@@ -579,44 +713,53 @@ def build_top_trades(
     counts["total_b"] = int((latest["final_tier"] == "B").sum())
 
     selected = latest[latest["final_tier"].isin(["A+", "A"])].copy()
-    selected = selected.sort_values(
-        ["selector_rank_score", "segmented_percentile", "global_percentile", "adaptive_score_final"],
-        ascending=[False, False, False, False],
-    ).head(top_n)
+    selected["_tier_order"] = selected["final_tier"].map(tier_rank_order).fillna(9)
+    selected = selected.sort_values(common_sort_cols, ascending=common_sort_dirs).drop(columns=["_tier_order"]).head(top_n)
 
-    result = selected[
-        [
-            "signal_id",
-            "ticker",
-            "optionSymbol",
-            "signal_date",
-            "entry_time",
-            "optionType",
-            "dte",
-            "dte_bucket",
-            "adaptive_score_final",
-            "segmented_percentile",
-            "global_percentile",
-            "final_tier",
-            "context_rerank_score",
-            "selector_rank_score",
-            "predicted_tier_cal",
-            "filteredtier",
-            "growth",
-            "momentum",
-            "eps_rev",
-            "quant_rating",
-            "bias",
-            "iv_crush_risk",
-            "gamma_penalty_flag",
-            "sector_score",
-            "rsi_score",
-            "priority_score",
-            "prob_calibrated",
-            "score_trend_adj_raw",
-            "score_iv_context",
-        ]
-    ].copy()
+    result_columns = [
+        "signal_id",
+        "ticker",
+        "optionSymbol",
+        "signal_date",
+        "entry_time",
+        "optionType",
+        "dte",
+        "dte_bucket",
+        "adaptive_score_final",
+        "segmented_percentile",
+        "global_percentile",
+        "final_tier",
+        "context_rerank_score",
+        "selector_rank_score",
+        "predicted_tier_cal",
+        "filteredtier",
+        "growth",
+        "momentum",
+        "eps_rev",
+        "quant_rating",
+        "bias",
+        "iv_crush_risk",
+        "gamma_penalty_flag",
+        "sector_score",
+        "rsi_score",
+        "priority_score",
+        "prob_calibrated",
+        "score_trend_adj_raw",
+        "score_iv_context",
+    ]
+    if selector_mode != SELECTOR_MODE_ADAPTIVE:
+        result_columns.extend(
+            [
+                "selector_mode",
+                "score_column_used",
+                "selector_generation_timestamp",
+                "adjusted_score_final",
+                "regime_state",
+                "regime_mode",
+                "regime_multiplier",
+            ]
+        )
+    result = selected[result_columns].copy()
     counts["final_selected"] = len(result)
     counts["avg_segmented_percentile_selected"] = (
         round(float(selected["segmented_percentile"].mean()), 6) if not selected.empty else np.nan
@@ -639,23 +782,186 @@ def save_outputs(
     signal_date: pd.Timestamp,
     top_latest_csv: Path,
     ranked_latest_csv: Path,
+    selector_mode: str = SELECTOR_MODE_ADAPTIVE,
 ) -> dict[str, Path]:
-    top_dated_csv = snapshot_path(top_latest_csv, signal_date)
-    ranked_dated_csv = snapshot_path(ranked_latest_csv, signal_date)
+    selector_mode = normalize_selector_mode(selector_mode)
+    target_top_latest_csv = mode_output_path(top_latest_csv, selector_mode)
+    target_ranked_latest_csv = mode_output_path(ranked_latest_csv, selector_mode)
+    top_dated_csv = mode_snapshot_path(top_latest_csv, signal_date, selector_mode)
+    ranked_dated_csv = mode_snapshot_path(ranked_latest_csv, signal_date, selector_mode)
 
-    for output_path in [top_latest_csv, ranked_latest_csv, top_dated_csv, ranked_dated_csv]:
+    for output_path in [target_top_latest_csv, target_ranked_latest_csv, top_dated_csv, ranked_dated_csv]:
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    top_trades.to_csv(top_latest_csv, index=False)
+    top_trades.to_csv(target_top_latest_csv, index=False)
     top_trades.to_csv(top_dated_csv, index=False)
-    ranked_universe.to_csv(ranked_latest_csv, index=False)
+    ranked_universe.to_csv(target_ranked_latest_csv, index=False)
     ranked_universe.to_csv(ranked_dated_csv, index=False)
 
     return {
-        "top_latest": top_latest_csv,
+        "top_latest": target_top_latest_csv,
         "top_dated": top_dated_csv,
-        "ranked_latest": ranked_latest_csv,
+        "ranked_latest": target_ranked_latest_csv,
         "ranked_dated": ranked_dated_csv,
+    }
+
+
+def compute_selector_overlap_details(
+    adaptive_top_trades: pd.DataFrame,
+    regime_adjusted_top_trades: pd.DataFrame,
+    signal_date: pd.Timestamp,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    adaptive = adaptive_top_trades.copy()
+    regime_adjusted = regime_adjusted_top_trades.copy()
+
+    adaptive["adaptive_rank"] = range(1, len(adaptive) + 1)
+    regime_adjusted["regime_adjusted_rank"] = range(1, len(regime_adjusted) + 1)
+
+    adaptive = adaptive.rename(
+        columns={
+            "ticker": "adaptive_ticker",
+            "adaptive_score_final": "adaptive_adaptive_score_final",
+            "selector_rank_score": "adaptive_selector_rank_score",
+            "final_tier": "adaptive_final_tier",
+            "context_rerank_score": "adaptive_context_rerank_score",
+        }
+    )
+    regime_adjusted = regime_adjusted.rename(
+        columns={
+            "ticker": "regime_adjusted_ticker",
+            "adaptive_score_final": "regime_adjusted_adaptive_score_final",
+            "adjusted_score_final": "regime_adjusted_adjusted_score_final",
+            "selector_rank_score": "regime_adjusted_selector_rank_score",
+            "final_tier": "regime_adjusted_final_tier",
+            "context_rerank_score": "regime_adjusted_context_rerank_score",
+            "score_column_used": "regime_adjusted_score_column_used",
+            "regime_state": "regime_adjusted_regime_state",
+            "regime_multiplier": "regime_adjusted_regime_multiplier",
+        }
+    )
+
+    detail = adaptive.merge(regime_adjusted, on="optionSymbol", how="outer", indicator=True)
+    detail["signal_date"] = signal_date.strftime("%Y-%m-%d")
+    detail["adaptive_selected"] = detail["_merge"].isin(["both", "left_only"])
+    detail["regime_adjusted_selected"] = detail["_merge"].isin(["both", "right_only"])
+    detail["selector_generation_timestamp"] = utc_timestamp()
+    detail["rank_delta"] = (
+        pd.to_numeric(detail.get("regime_adjusted_rank"), errors="coerce")
+        - pd.to_numeric(detail.get("adaptive_rank"), errors="coerce")
+    )
+    detail["adaptive_score_delta"] = (
+        pd.to_numeric(detail.get("regime_adjusted_adaptive_score_final"), errors="coerce")
+        - pd.to_numeric(detail.get("adaptive_adaptive_score_final"), errors="coerce")
+    )
+    detail["adjusted_vs_adaptive_score_delta"] = (
+        pd.to_numeric(detail.get("regime_adjusted_adjusted_score_final"), errors="coerce")
+        - pd.to_numeric(detail.get("regime_adjusted_adaptive_score_final"), errors="coerce")
+    )
+    detail["selector_rank_score_delta"] = (
+        pd.to_numeric(detail.get("regime_adjusted_selector_rank_score"), errors="coerce")
+        - pd.to_numeric(detail.get("adaptive_selector_rank_score"), errors="coerce")
+    )
+    detail["divergence_type"] = np.select(
+        [
+            detail["_merge"].eq("both") & detail["rank_delta"].fillna(0).ne(0),
+            detail["_merge"].eq("both"),
+            detail["_merge"].eq("left_only"),
+            detail["_merge"].eq("right_only"),
+        ],
+        [
+            "rank_changed",
+            "overlap_same_rank",
+            "adaptive_only",
+            "regime_adjusted_only",
+        ],
+        default="unknown",
+    )
+
+    summary = pd.DataFrame(
+        [
+            {
+                "signal_date": signal_date.strftime("%Y-%m-%d"),
+                "selector_generation_timestamp": detail["selector_generation_timestamp"].iloc[0],
+                "adaptive_count": int(len(adaptive_top_trades)),
+                "regime_adjusted_count": int(len(regime_adjusted_top_trades)),
+                "overlap_count": int((detail["_merge"] == "both").sum()),
+                "adaptive_only_count": int((detail["_merge"] == "left_only").sum()),
+                "regime_adjusted_only_count": int((detail["_merge"] == "right_only").sum()),
+                "rank_changed_overlap_count": int(((detail["_merge"] == "both") & detail["rank_delta"].fillna(0).ne(0)).sum()),
+                "same_rank_overlap_count": int(((detail["_merge"] == "both") & detail["rank_delta"].fillna(0).eq(0)).sum()),
+                "overlap_ratio": round(float((detail["_merge"] == "both").mean()), 6) if not detail.empty else np.nan,
+                "selector_divergence_ratio": round(
+                    float(((detail["_merge"] != "both") | detail["rank_delta"].fillna(0).ne(0)).mean()),
+                    6,
+                )
+                if not detail.empty
+                else np.nan,
+                "avg_rank_delta_overlap": round(
+                    float(detail.loc[detail["_merge"] == "both", "rank_delta"].abs().mean()),
+                    6,
+                )
+                if (detail["_merge"] == "both").any()
+                else np.nan,
+                "avg_adjusted_vs_adaptive_score_delta": round(
+                    float(pd.to_numeric(detail["adjusted_vs_adaptive_score_delta"], errors="coerce").mean()),
+                    6,
+                )
+                if "adjusted_vs_adaptive_score_delta" in detail
+                else np.nan,
+            }
+        ]
+    )
+
+    desired_columns = [
+        "signal_date",
+        "optionSymbol",
+        "divergence_type",
+        "adaptive_selected",
+        "regime_adjusted_selected",
+        "adaptive_rank",
+        "regime_adjusted_rank",
+        "rank_delta",
+        "adaptive_ticker",
+        "regime_adjusted_ticker",
+        "adaptive_adaptive_score_final",
+        "regime_adjusted_adaptive_score_final",
+        "regime_adjusted_adjusted_score_final",
+        "adjusted_vs_adaptive_score_delta",
+        "adaptive_selector_rank_score",
+        "regime_adjusted_selector_rank_score",
+        "selector_rank_score_delta",
+        "adaptive_final_tier",
+        "regime_adjusted_final_tier",
+        "regime_adjusted_score_column_used",
+        "regime_adjusted_regime_state",
+        "regime_adjusted_regime_multiplier",
+        "selector_generation_timestamp",
+    ]
+    detail = detail[[column for column in desired_columns if column in detail.columns]].copy()
+    return detail, summary
+
+
+def save_selector_overlap_artifacts(
+    detail: pd.DataFrame,
+    summary: pd.DataFrame,
+    signal_date: pd.Timestamp,
+    overlap_latest_csv: Path,
+    overlap_summary_latest_csv: Path,
+) -> dict[str, Path]:
+    overlap_dated_csv = snapshot_path(overlap_latest_csv, signal_date)
+    overlap_summary_dated_csv = snapshot_path(overlap_summary_latest_csv, signal_date)
+    for output_path in [overlap_latest_csv, overlap_summary_latest_csv, overlap_dated_csv, overlap_summary_dated_csv]:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    detail.to_csv(overlap_latest_csv, index=False)
+    detail.to_csv(overlap_dated_csv, index=False)
+    summary.to_csv(overlap_summary_latest_csv, index=False)
+    summary.to_csv(overlap_summary_dated_csv, index=False)
+    return {
+        "overlap_latest": overlap_latest_csv,
+        "overlap_dated": overlap_dated_csv,
+        "overlap_summary_latest": overlap_summary_latest_csv,
+        "overlap_summary_dated": overlap_summary_dated_csv,
     }
 
 
@@ -663,28 +969,36 @@ def update_performance_log(
     log_csv: Path,
     signal_date: pd.Timestamp,
     counts: dict[str, int | float | str],
+    selector_mode: str = SELECTOR_MODE_ADAPTIVE,
 ) -> None:
-    log_csv.parent.mkdir(parents=True, exist_ok=True)
+    selector_mode = normalize_selector_mode(selector_mode)
+    target_log_csv = mode_output_path(log_csv, selector_mode)
+    target_log_csv.parent.mkdir(parents=True, exist_ok=True)
     log_date = signal_date.strftime("%Y-%m-%d")
-    row = pd.DataFrame(
-        [
+    row_data = {
+        "date": log_date,
+        "total_candidates_before_filter": counts["before_filter"],
+        "total_after_filter": counts["after_filter"],
+        "total_after_dedupe": counts["after_dedupe"],
+        "total_A_plus": counts["total_a_plus"],
+        "total_A": counts["total_a"],
+        "total_B": counts["total_b"],
+        "total_selected": counts["final_selected"],
+        "avg_segmented_percentile_selected": counts["avg_segmented_percentile_selected"],
+        "avg_global_percentile_selected": counts["avg_global_percentile_selected"],
+    }
+    if selector_mode != SELECTOR_MODE_ADAPTIVE:
+        row_data.update(
             {
-                "date": log_date,
-                "total_candidates_before_filter": counts["before_filter"],
-                "total_after_filter": counts["after_filter"],
-                "total_after_dedupe": counts["after_dedupe"],
-                "total_A_plus": counts["total_a_plus"],
-                "total_A": counts["total_a"],
-                "total_B": counts["total_b"],
-                "total_selected": counts["final_selected"],
-                "avg_segmented_percentile_selected": counts["avg_segmented_percentile_selected"],
-                "avg_global_percentile_selected": counts["avg_global_percentile_selected"],
+                "selector_mode": selector_mode,
+                "score_column_used": counts.get("score_column_used"),
+                "selector_generation_timestamp": counts.get("selector_generation_timestamp"),
             }
-        ]
-    )
+        )
+    row = pd.DataFrame([row_data])
 
-    if log_csv.exists():
-        existing = pd.read_csv(log_csv, low_memory=False)
+    if target_log_csv.exists():
+        existing = pd.read_csv(target_log_csv, low_memory=False)
         if "date" not in existing.columns:
             existing = pd.DataFrame(columns=row.columns)
         existing = existing[existing["date"].astype(str) != log_date].copy()
@@ -694,31 +1008,119 @@ def update_performance_log(
 
     updated["date"] = pd.to_datetime(updated["date"], errors="coerce").dt.strftime("%Y-%m-%d")
     updated = updated.sort_values("date").reset_index(drop=True)
-    updated.to_csv(log_csv, index=False)
+    updated.to_csv(target_log_csv, index=False)
 
 
-def main() -> None:
-    args = parse_args()
-    latest_csv = args.latest_csv or find_latest_prediction_csv(args.ml_dir)
-    latest_df, signal_date = load_latest_predictions(latest_csv)
-    hist_df = load_historical_scored_rows(args.trades_db, signal_date, args.history_days)
+def generate_selector_mode_outputs(
+    latest_df: pd.DataFrame,
+    hist_df: pd.DataFrame,
+    signal_date: pd.Timestamp,
+    selector_mode: str,
+    top_n: int,
+    segment_min_history: int,
+    top_latest_csv: Path,
+    ranked_latest_csv: Path,
+    performance_log_csv: Path,
+    selector_generation_timestamp: str,
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, int | float | str], dict[str, Path], str]:
+    selector_mode = normalize_selector_mode(selector_mode)
+    score_column = resolve_score_column(latest_df, selector_mode)
     top_trades, ranked_universe, counts = build_top_trades(
         latest_df=latest_df,
         hist_df=hist_df,
-        top_n=args.top_n,
-        segment_min_history=args.segment_min_history,
+        top_n=top_n,
+        segment_min_history=segment_min_history,
+        selector_mode=selector_mode,
+        score_column=score_column,
+        selector_generation_timestamp=selector_generation_timestamp,
     )
     saved_paths = save_outputs(
         top_trades=top_trades,
         ranked_universe=ranked_universe,
         signal_date=signal_date,
+        top_latest_csv=top_latest_csv,
+        ranked_latest_csv=ranked_latest_csv,
+        selector_mode=selector_mode,
+    )
+    update_performance_log(
+        performance_log_csv,
+        signal_date,
+        counts,
+        selector_mode=selector_mode,
+    )
+    return top_trades, ranked_universe, counts, saved_paths, score_column
+
+
+def main() -> None:
+    args = parse_args()
+    selector_generation_timestamp = utc_timestamp()
+    latest_csv = args.latest_csv or find_latest_prediction_csv(args.ml_dir)
+    latest_df, signal_date = load_latest_predictions(latest_csv)
+    hist_df = load_historical_scored_rows(args.trades_db, signal_date, args.history_days)
+    top_trades, ranked_universe, counts, saved_paths, score_column = generate_selector_mode_outputs(
+        latest_df=latest_df,
+        hist_df=hist_df,
+        signal_date=signal_date,
+        selector_mode=args.selector_mode,
+        top_n=args.top_n,
+        segment_min_history=args.segment_min_history,
         top_latest_csv=args.output_csv,
         ranked_latest_csv=args.ranked_output_csv,
+        performance_log_csv=args.performance_log_csv,
+        selector_generation_timestamp=selector_generation_timestamp,
     )
-    update_performance_log(args.performance_log_csv, signal_date, counts)
+
+    overlap_saved_paths = None
+    if args.generate_parallel_experiment:
+        adaptive_top_trades, _, _, _, _ = (
+            (top_trades, ranked_universe, counts, saved_paths, score_column)
+            if normalize_selector_mode(args.selector_mode) == SELECTOR_MODE_ADAPTIVE
+            else generate_selector_mode_outputs(
+                latest_df=latest_df,
+                hist_df=hist_df,
+                signal_date=signal_date,
+                selector_mode=SELECTOR_MODE_ADAPTIVE,
+                top_n=args.top_n,
+                segment_min_history=args.segment_min_history,
+                top_latest_csv=args.output_csv,
+                ranked_latest_csv=args.ranked_output_csv,
+                performance_log_csv=args.performance_log_csv,
+                selector_generation_timestamp=selector_generation_timestamp,
+            )
+        )
+        regime_top_trades, _, _, _, _ = (
+            (top_trades, ranked_universe, counts, saved_paths, score_column)
+            if normalize_selector_mode(args.selector_mode) == SELECTOR_MODE_REGIME_ADJUSTED
+            else generate_selector_mode_outputs(
+                latest_df=latest_df,
+                hist_df=hist_df,
+                signal_date=signal_date,
+                selector_mode=SELECTOR_MODE_REGIME_ADJUSTED,
+                top_n=args.top_n,
+                segment_min_history=args.segment_min_history,
+                top_latest_csv=args.output_csv,
+                ranked_latest_csv=args.ranked_output_csv,
+                performance_log_csv=args.performance_log_csv,
+                selector_generation_timestamp=selector_generation_timestamp,
+            )
+        )
+        overlap_detail, overlap_summary = compute_selector_overlap_details(
+            adaptive_top_trades=adaptive_top_trades,
+            regime_adjusted_top_trades=regime_top_trades,
+            signal_date=signal_date,
+        )
+        overlap_saved_paths = save_selector_overlap_artifacts(
+            detail=overlap_detail,
+            summary=overlap_summary,
+            signal_date=signal_date,
+            overlap_latest_csv=args.selector_overlap_output_csv,
+            overlap_summary_latest_csv=args.selector_overlap_summary_output_csv,
+        )
 
     print(f"Latest predictions file: {latest_csv}")
     print(f"Date processed: {signal_date.date()}")
+    print(f"Selector mode: {args.selector_mode}")
+    print(f"Score column used: {score_column}")
     print(f"Historical scored rows used: {len(hist_df)}")
     print(f"Candidates before filter: {counts['before_filter']}")
     print(f"Candidates after filter: {counts['after_filter']}")
@@ -730,7 +1132,12 @@ def main() -> None:
     print(f"Top trades dated saved to: {saved_paths['top_dated']}")
     print(f"Ranked universe latest saved to: {saved_paths['ranked_latest']}")
     print(f"Ranked universe dated saved to: {saved_paths['ranked_dated']}")
-    print(f"Performance log updated at: {args.performance_log_csv}")
+    if overlap_saved_paths:
+        print(f"Selector overlap latest saved to: {overlap_saved_paths['overlap_latest']}")
+        print(f"Selector overlap dated saved to: {overlap_saved_paths['overlap_dated']}")
+        print(f"Selector overlap summary latest saved to: {overlap_saved_paths['overlap_summary_latest']}")
+        print(f"Selector overlap summary dated saved to: {overlap_saved_paths['overlap_summary_dated']}")
+    print(f"Performance log updated at: {mode_output_path(args.performance_log_csv, args.selector_mode)}")
     print(top_trades.to_string(index=False))
 
 
