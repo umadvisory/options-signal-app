@@ -1,9 +1,9 @@
 {
   "snapshotVersion": 2,
-  "generatedAt": "2026-05-13T11:19:13.627420+00:00",
+  "generatedAt": "2026-05-13T16:20:56.442866+00:00",
   "signalDate": "2026-05-12",
   "defaultPayload": {
-    "generatedAt": "2026-05-13T11:18:59.801500+00:00",
+    "generatedAt": "2026-05-13T16:20:44.237379+00:00",
     "signalDate": "2026-05-12",
     "sourceFiles": {
       "predictionCsv": "sample_predictions_with_tiers_20260512.csv",
@@ -57,8 +57,8 @@
         "returnDistribution": [
           {
             "range": "<-50%",
-            "count": 128,
-            "percentage": 13.3
+            "count": 0,
+            "percentage": 0.0
           },
           {
             "range": "-50%–0%",
@@ -163,8 +163,8 @@
         "returnDistribution": [
           {
             "range": "<-50%",
-            "count": 176,
-            "percentage": 11.2
+            "count": 0,
+            "percentage": 0.0
           },
           {
             "range": "-50%–0%",
@@ -1648,155 +1648,6 @@
       {
         "rank": 3,
         "selector_rank": 3,
-        "ticker": "INTC",
-        "signal_date": "2026-05-12",
-        "companyName": "Intel Corporation",
-        "tier": "A",
-        "final_tier": "A",
-        "action": "WAIT",
-        "action_override": false,
-        "optionType": "call",
-        "signalStrength": "MODERATE",
-        "segmented_percentile": 97.448204,
-        "global_percentile": 98.821313,
-        "adaptive_score_final": 1.331721,
-        "contract": {
-          "optionSymbol": "O:INTC260529C00100000",
-          "strike": 100,
-          "expiry": "2026-05-29",
-          "dte": 17,
-          "underlyingPrice": 120.61,
-          "distanceToStrikePct": -17.1,
-          "moneyness": "0.829",
-          "itmFlag": "Deep ITM",
-          "strikePositionLabel": "DEEP ITM",
-          "strikePositionText": "17.1% below spot"
-        },
-        "market": {
-          "volume": 260,
-          "openInterest": 3166
-        },
-        "context": {
-          "sector": "Technology",
-          "rsi": 86.1
-        },
-        "etfOverlay": {
-          "etf": "XLK",
-          "bias": "Bullish",
-          "winRate4d": 65.6,
-          "breadth": 45
-        },
-        "scores": {
-          "adaptiveScoreFinal": 1.332,
-          "adjustedScoreFinal": 1.718,
-          "adaptiveScore": 1.232,
-          "adaptiveRank": 0,
-          "scoreDecile": 10,
-          "baselineWr": null,
-          "recentWr": null,
-          "recentN": 0,
-          "degradation": null,
-          "regimeMultiplier": 1.0,
-          "priorityScore": 0.137,
-          "probCalibrated": 0.137,
-          "expectedValue": -5.96,
-          "evPct": -0.22,
-          "rankScore": 0.231,
-          "regimeAdj": 0.1,
-          "sectorScore": 2.0,
-          "rsiScore": 1.582
-        },
-        "classification": {
-          "predictedTierCal": "A",
-          "predictedTierRaw": "A",
-          "adaptiveTier": "A",
-          "filteredTier": "A",
-          "regimeState": "healthy",
-          "dteBucket": "8-21",
-          "vixBucket": "15-20"
-        },
-        "execution": {
-          "liveEligible": true,
-          "selected": false,
-          "aPlus": false,
-          "rankAlpha": false,
-          "failReason": "OK_BASE"
-        },
-        "risk": {
-          "midPrice": 26.57,
-          "bidAskPct": null,
-          "bidOk": true,
-          "volumeOk": true,
-          "dteOk": true,
-          "spyTrendOk": true,
-          "liquidityOk": true,
-          "openInterestOk": true
-        },
-        "executionGuidance": {
-          "favorable": [
-            "Sector/ETF backdrop supportive.",
-            "ITM structure supports follow-through if trend holds."
-          ],
-          "caution": [
-            "Momentum extended; avoid chasing strength.",
-            "Short duration: time decay risk is higher."
-          ],
-          "unfavorable": [
-            "Behind stronger names today; only revisit if conditions improve."
-          ]
-        },
-        "decisionContext": {
-          "today": {
-            "rank": 3,
-            "candidateCount": 14,
-            "topPercent": 22,
-            "todayScore": 86
-          },
-          "historical": {
-            "windowDays": 90,
-            "sampleSize": 97,
-            "distinctTickerCount": 8,
-            "winRate": 82.5,
-            "avgReturnPct": 209.2,
-            "avgRMultiple": null,
-            "medianHoldDays": 8.0,
-            "holdP25Days": 8.0,
-            "holdP75Days": 10.0,
-            "cohortLabel": "Based on similar setups over the last 90 days",
-            "matchStrength": "setup",
-            "supportLabel": "Strong"
-          },
-          "translation": "Broadly qualified, but not a priority versus cleaner names today.",
-          "executionEdge": [
-            "Spread and liquidity snapshot support cleaner fills.",
-            "XLK sector signal strength: 65.6% 4d win rate across 45 stocks.",
-            "Sector ranks #1 in today's conviction map."
-          ],
-          "invalidation": [
-            "Skip if price moves more than 2% above the snapshot before entry.",
-            "Skip if momentum extends further without a reset.",
-            "Skip if spread or liquidity deteriorates on the live chain."
-          ],
-          "expectation": {
-            "timeframe": "8-10 trading days",
-            "baseCase": "Secondary setup unless the tape improves.",
-            "risk": "Time decay becomes the main risk if price chops sideways."
-          }
-        },
-        "provenance": {
-          "sourceFile": "sample_predictions_with_tiers_20260512.csv",
-          "selectorFile": "top_trades_latest.csv",
-          "strategyStatsFile": "trades_master.duckdb",
-          "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
-          "filterVersion": "filters_20251210.json",
-          "dataCutoff": "2025-12-10",
-          "runTimestamp": "2026-05-13 07:15:41",
-          "signalDate": "2026-05-12"
-        }
-      },
-      {
-        "rank": 4,
-        "selector_rank": 4,
         "ticker": "NBIS",
         "signal_date": "2026-05-12",
         "companyName": "Nebius Group N.V.",
@@ -1897,10 +1748,10 @@
         },
         "decisionContext": {
           "today": {
-            "rank": 4,
+            "rank": 3,
             "candidateCount": 14,
-            "topPercent": 29,
-            "todayScore": 79
+            "topPercent": 22,
+            "todayScore": 86
           },
           "historical": {
             "windowDays": 90,
@@ -1931,6 +1782,155 @@
             "timeframe": "8 trading days",
             "baseCase": "Orderly continuation if the trend and liquidity stay intact.",
             "risk": "Premium can decay quickly if the move stalls."
+          }
+        },
+        "provenance": {
+          "sourceFile": "sample_predictions_with_tiers_20260512.csv",
+          "selectorFile": "top_trades_latest.csv",
+          "strategyStatsFile": "trades_master.duckdb",
+          "mlModelVersion": "lgbm_bigwin25_calls_v1.joblib",
+          "filterVersion": "filters_20251210.json",
+          "dataCutoff": "2025-12-10",
+          "runTimestamp": "2026-05-13 07:15:41",
+          "signalDate": "2026-05-12"
+        }
+      },
+      {
+        "rank": 4,
+        "selector_rank": 4,
+        "ticker": "INTC",
+        "signal_date": "2026-05-12",
+        "companyName": "Intel Corporation",
+        "tier": "A",
+        "final_tier": "A",
+        "action": "WAIT",
+        "action_override": false,
+        "optionType": "call",
+        "signalStrength": "MODERATE",
+        "segmented_percentile": 97.448204,
+        "global_percentile": 98.821313,
+        "adaptive_score_final": 1.331721,
+        "contract": {
+          "optionSymbol": "O:INTC260529C00100000",
+          "strike": 100,
+          "expiry": "2026-05-29",
+          "dte": 17,
+          "underlyingPrice": 120.61,
+          "distanceToStrikePct": -17.1,
+          "moneyness": "0.829",
+          "itmFlag": "Deep ITM",
+          "strikePositionLabel": "DEEP ITM",
+          "strikePositionText": "17.1% below spot"
+        },
+        "market": {
+          "volume": 260,
+          "openInterest": 3166
+        },
+        "context": {
+          "sector": "Technology",
+          "rsi": 86.1
+        },
+        "etfOverlay": {
+          "etf": "XLK",
+          "bias": "Bullish",
+          "winRate4d": 65.6,
+          "breadth": 45
+        },
+        "scores": {
+          "adaptiveScoreFinal": 1.332,
+          "adjustedScoreFinal": 1.718,
+          "adaptiveScore": 1.232,
+          "adaptiveRank": 0,
+          "scoreDecile": 10,
+          "baselineWr": null,
+          "recentWr": null,
+          "recentN": 0,
+          "degradation": null,
+          "regimeMultiplier": 1.0,
+          "priorityScore": 0.137,
+          "probCalibrated": 0.137,
+          "expectedValue": -5.96,
+          "evPct": -0.22,
+          "rankScore": 0.231,
+          "regimeAdj": 0.1,
+          "sectorScore": 2.0,
+          "rsiScore": 1.582
+        },
+        "classification": {
+          "predictedTierCal": "A",
+          "predictedTierRaw": "A",
+          "adaptiveTier": "A",
+          "filteredTier": "A",
+          "regimeState": "healthy",
+          "dteBucket": "8-21",
+          "vixBucket": "15-20"
+        },
+        "execution": {
+          "liveEligible": true,
+          "selected": false,
+          "aPlus": false,
+          "rankAlpha": false,
+          "failReason": "OK_BASE"
+        },
+        "risk": {
+          "midPrice": 26.57,
+          "bidAskPct": null,
+          "bidOk": true,
+          "volumeOk": true,
+          "dteOk": true,
+          "spyTrendOk": true,
+          "liquidityOk": true,
+          "openInterestOk": true
+        },
+        "executionGuidance": {
+          "favorable": [
+            "Sector/ETF backdrop supportive.",
+            "ITM structure supports follow-through if trend holds."
+          ],
+          "caution": [
+            "Momentum extended; avoid chasing strength.",
+            "Short duration: time decay risk is higher."
+          ],
+          "unfavorable": [
+            "Behind stronger names today; only revisit if conditions improve."
+          ]
+        },
+        "decisionContext": {
+          "today": {
+            "rank": 4,
+            "candidateCount": 14,
+            "topPercent": 29,
+            "todayScore": 79
+          },
+          "historical": {
+            "windowDays": 90,
+            "sampleSize": 97,
+            "distinctTickerCount": 8,
+            "winRate": 82.5,
+            "avgReturnPct": 209.2,
+            "avgRMultiple": null,
+            "medianHoldDays": 8.0,
+            "holdP25Days": 8.0,
+            "holdP75Days": 10.0,
+            "cohortLabel": "Based on similar setups over the last 90 days",
+            "matchStrength": "setup",
+            "supportLabel": "Strong"
+          },
+          "translation": "Broadly qualified, but not a priority versus cleaner names today.",
+          "executionEdge": [
+            "Spread and liquidity snapshot support cleaner fills.",
+            "XLK sector signal strength: 65.6% 4d win rate across 45 stocks.",
+            "Sector ranks #1 in today's conviction map."
+          ],
+          "invalidation": [
+            "Skip if price moves more than 2% above the snapshot before entry.",
+            "Skip if momentum extends further without a reset.",
+            "Skip if spread or liquidity deteriorates on the live chain."
+          ],
+          "expectation": {
+            "timeframe": "8-10 trading days",
+            "baseCase": "Secondary setup unless the tape improves.",
+            "risk": "Time decay becomes the main risk if price chops sideways."
           }
         },
         "provenance": {
@@ -3444,7 +3444,7 @@
     ]
   },
   "extendedPayload": {
-    "generatedAt": "2026-05-13T11:19:13.483836+00:00",
+    "generatedAt": "2026-05-13T16:20:56.442866+00:00",
     "signalDate": "2026-05-12",
     "sourceFiles": {
       "predictionCsv": "sample_predictions_with_tiers_20260512.csv",
@@ -3498,8 +3498,8 @@
         "returnDistribution": [
           {
             "range": "<-50%",
-            "count": 128,
-            "percentage": 13.3
+            "count": 0,
+            "percentage": 0.0
           },
           {
             "range": "-50%–0%",
@@ -3604,8 +3604,8 @@
         "returnDistribution": [
           {
             "range": "<-50%",
-            "count": 176,
-            "percentage": 11.2
+            "count": 0,
+            "percentage": 0.0
           },
           {
             "range": "-50%–0%",
@@ -4891,8 +4891,8 @@
         "decisionContext": {
           "today": {
             "rank": 1,
-            "candidateCount": 27,
-            "topPercent": 4,
+            "candidateCount": 14,
+            "topPercent": 8,
             "todayScore": 100
           },
           "historical": {
@@ -5040,9 +5040,9 @@
         "decisionContext": {
           "today": {
             "rank": 2,
-            "candidateCount": 27,
-            "topPercent": 8,
-            "todayScore": 96
+            "candidateCount": 14,
+            "topPercent": 15,
+            "todayScore": 93
           },
           "historical": {
             "windowDays": 90,
@@ -5190,9 +5190,9 @@
         "decisionContext": {
           "today": {
             "rank": 3,
-            "candidateCount": 27,
-            "topPercent": 12,
-            "todayScore": 93
+            "candidateCount": 14,
+            "topPercent": 22,
+            "todayScore": 86
           },
           "historical": {
             "windowDays": 90,
@@ -5339,9 +5339,9 @@
         "decisionContext": {
           "today": {
             "rank": 4,
-            "candidateCount": 27,
-            "topPercent": 15,
-            "todayScore": 89
+            "candidateCount": 14,
+            "topPercent": 29,
+            "todayScore": 79
           },
           "historical": {
             "windowDays": 90,
@@ -5490,9 +5490,9 @@
         "decisionContext": {
           "today": {
             "rank": 5,
-            "candidateCount": 27,
-            "topPercent": 19,
-            "todayScore": 85
+            "candidateCount": 14,
+            "topPercent": 36,
+            "todayScore": 71
           },
           "historical": {
             "windowDays": 90,
@@ -5638,9 +5638,9 @@
         "decisionContext": {
           "today": {
             "rank": 6,
-            "candidateCount": 27,
-            "topPercent": 23,
-            "todayScore": 81
+            "candidateCount": 14,
+            "topPercent": 43,
+            "todayScore": 64
           },
           "historical": {
             "windowDays": 90,
@@ -5788,9 +5788,9 @@
         "decisionContext": {
           "today": {
             "rank": 7,
-            "candidateCount": 27,
-            "topPercent": 26,
-            "todayScore": 78
+            "candidateCount": 14,
+            "topPercent": 50,
+            "todayScore": 57
           },
           "historical": {
             "windowDays": 90,
@@ -5939,9 +5939,9 @@
         "decisionContext": {
           "today": {
             "rank": 8,
-            "candidateCount": 27,
-            "topPercent": 30,
-            "todayScore": 74
+            "candidateCount": 14,
+            "topPercent": 58,
+            "todayScore": 50
           },
           "historical": {
             "windowDays": 90,
@@ -6090,9 +6090,9 @@
         "decisionContext": {
           "today": {
             "rank": 9,
-            "candidateCount": 27,
-            "topPercent": 34,
-            "todayScore": 70
+            "candidateCount": 14,
+            "topPercent": 65,
+            "todayScore": 43
           },
           "historical": {
             "windowDays": 90,
@@ -6241,9 +6241,9 @@
         "decisionContext": {
           "today": {
             "rank": 10,
-            "candidateCount": 27,
-            "topPercent": 38,
-            "todayScore": 67
+            "candidateCount": 14,
+            "topPercent": 72,
+            "todayScore": 36
           },
           "historical": {
             "windowDays": 90,
@@ -6391,9 +6391,9 @@
         "decisionContext": {
           "today": {
             "rank": 11,
-            "candidateCount": 27,
-            "topPercent": 41,
-            "todayScore": 63
+            "candidateCount": 14,
+            "topPercent": 79,
+            "todayScore": 29
           },
           "historical": {
             "windowDays": 90,
@@ -6541,9 +6541,9 @@
         "decisionContext": {
           "today": {
             "rank": 12,
-            "candidateCount": 27,
-            "topPercent": 45,
-            "todayScore": 59
+            "candidateCount": 14,
+            "topPercent": 86,
+            "todayScore": 21
           },
           "historical": {
             "windowDays": 90,
@@ -6688,9 +6688,9 @@
         "decisionContext": {
           "today": {
             "rank": 13,
-            "candidateCount": 27,
-            "topPercent": 49,
-            "todayScore": 56
+            "candidateCount": 14,
+            "topPercent": 93,
+            "todayScore": 14
           },
           "historical": {
             "windowDays": 90,
@@ -6836,9 +6836,9 @@
         "decisionContext": {
           "today": {
             "rank": 14,
-            "candidateCount": 27,
-            "topPercent": 52,
-            "todayScore": 52
+            "candidateCount": 14,
+            "topPercent": 100,
+            "todayScore": 7
           },
           "historical": {
             "windowDays": 90,
