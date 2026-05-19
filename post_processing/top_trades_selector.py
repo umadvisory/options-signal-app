@@ -594,8 +594,8 @@ def build_top_trades(
 
     counts["after_filter"] = len(latest)
 
-    latest["segment"] = latest[["optionType", "dte_bucket"]].astype(str).agg("|".join, axis=1)
-    hist["segment"] = hist[["optionType", "dte_bucket"]].astype(str).agg("|".join, axis=1)
+    latest["segment"] = latest["optionType"].astype(str) + "|" + latest["dte_bucket"].astype(str)
+    hist["segment"] = hist["optionType"].astype(str) + "|" + hist["dte_bucket"].astype(str)
 
     # Keep one live candidate per ticker using the configured score column.
     latest = (
