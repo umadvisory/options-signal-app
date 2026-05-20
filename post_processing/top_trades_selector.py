@@ -877,11 +877,17 @@ def compute_selector_overlap_details(
         default="unknown",
     )
 
+    summary_timestamp = (
+        detail["selector_generation_timestamp"].iloc[0]
+        if not detail.empty and "selector_generation_timestamp" in detail.columns
+        else utc_timestamp()
+    )
+
     summary = pd.DataFrame(
         [
             {
                 "signal_date": signal_date.strftime("%Y-%m-%d"),
-                "selector_generation_timestamp": detail["selector_generation_timestamp"].iloc[0],
+                "selector_generation_timestamp": summary_timestamp,
                 "adaptive_count": int(len(adaptive_top_trades)),
                 "regime_adjusted_count": int(len(regime_adjusted_top_trades)),
                 "overlap_count": int((detail["_merge"] == "both").sum()),

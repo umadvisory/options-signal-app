@@ -94,10 +94,10 @@ export function TopTradesTable({
           <tbody>
             {trades.length === 0 ? (
               <tr>
-                  <td colSpan={8} className="px-5 py-16 text-center">
-                  <p className="text-base font-black text-ink">{emptyState?.title || "No ranked trades available"}</p>
+                <td colSpan={8} className="px-5 py-16 text-center">
+                  <p className="text-base font-black text-ink">{emptyState?.title || "No qualified setups right now"}</p>
                   <p className="mt-2 text-sm font-semibold text-muted">
-                    {emptyState?.message || "The live API returned successfully, but the trades array is empty."}
+                    {emptyState?.message || "No clean entries met today's criteria. This is normal on lower-conviction days."}
                   </p>
                 </td>
               </tr>

@@ -55,18 +55,14 @@ export function DashboardErrorState({ message, onRetry }: { message: string; onR
 
 export function DashboardEmptyState({ data, onRefresh }: { data: DashboardData; onRefresh: () => void }) {
   return (
-    <div>
-      <Dashboard data={data} onRefresh={onRefresh} />
-      <div className="mx-auto -mt-48 max-w-xl px-4">
-        <StateCard
-          title="No live trades returned"
-          message="The API responded successfully, but there are no ranked setups in the current payload."
-          actionLabel="Refresh"
-          onAction={onRefresh}
-          tone="empty"
-        />
-      </div>
-    </div>
+    <Dashboard
+      data={data}
+      onRefresh={onRefresh}
+      tradeEmptyState={{
+        title: "No qualified setups right now",
+        message: "No clean entries met today's criteria. This is normal on lower-conviction days."
+      }}
+    />
   );
 }
 
