@@ -1294,7 +1294,7 @@ def hydrate_snapshot_payload(payload):
                 count = int(bucket.get("count") or 0)
                 range_label = str(bucket.get("range") or "")
 
-                if range_label in {"<-100%", "-100% to -50%"}:
+                if range_label in {"<-50%", "<-100%", "-100% to -50%"}:
                     collapsed_buckets["<-50%"] += count
                 elif range_label in {"-50% to -20%", "-20% to 0%", "-50%–0%"}:
                     collapsed_buckets["-50%–0%"] += count
@@ -1305,7 +1305,7 @@ def hydrate_snapshot_payload(payload):
                 elif range_label in {">200%", ">150%"}:
                     collapsed_buckets[">150%"] += count
 
-                if range_label in {"<-100%", "-100% to -50%", "-50% to -20%", "-20% to 0%", "<-50%", "-50%–0%"}:
+                if range_label in {"<-50%", "<-100%", "-100% to -50%", "-50% to -20%", "-20% to 0%", "-50%–0%"}:
                     negative_count += count
                 if range_label in {"<-100%", "-100% to -50%", "-50% to -20%"}:
                     large_loss_count += count
