@@ -1,163 +1,163 @@
 {
   "snapshotVersion": 2,
-  "generatedAt": "2026-05-20T11:19:47.484674+00:00",
+  "generatedAt": "2026-05-21T11:21:19.953226+00:00",
   "signalDate": null,
   "defaultPayload": {
-    "generatedAt": "2026-05-20T11:19:34.764074+00:00",
+    "generatedAt": "2026-05-21T11:21:01.168695+00:00",
     "signalDate": null,
     "sourceFiles": {
-      "predictionCsv": "sample_predictions_with_tiers_20260519.csv",
+      "predictionCsv": "sample_predictions_with_tiers_20260520.csv",
       "selectorCsv": "top_trades_latest.csv",
       "strategyStats": "trades_master.duckdb",
-      "sectorOutlookWorkbook": "ml_predictions_summary_lgbm_bigwin25_calls_v1_20260519.xlsx",
+      "sectorOutlookWorkbook": "ml_predictions_summary_lgbm_bigwin25_calls_v1_20260520.xlsx",
       "marketRegime": "macro_regime_enriched.csv",
       "tradesDb": "trades_master.duckdb"
     },
     "recordCounts": {
       "candidateTrades": 0,
       "returnedTrades": 0,
-      "yesterdayStatus": 36,
+      "yesterdayStatus": 31,
       "sectorCount": 6
     },
     "marketRegime": {
-      "date": "2026-05-19",
+      "date": "2026-05-20",
       "regime": "Cautious",
-      "summary": "VIX is moderate at 18.1, SPY trend is mildly weak, and shock-day risk is off.",
+      "summary": "VIX is moderate at 17.4, SPY trend is mildly weak, and shock-day risk is off.",
       "vix": {
-        "level": 18.06,
+        "level": 17.44,
         "label": "Moderate",
-        "momentum3d": 0.27,
-        "percentile": 65.4
+        "momentum3d": -0.33,
+        "percentile": 56.0
       },
       "spy": {
-        "return1d": -0.7,
-        "trend3d": -0.6,
-        "trend5d": -0.1,
+        "return1d": 1.0,
+        "trend3d": 0.1,
+        "trend5d": -0.0,
         "trendLabel": "Mildly Weak"
       },
       "risk": {
         "shockDay": false,
-        "trendStrength": -0.78
+        "trendStrength": 0.1
       },
       "insight": "System Insight: Risk conditions are softer; reduce aggression and wait for cleaner entries."
     },
     "strategyStats": {
       "highConviction": {
-        "winRate": 54.0,
-        "sampleSize": 887,
-        "tickerCount": 51,
-        "minDate": "2026-04-20",
-        "maxDate": "2026-05-11",
-        "avgReturnPct": 44.8,
-        "medianReturnPct": 7.0,
-        "lossRate": 45.7,
-        "largeLossRate": 30.2,
+        "winRate": 55.2,
+        "sampleSize": 890,
+        "tickerCount": 52,
+        "minDate": "2026-04-21",
+        "maxDate": "2026-05-12",
+        "avgReturnPct": 43.3,
+        "medianReturnPct": 9.1,
+        "lossRate": 44.5,
+        "largeLossRate": 28.3,
         "worstDrawdownProxy": null,
         "returnDistribution": [
           {
             "range": "<-50%",
-            "count": 167,
-            "percentage": 18.8
+            "count": 158,
+            "percentage": 17.8
           },
           {
             "range": "-50%–0%",
             "count": 238,
-            "percentage": 26.8
+            "percentage": 26.7
           },
           {
             "range": "0–50%",
-            "count": 182,
-            "percentage": 20.5
+            "count": 193,
+            "percentage": 21.7
           },
           {
             "range": "50–150%",
-            "count": 148,
-            "percentage": 16.7
+            "count": 162,
+            "percentage": 18.2
           },
           {
             "range": ">150%",
-            "count": 152,
-            "percentage": 17.1
+            "count": 139,
+            "percentage": 15.6
           }
         ],
         "equityCurve": [
           {
-            "date": "2026-04-20",
-            "value": 1737.8
-          },
-          {
             "date": "2026-04-21",
-            "value": 3907.9
+            "value": 2170.1
           },
           {
             "date": "2026-04-22",
-            "value": 6409.3
+            "value": 4671.5
           },
           {
             "date": "2026-04-23",
-            "value": 9271.7
+            "value": 7533.9
           },
           {
             "date": "2026-04-24",
-            "value": 9024.3
+            "value": 7286.5
           },
           {
             "date": "2026-04-27",
-            "value": 12109.9
+            "value": 10372.1
           },
           {
             "date": "2026-04-28",
-            "value": 24916.6
+            "value": 23178.8
           },
           {
             "date": "2026-04-29",
-            "value": 31982.6
+            "value": 30244.8
           },
           {
             "date": "2026-04-30",
-            "value": 34306.6
+            "value": 32568.8
           },
           {
             "date": "2026-05-01",
-            "value": 38809.6
+            "value": 37071.8
           },
           {
             "date": "2026-05-04",
-            "value": 39067.8
+            "value": 37330.0
           },
           {
             "date": "2026-05-05",
-            "value": 41741.3
+            "value": 40003.5
           },
           {
             "date": "2026-05-06",
-            "value": 42914.1
+            "value": 41176.3
           },
           {
             "date": "2026-05-07",
-            "value": 44246.5
+            "value": 42508.7
           },
           {
             "date": "2026-05-08",
-            "value": 46119.4
+            "value": 44381.6
           },
           {
             "date": "2026-05-11",
-            "value": 39713.3
+            "value": 37975.5
+          },
+          {
+            "date": "2026-05-12",
+            "value": 38552.9
           }
         ],
         "label": "Cohort A"
       },
       "broadBase": {
-        "winRate": 48.3,
+        "winRate": 47.9,
         "sampleSize": 1977,
-        "tickerCount": 84,
-        "minDate": "2026-04-20",
-        "maxDate": "2026-05-11",
-        "avgReturnPct": 36.7,
-        "medianReturnPct": -2.4,
-        "lossRate": 51.1,
-        "largeLossRate": 30.6,
+        "tickerCount": 83,
+        "minDate": "2026-04-21",
+        "maxDate": "2026-05-12",
+        "avgReturnPct": 33.8,
+        "medianReturnPct": -2.5,
+        "lossRate": 51.4,
+        "largeLossRate": 30.8,
         "worstDrawdownProxy": null,
         "returnDistribution": [
           {
@@ -167,89 +167,89 @@
           },
           {
             "range": "-50%–0%",
-            "count": 648,
-            "percentage": 32.8
+            "count": 653,
+            "percentage": 33.0
           },
           {
             "range": "0–50%",
-            "count": 372,
-            "percentage": 18.8
+            "count": 387,
+            "percentage": 19.6
           },
           {
             "range": "50–150%",
-            "count": 288,
-            "percentage": 14.6
+            "count": 294,
+            "percentage": 14.9
           },
           {
             "range": ">150%",
-            "count": 306,
-            "percentage": 15.5
+            "count": 280,
+            "percentage": 14.2
           }
         ],
         "equityCurve": [
           {
-            "date": "2026-04-20",
-            "value": 4587.6
-          },
-          {
             "date": "2026-04-21",
-            "value": 9816.1
+            "value": 5228.5
           },
           {
             "date": "2026-04-22",
-            "value": 15281.1
+            "value": 10693.5
           },
           {
             "date": "2026-04-23",
-            "value": 21363.3
+            "value": 16775.7
           },
           {
             "date": "2026-04-24",
-            "value": 22410.7
+            "value": 17823.1
           },
           {
             "date": "2026-04-27",
-            "value": 27299.7
+            "value": 22712.1
           },
           {
             "date": "2026-04-28",
-            "value": 41757.7
+            "value": 37170.1
           },
           {
             "date": "2026-04-29",
-            "value": 53874.1
+            "value": 49286.5
           },
           {
             "date": "2026-04-30",
-            "value": 59717.7
+            "value": 55130.1
           },
           {
             "date": "2026-05-01",
-            "value": 68537.7
+            "value": 63950.1
           },
           {
             "date": "2026-05-04",
-            "value": 68757.9
+            "value": 64170.3
           },
           {
             "date": "2026-05-05",
-            "value": 74052.5
+            "value": 69464.9
           },
           {
             "date": "2026-05-06",
-            "value": 81694.5
+            "value": 77106.9
           },
           {
             "date": "2026-05-07",
-            "value": 81778.7
+            "value": 77191.1
           },
           {
             "date": "2026-05-08",
-            "value": 79816.0
+            "value": 75228.4
           },
           {
             "date": "2026-05-11",
-            "value": 72542.5
+            "value": 67954.9
+          },
+          {
+            "date": "2026-05-12",
+            "value": 66868.0
           }
         ],
         "label": "Cohort B"
@@ -261,43 +261,43 @@
         "sector": "Technology",
         "etf": "XLK",
         "bias": "No overlay",
-        "totalSignals": 12034,
-        "strongSignalCount": 225,
-        "aTierDensity": 1.9,
-        "netScore": 1272.05,
-        "convictionScore": 0.1057,
+        "totalSignals": 11201,
+        "strongSignalCount": 226,
+        "aTierDensity": 2.0,
+        "netScore": 1177.73,
+        "convictionScore": 0.1051,
         "flowSkew": "Call-led",
         "topTickers": [
-          {
-            "ticker": "MRVL",
-            "grade": "Hold",
-            "direction": "Neutral",
-            "aGradeCount": 22,
-            "signalCount": 163
-          },
           {
             "ticker": "ORCL",
             "grade": "Hold",
             "direction": "Neutral",
-            "aGradeCount": 22,
-            "signalCount": 120
+            "aGradeCount": 23,
+            "signalCount": 116
+          },
+          {
+            "ticker": "MRVL",
+            "grade": "Hold",
+            "direction": "Neutral",
+            "aGradeCount": 19,
+            "signalCount": 175
           },
           {
             "ticker": "INTC",
             "grade": "Hold",
             "direction": "Neutral",
             "aGradeCount": 16,
-            "signalCount": 215
+            "signalCount": 216
           }
         ],
-        "tickerCount": 456,
-        "aTierTickerCount": 37,
-        "top1Share": 9.8,
-        "top3Share": 26.7,
-        "avgBestScore": 0.1801,
-        "top5AvgScore": 1.42,
-        "sectorScore": 1.964,
-        "rawBreadth": 6.1247,
+        "tickerCount": 457,
+        "aTierTickerCount": 35,
+        "top1Share": 10.2,
+        "top3Share": 25.7,
+        "avgBestScore": 0.2059,
+        "top5AvgScore": 1.3605,
+        "sectorScore": 1.942,
+        "rawBreadth": 6.1269,
         "cappedBreadth": 6.0,
         "previousRank": 1
       },
@@ -306,44 +306,44 @@
         "sector": "Industrials",
         "etf": "XLI",
         "bias": "No overlay",
-        "totalSignals": 4564,
-        "strongSignalCount": 37,
-        "aTierDensity": 0.8,
-        "netScore": 116.73,
-        "convictionScore": 0.0256,
+        "totalSignals": 4326,
+        "strongSignalCount": 31,
+        "aTierDensity": 0.7,
+        "netScore": 180.83,
+        "convictionScore": 0.0418,
         "flowSkew": "Call-led",
         "topTickers": [
-          {
-            "ticker": "RKLB",
-            "grade": "Hold",
-            "direction": "Neutral",
-            "aGradeCount": 18,
-            "signalCount": 209
-          },
           {
             "ticker": "BA",
             "grade": "Hold",
             "direction": "Neutral",
-            "aGradeCount": 7,
-            "signalCount": 90
+            "aGradeCount": 10,
+            "signalCount": 97
           },
           {
-            "ticker": "VRT",
+            "ticker": "GE",
+            "grade": "Hold",
+            "direction": "Neutral",
+            "aGradeCount": 6,
+            "signalCount": 42
+          },
+          {
+            "ticker": "HON",
             "grade": "Hold",
             "direction": "Neutral",
             "aGradeCount": 3,
-            "signalCount": 121
+            "signalCount": 22
           }
         ],
-        "tickerCount": 336,
-        "aTierTickerCount": 9,
-        "top1Share": 48.6,
-        "top3Share": 75.7,
-        "avgBestScore": 0.1588,
-        "top5AvgScore": 1.322,
-        "sectorScore": 1.8727,
-        "rawBreadth": 5.8201,
-        "cappedBreadth": 5.8201,
+        "tickerCount": 333,
+        "aTierTickerCount": 12,
+        "top1Share": 32.3,
+        "top3Share": 61.3,
+        "avgBestScore": 0.2295,
+        "top5AvgScore": 1.3551,
+        "sectorScore": 1.9087,
+        "rawBreadth": 5.8111,
+        "cappedBreadth": 5.8111,
         "previousRank": 4
       },
       {
@@ -351,56 +351,56 @@
         "sector": "Healthcare",
         "etf": "XLV",
         "bias": "No overlay",
-        "totalSignals": 4475,
-        "strongSignalCount": 12,
-        "aTierDensity": 0.3,
-        "netScore": 134.43,
-        "convictionScore": 0.03,
+        "totalSignals": 4349,
+        "strongSignalCount": 9,
+        "aTierDensity": 0.2,
+        "netScore": 119.19,
+        "convictionScore": 0.0274,
         "flowSkew": "Call-led",
         "topTickers": [
           {
             "ticker": "ABBV",
             "grade": "Hold",
             "direction": "Neutral",
-            "aGradeCount": 5,
-            "signalCount": 21
+            "aGradeCount": 2,
+            "signalCount": 18
           },
           {
             "ticker": "RVMD",
             "grade": "Hold",
             "direction": "Neutral",
             "aGradeCount": 2,
-            "signalCount": 9
+            "signalCount": 11
           },
           {
             "ticker": "JNJ",
             "grade": "Hold",
             "direction": "Neutral",
             "aGradeCount": 2,
-            "signalCount": 25
+            "signalCount": 24
           }
         ],
-        "tickerCount": 541,
+        "tickerCount": 543,
         "aTierTickerCount": 6,
-        "top1Share": 41.7,
-        "top3Share": 75.0,
-        "avgBestScore": 0.0482,
-        "top5AvgScore": 1.2664,
-        "sectorScore": 1.8476,
-        "rawBreadth": 6.2953,
+        "top1Share": 22.2,
+        "top3Share": 66.7,
+        "avgBestScore": 0.1244,
+        "top5AvgScore": 1.213,
+        "sectorScore": 1.8438,
+        "rawBreadth": 6.2989,
         "cappedBreadth": 6.0,
-        "previousRank": 6
+        "previousRank": 7
       },
       {
         "rank": 4,
         "sector": "Energy",
         "etf": "XLE",
         "bias": "No overlay",
-        "totalSignals": 2217,
-        "strongSignalCount": 23,
+        "totalSignals": 2181,
+        "strongSignalCount": 22,
         "aTierDensity": 1.0,
-        "netScore": 256.59,
-        "convictionScore": 0.1157,
+        "netScore": 197.47,
+        "convictionScore": 0.0905,
         "flowSkew": "Call-led",
         "topTickers": [
           {
@@ -408,175 +408,156 @@
             "grade": "Strong Buy",
             "direction": "Neutral",
             "aGradeCount": 7,
-            "signalCount": 56
+            "signalCount": 52
           },
           {
             "ticker": "XOM",
             "grade": "Strong Buy",
             "direction": "Neutral",
-            "aGradeCount": 5,
-            "signalCount": 57
+            "aGradeCount": 6,
+            "signalCount": 60
           },
           {
-            "ticker": "MPC",
+            "ticker": "VLO",
             "grade": "Strong Buy",
-            "direction": "Bullish",
-            "aGradeCount": 3,
-            "signalCount": 12
+            "direction": "Neutral",
+            "aGradeCount": 4,
+            "signalCount": 37
           }
         ],
-        "tickerCount": 160,
-        "aTierTickerCount": 7,
-        "top1Share": 30.4,
-        "top3Share": 65.2,
-        "avgBestScore": 0.121,
-        "top5AvgScore": 1.1745,
-        "sectorScore": 1.6398,
-        "rawBreadth": 5.0814,
-        "cappedBreadth": 5.0814,
+        "tickerCount": 156,
+        "aTierTickerCount": 5,
+        "top1Share": 31.8,
+        "top3Share": 77.3,
+        "avgBestScore": 0.1947,
+        "top5AvgScore": 1.1951,
+        "sectorScore": 1.6672,
+        "rawBreadth": 5.0562,
+        "cappedBreadth": 5.0562,
         "previousRank": 2
       },
       {
         "rank": 5,
-        "sector": "Consumer Cyclical",
-        "etf": "XLY",
-        "bias": "Bearish",
-        "totalSignals": 4660,
-        "strongSignalCount": 15,
-        "aTierDensity": 0.3,
-        "netScore": 46.5,
-        "convictionScore": 0.01,
-        "flowSkew": "Balanced",
-        "topTickers": [
-          {
-            "ticker": "AMZN",
-            "grade": "Hold",
-            "direction": "Neutral",
-            "aGradeCount": 10,
-            "signalCount": 100
-          },
-          {
-            "ticker": "LULU",
-            "grade": "Sell",
-            "direction": "Neutral",
-            "aGradeCount": 3,
-            "signalCount": 72
-          },
-          {
-            "ticker": "BKNG",
-            "grade": "Hold",
-            "direction": "Neutral",
-            "aGradeCount": 1,
-            "signalCount": 53
-          }
-        ],
-        "tickerCount": 310,
-        "aTierTickerCount": 4,
-        "top1Share": 66.7,
-        "top3Share": 93.3,
-        "avgBestScore": 0.0262,
-        "top5AvgScore": 0.8727,
-        "sectorScore": 1.5922,
-        "rawBreadth": 5.7398,
-        "cappedBreadth": 5.7398,
-        "previousRank": 7
-      },
-      {
-        "rank": 6,
         "sector": "Financial Services",
         "etf": "XLF",
         "bias": "No overlay",
-        "totalSignals": 3546,
-        "strongSignalCount": 26,
-        "aTierDensity": 0.7,
-        "netScore": 13.37,
-        "convictionScore": 0.0038,
+        "totalSignals": 3398,
+        "strongSignalCount": 28,
+        "aTierDensity": 0.8,
+        "netScore": 26.57,
+        "convictionScore": 0.0078,
         "flowSkew": "Balanced",
         "topTickers": [
+          {
+            "ticker": "JPM",
+            "grade": "Hold",
+            "direction": "Neutral",
+            "aGradeCount": 11,
+            "signalCount": 60
+          },
           {
             "ticker": "COIN",
             "grade": "Sell",
             "direction": "Neutral",
-            "aGradeCount": 11,
-            "signalCount": 129
+            "aGradeCount": 10,
+            "signalCount": 106
           },
           {
             "ticker": "MS",
             "grade": "Hold",
             "direction": "Neutral",
             "aGradeCount": 6,
-            "signalCount": 24
-          },
-          {
-            "ticker": "V",
-            "grade": "Hold",
-            "direction": "Neutral",
-            "aGradeCount": 4,
-            "signalCount": 41
+            "signalCount": 38
           }
         ],
-        "tickerCount": 329,
-        "aTierTickerCount": 5,
-        "top1Share": 42.3,
-        "top3Share": 80.8,
-        "avgBestScore": -0.1398,
-        "top5AvgScore": 0.8754,
-        "sectorScore": 1.5556,
-        "rawBreadth": 5.7991,
-        "cappedBreadth": 5.7991,
-        "previousRank": 8
+        "tickerCount": 326,
+        "aTierTickerCount": 4,
+        "top1Share": 39.3,
+        "top3Share": 96.4,
+        "avgBestScore": -0.0633,
+        "top5AvgScore": 1.0501,
+        "sectorScore": 1.664,
+        "rawBreadth": 5.79,
+        "cappedBreadth": 5.79,
+        "previousRank": 6
+      },
+      {
+        "rank": 6,
+        "sector": "Consumer Cyclical",
+        "etf": "XLY",
+        "bias": "Bearish",
+        "totalSignals": 4602,
+        "strongSignalCount": 33,
+        "aTierDensity": 0.7,
+        "netScore": 37.68,
+        "convictionScore": 0.0082,
+        "flowSkew": "Balanced",
+        "topTickers": [
+          {
+            "ticker": "AMZN",
+            "grade": "Hold",
+            "direction": "Neutral",
+            "aGradeCount": 17,
+            "signalCount": 101
+          },
+          {
+            "ticker": "LULU",
+            "grade": "Sell",
+            "direction": "Neutral",
+            "aGradeCount": 6,
+            "signalCount": 90
+          },
+          {
+            "ticker": "HD",
+            "grade": "Hold",
+            "direction": "Neutral",
+            "aGradeCount": 3,
+            "signalCount": 57
+          }
+        ],
+        "tickerCount": 315,
+        "aTierTickerCount": 9,
+        "top1Share": 51.5,
+        "top3Share": 78.8,
+        "avgBestScore": 0.046,
+        "top5AvgScore": 0.8198,
+        "sectorScore": 1.5749,
+        "rawBreadth": 5.7557,
+        "cappedBreadth": 5.7557,
+        "previousRank": 5
       }
     ],
     "yesterdayStatus": [
       {
-        "ticker": "CRDO",
-        "grade": "A",
-        "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
-        "originalAction": "ENTER",
-        "todayAction": null,
-        "snapshotPrice": 172.17,
-        "yesterdayEntryPrice": 172.17,
-        "currentPrice": 168.99,
-        "priceChangePct": -1.8,
-        "typicalHoldDays": null,
-        "status": "Still valid",
-        "statusNote": null,
-        "rawFollowupAction": "ENTER",
-        "cappedFollowupAction": "ENTER",
-        "followupState": "STABLE",
-        "stillInTodayList": false
-      },
-      {
         "ticker": "DDOG",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WAIT",
         "todayAction": null,
         "snapshotPrice": 207.98,
         "yesterdayEntryPrice": 207.98,
-        "currentPrice": 208.82,
-        "priceChangePct": 0.4,
+        "currentPrice": 212.24,
+        "priceChangePct": 2.1,
         "typicalHoldDays": 8,
-        "status": "Still valid",
+        "status": "Extended - avoid new entries",
         "statusNote": null,
         "rawFollowupAction": "WAIT",
         "cappedFollowupAction": "WAIT",
-        "followupState": "STABLE",
+        "followupState": "EXTENDED",
         "stillInTodayList": false
       },
       {
         "ticker": "ON",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 118.37,
         "yesterdayEntryPrice": 118.37,
-        "currentPrice": 109.43,
-        "priceChangePct": -7.5,
+        "currentPrice": 106.02,
+        "priceChangePct": -10.4,
         "typicalHoldDays": 8,
         "status": "Weak - needs confirmation",
         "statusNote": null,
@@ -589,32 +570,32 @@
         "ticker": "MRVL",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 176.89,
         "yesterdayEntryPrice": 176.89,
-        "currentPrice": 168.93,
-        "priceChangePct": -4.5,
+        "currentPrice": 186.8,
+        "priceChangePct": 5.6,
         "typicalHoldDays": 8,
-        "status": "Weak - needs confirmation",
+        "status": "Extended - avoid new entries",
         "statusNote": null,
-        "rawFollowupAction": "WATCH (near entry)",
-        "cappedFollowupAction": "WATCH (near entry)",
-        "followupState": "PULLBACK",
+        "rawFollowupAction": "WAIT",
+        "cappedFollowupAction": "WAIT",
+        "followupState": "EXTENDED",
         "stillInTodayList": false
       },
       {
         "ticker": "NBIS",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 219.94,
         "yesterdayEntryPrice": 219.94,
-        "currentPrice": 199.86,
-        "priceChangePct": -9.1,
+        "currentPrice": 197.73,
+        "priceChangePct": -10.1,
         "typicalHoldDays": 8,
         "status": "Weak - needs confirmation",
         "statusNote": null,
@@ -627,7 +608,7 @@
         "ticker": "SMTC",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 137.64,
@@ -646,13 +627,13 @@
         "ticker": "MSTR",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 186.97,
         "yesterdayEntryPrice": 186.97,
-        "currentPrice": 166.63,
-        "priceChangePct": -10.9,
+        "currentPrice": 165.81,
+        "priceChangePct": -11.3,
         "typicalHoldDays": 8,
         "status": "Weak - needs confirmation",
         "statusNote": null,
@@ -665,7 +646,7 @@
         "ticker": "TXN",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 308.17,
@@ -684,13 +665,13 @@
         "ticker": "NTAP",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 119.93,
         "yesterdayEntryPrice": 119.93,
-        "currentPrice": 120.59,
-        "priceChangePct": 0.5,
+        "currentPrice": 118.97,
+        "priceChangePct": -0.8,
         "typicalHoldDays": 8,
         "status": "Still valid",
         "statusNote": null,
@@ -700,29 +681,10 @@
         "stillInTodayList": false
       },
       {
-        "ticker": "SNOW",
-        "grade": "A",
-        "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
-        "originalAction": "ENTER",
-        "todayAction": null,
-        "snapshotPrice": 157.47,
-        "yesterdayEntryPrice": 157.47,
-        "currentPrice": 164.24,
-        "priceChangePct": 4.3,
-        "typicalHoldDays": 8,
-        "status": "Extended - avoid new entries",
-        "statusNote": null,
-        "rawFollowupAction": "WAIT",
-        "cappedFollowupAction": "WAIT",
-        "followupState": "EXTENDED",
-        "stillInTodayList": false
-      },
-      {
         "ticker": "SATS",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 135.11,
@@ -741,13 +703,13 @@
         "ticker": "QCOM",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 201.49,
         "yesterdayEntryPrice": 201.49,
-        "currentPrice": 203.64,
-        "priceChangePct": 1.1,
+        "currentPrice": 202.51,
+        "priceChangePct": 0.5,
         "typicalHoldDays": 8,
         "status": "Still valid",
         "statusNote": null,
@@ -760,32 +722,32 @@
         "ticker": "TWLO",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 198.04,
         "yesterdayEntryPrice": 198.04,
-        "currentPrice": 195.95,
-        "priceChangePct": -1.1,
+        "currentPrice": 189.33,
+        "priceChangePct": -4.4,
         "typicalHoldDays": 8,
-        "status": "Still valid",
+        "status": "Weak - needs confirmation",
         "statusNote": null,
-        "rawFollowupAction": "ENTER",
-        "cappedFollowupAction": "ENTER",
-        "followupState": "STABLE",
+        "rawFollowupAction": "ENTER (better price)",
+        "cappedFollowupAction": "ENTER (better price)",
+        "followupState": "PULLBACK",
         "stillInTodayList": false
       },
       {
         "ticker": "NVDA",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 225.32,
         "yesterdayEntryPrice": 225.32,
-        "currentPrice": 222.32,
-        "priceChangePct": -1.3,
+        "currentPrice": 223.47,
+        "priceChangePct": -0.8,
         "typicalHoldDays": 8,
         "status": "Still valid",
         "statusNote": null,
@@ -798,13 +760,13 @@
         "ticker": "SIMO",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 263.85,
         "yesterdayEntryPrice": 263.85,
-        "currentPrice": 239.76,
-        "priceChangePct": -9.1,
+        "currentPrice": 252.92,
+        "priceChangePct": -4.1,
         "typicalHoldDays": null,
         "status": "Weak - needs confirmation",
         "statusNote": null,
@@ -817,32 +779,32 @@
         "ticker": "WDAY",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 125.01,
         "yesterdayEntryPrice": 125.01,
-        "currentPrice": 129.34,
-        "priceChangePct": 3.5,
+        "currentPrice": 126.61,
+        "priceChangePct": 1.3,
         "typicalHoldDays": 8,
-        "status": "Extended - avoid new entries",
+        "status": "Still valid",
         "statusNote": null,
-        "rawFollowupAction": "WAIT",
-        "cappedFollowupAction": "WAIT",
-        "followupState": "EXTENDED",
+        "rawFollowupAction": "ENTER",
+        "cappedFollowupAction": "ENTER",
+        "followupState": "STABLE",
         "stillInTodayList": false
       },
       {
         "ticker": "NET",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 197.56,
         "yesterdayEntryPrice": 197.56,
-        "currentPrice": 201.75,
-        "priceChangePct": 2.1,
+        "currentPrice": 206.73,
+        "priceChangePct": 4.6,
         "typicalHoldDays": null,
         "status": "Extended - avoid new entries",
         "statusNote": null,
@@ -855,7 +817,7 @@
         "ticker": "INTC",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 108.77,
@@ -874,7 +836,7 @@
         "ticker": "DELL",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 241.99,
@@ -893,7 +855,7 @@
         "ticker": "PANW",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WAIT",
         "todayAction": null,
         "snapshotPrice": 242.83,
@@ -909,48 +871,29 @@
         "stillInTodayList": false
       },
       {
-        "ticker": "ARM",
-        "grade": "B",
-        "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
-        "originalAction": "ENTER",
-        "todayAction": null,
-        "snapshotPrice": 209.16,
-        "yesterdayEntryPrice": 209.16,
-        "currentPrice": 215.12,
-        "priceChangePct": 2.9,
-        "typicalHoldDays": 8,
-        "status": "Extended - avoid new entries",
-        "statusNote": null,
-        "rawFollowupAction": "WAIT",
-        "cappedFollowupAction": "WAIT",
-        "followupState": "EXTENDED",
-        "stillInTodayList": false
-      },
-      {
         "ticker": "FSLR",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 233.37,
         "yesterdayEntryPrice": 233.37,
-        "currentPrice": 233.64,
-        "priceChangePct": 0.1,
+        "currentPrice": 221.71,
+        "priceChangePct": -5.0,
         "typicalHoldDays": 8,
-        "status": "Still valid",
+        "status": "Weak - needs confirmation",
         "statusNote": null,
-        "rawFollowupAction": "ENTER",
-        "cappedFollowupAction": "ENTER",
-        "followupState": "STABLE",
+        "rawFollowupAction": "ENTER (better price)",
+        "cappedFollowupAction": "ENTER (better price)",
+        "followupState": "PULLBACK",
         "stillInTodayList": false
       },
       {
         "ticker": "TSEM",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 280.69,
@@ -969,13 +912,13 @@
         "ticker": "ANET",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 141.97,
         "yesterdayEntryPrice": 141.97,
-        "currentPrice": 141.71,
-        "priceChangePct": -0.2,
+        "currentPrice": 141.58,
+        "priceChangePct": -0.3,
         "typicalHoldDays": 8,
         "status": "Still valid",
         "statusNote": null,
@@ -985,35 +928,35 @@
         "stillInTodayList": false
       },
       {
-        "ticker": "ALAB",
-        "grade": "B",
-        "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "ticker": "CRDO",
+        "grade": "A",
+        "signalDate": "2026-05-14",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
-        "snapshotPrice": 232.68,
-        "yesterdayEntryPrice": 232.68,
-        "currentPrice": 244.26,
-        "priceChangePct": 5.0,
+        "snapshotPrice": 184.54,
+        "yesterdayEntryPrice": 184.54,
+        "currentPrice": 182.98,
+        "priceChangePct": -0.9,
         "typicalHoldDays": 8,
-        "status": "Extended - avoid new entries",
+        "status": "Still valid",
         "statusNote": null,
-        "rawFollowupAction": "WAIT",
-        "cappedFollowupAction": "WAIT",
-        "followupState": "EXTENDED",
+        "rawFollowupAction": "WATCH",
+        "cappedFollowupAction": "WATCH",
+        "followupState": "STABLE",
         "stillInTodayList": false
       },
       {
         "ticker": "BIDU",
         "grade": "A",
         "signalDate": "2026-05-14",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 150.5,
         "yesterdayEntryPrice": 150.5,
-        "currentPrice": 137.71,
-        "priceChangePct": -8.5,
+        "currentPrice": 135.22,
+        "priceChangePct": -10.2,
         "typicalHoldDays": 8,
         "status": "Weak - needs confirmation",
         "statusNote": null,
@@ -1026,26 +969,26 @@
         "ticker": "RVMD",
         "grade": "A",
         "signalDate": "2026-05-14",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 149.94,
         "yesterdayEntryPrice": 149.94,
-        "currentPrice": 144.37,
-        "priceChangePct": -3.7,
+        "currentPrice": 150.33,
+        "priceChangePct": 0.3,
         "typicalHoldDays": 8,
-        "status": "Weak - needs confirmation",
+        "status": "Still valid",
         "statusNote": null,
-        "rawFollowupAction": "ENTER (better price)",
-        "cappedFollowupAction": "ENTER (better price)",
-        "followupState": "PULLBACK",
+        "rawFollowupAction": "ENTER",
+        "cappedFollowupAction": "ENTER",
+        "followupState": "STABLE",
         "stillInTodayList": false
       },
       {
         "ticker": "NEM",
         "grade": "A",
         "signalDate": "2026-05-14",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 118.96,
@@ -1064,13 +1007,13 @@
         "ticker": "AKAM",
         "grade": "A",
         "signalDate": "2026-05-14",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 155.67,
         "yesterdayEntryPrice": 155.67,
-        "currentPrice": 150.77,
-        "priceChangePct": -3.1,
+        "currentPrice": 141.34,
+        "priceChangePct": -9.2,
         "typicalHoldDays": 8,
         "status": "Weak - needs confirmation",
         "statusNote": null,
@@ -1083,13 +1026,13 @@
         "ticker": "LRCX",
         "grade": "B",
         "signalDate": "2026-05-14",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 295.44,
         "yesterdayEntryPrice": 295.44,
-        "currentPrice": 277.96,
-        "priceChangePct": -5.9,
+        "currentPrice": 273.38,
+        "priceChangePct": -7.5,
         "typicalHoldDays": 8,
         "status": "Weak - needs confirmation",
         "statusNote": null,
@@ -1102,7 +1045,7 @@
         "ticker": "ZBRA",
         "grade": "B",
         "signalDate": "2026-05-14",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 258.1,
@@ -1121,13 +1064,13 @@
         "ticker": "SCCO",
         "grade": "B",
         "signalDate": "2026-05-14",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 191.89,
         "yesterdayEntryPrice": 191.89,
-        "currentPrice": 171.9,
-        "priceChangePct": -10.4,
+        "currentPrice": 174.09,
+        "priceChangePct": -9.3,
         "typicalHoldDays": 8,
         "status": "Weak - needs confirmation",
         "statusNote": null,
@@ -1140,75 +1083,37 @@
         "ticker": "NXPI",
         "grade": "B",
         "signalDate": "2026-05-13",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 298.41,
         "yesterdayEntryPrice": 298.41,
-        "currentPrice": 291.68,
-        "priceChangePct": -2.3,
+        "currentPrice": 310.15,
+        "priceChangePct": 3.9,
         "typicalHoldDays": 8,
-        "status": "Weak - needs confirmation",
+        "status": "Extended - avoid new entries",
         "statusNote": null,
-        "rawFollowupAction": "ENTER",
-        "cappedFollowupAction": "ENTER",
-        "followupState": "STABLE",
+        "rawFollowupAction": "WAIT",
+        "cappedFollowupAction": "WAIT",
+        "followupState": "EXTENDED",
         "stillInTodayList": false
       },
       {
         "ticker": "ORCL",
         "grade": "B",
         "signalDate": "2026-05-13",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 186.83,
         "yesterdayEntryPrice": 186.83,
-        "currentPrice": 186.61,
-        "priceChangePct": -0.1,
-        "typicalHoldDays": 8,
-        "status": "Still valid",
-        "statusNote": null,
-        "rawFollowupAction": "WATCH",
-        "cappedFollowupAction": "WATCH",
-        "followupState": "STABLE",
-        "stillInTodayList": false
-      },
-      {
-        "ticker": "WPM",
-        "grade": "B",
-        "signalDate": "2026-05-12",
-        "currentDate": "2026-05-19",
-        "originalAction": "ENTER",
-        "todayAction": null,
-        "snapshotPrice": 143.8,
-        "yesterdayEntryPrice": 143.8,
-        "currentPrice": 129.49,
-        "priceChangePct": -10.0,
+        "currentPrice": 181.46,
+        "priceChangePct": -2.9,
         "typicalHoldDays": 8,
         "status": "Weak - needs confirmation",
         "statusNote": null,
-        "rawFollowupAction": "ENTER (better price)",
-        "cappedFollowupAction": "ENTER (better price)",
-        "followupState": "PULLBACK",
-        "stillInTodayList": false
-      },
-      {
-        "ticker": "PLTR",
-        "grade": "B",
-        "signalDate": "2026-05-12",
-        "currentDate": "2026-05-19",
-        "originalAction": "ENTER",
-        "todayAction": null,
-        "snapshotPrice": 136.0,
-        "yesterdayEntryPrice": 136.0,
-        "currentPrice": 135.26,
-        "priceChangePct": -0.5,
-        "typicalHoldDays": 8,
-        "status": "Still valid",
-        "statusNote": null,
-        "rawFollowupAction": "ENTER",
-        "cappedFollowupAction": "ENTER",
+        "rawFollowupAction": "WATCH",
+        "cappedFollowupAction": "WATCH",
         "followupState": "STABLE",
         "stillInTodayList": false
       }
@@ -1216,161 +1121,161 @@
     "trades": []
   },
   "extendedPayload": {
-    "generatedAt": "2026-05-20T11:19:47.458607+00:00",
+    "generatedAt": "2026-05-21T11:21:19.945601+00:00",
     "signalDate": null,
     "sourceFiles": {
-      "predictionCsv": "sample_predictions_with_tiers_20260519.csv",
+      "predictionCsv": "sample_predictions_with_tiers_20260520.csv",
       "selectorCsv": "ranked_trades_latest.csv",
       "strategyStats": "trades_master.duckdb",
-      "sectorOutlookWorkbook": "ml_predictions_summary_lgbm_bigwin25_calls_v1_20260519.xlsx",
+      "sectorOutlookWorkbook": "ml_predictions_summary_lgbm_bigwin25_calls_v1_20260520.xlsx",
       "marketRegime": "macro_regime_enriched.csv",
       "tradesDb": "trades_master.duckdb"
     },
     "recordCounts": {
       "candidateTrades": 0,
       "returnedTrades": 0,
-      "yesterdayStatus": 36,
+      "yesterdayStatus": 31,
       "sectorCount": 6
     },
     "marketRegime": {
-      "date": "2026-05-19",
+      "date": "2026-05-20",
       "regime": "Cautious",
-      "summary": "VIX is moderate at 18.1, SPY trend is mildly weak, and shock-day risk is off.",
+      "summary": "VIX is moderate at 17.4, SPY trend is mildly weak, and shock-day risk is off.",
       "vix": {
-        "level": 18.06,
+        "level": 17.44,
         "label": "Moderate",
-        "momentum3d": 0.27,
-        "percentile": 65.4
+        "momentum3d": -0.33,
+        "percentile": 56.0
       },
       "spy": {
-        "return1d": -0.7,
-        "trend3d": -0.6,
-        "trend5d": -0.1,
+        "return1d": 1.0,
+        "trend3d": 0.1,
+        "trend5d": -0.0,
         "trendLabel": "Mildly Weak"
       },
       "risk": {
         "shockDay": false,
-        "trendStrength": -0.78
+        "trendStrength": 0.1
       },
       "insight": "System Insight: Risk conditions are softer; reduce aggression and wait for cleaner entries."
     },
     "strategyStats": {
       "highConviction": {
-        "winRate": 54.0,
-        "sampleSize": 887,
-        "tickerCount": 51,
-        "minDate": "2026-04-20",
-        "maxDate": "2026-05-11",
-        "avgReturnPct": 44.8,
-        "medianReturnPct": 7.0,
-        "lossRate": 45.7,
-        "largeLossRate": 30.2,
+        "winRate": 55.2,
+        "sampleSize": 890,
+        "tickerCount": 52,
+        "minDate": "2026-04-21",
+        "maxDate": "2026-05-12",
+        "avgReturnPct": 43.3,
+        "medianReturnPct": 9.1,
+        "lossRate": 44.5,
+        "largeLossRate": 28.3,
         "worstDrawdownProxy": null,
         "returnDistribution": [
           {
             "range": "<-50%",
-            "count": 167,
-            "percentage": 18.8
+            "count": 158,
+            "percentage": 17.8
           },
           {
             "range": "-50%–0%",
             "count": 238,
-            "percentage": 26.8
+            "percentage": 26.7
           },
           {
             "range": "0–50%",
-            "count": 182,
-            "percentage": 20.5
+            "count": 193,
+            "percentage": 21.7
           },
           {
             "range": "50–150%",
-            "count": 148,
-            "percentage": 16.7
+            "count": 162,
+            "percentage": 18.2
           },
           {
             "range": ">150%",
-            "count": 152,
-            "percentage": 17.1
+            "count": 139,
+            "percentage": 15.6
           }
         ],
         "equityCurve": [
           {
-            "date": "2026-04-20",
-            "value": 1737.8
-          },
-          {
             "date": "2026-04-21",
-            "value": 3907.9
+            "value": 2170.1
           },
           {
             "date": "2026-04-22",
-            "value": 6409.3
+            "value": 4671.5
           },
           {
             "date": "2026-04-23",
-            "value": 9271.7
+            "value": 7533.9
           },
           {
             "date": "2026-04-24",
-            "value": 9024.3
+            "value": 7286.5
           },
           {
             "date": "2026-04-27",
-            "value": 12109.9
+            "value": 10372.1
           },
           {
             "date": "2026-04-28",
-            "value": 24916.6
+            "value": 23178.8
           },
           {
             "date": "2026-04-29",
-            "value": 31982.6
+            "value": 30244.8
           },
           {
             "date": "2026-04-30",
-            "value": 34306.6
+            "value": 32568.8
           },
           {
             "date": "2026-05-01",
-            "value": 38809.6
+            "value": 37071.8
           },
           {
             "date": "2026-05-04",
-            "value": 39067.8
+            "value": 37330.0
           },
           {
             "date": "2026-05-05",
-            "value": 41741.3
+            "value": 40003.5
           },
           {
             "date": "2026-05-06",
-            "value": 42914.1
+            "value": 41176.3
           },
           {
             "date": "2026-05-07",
-            "value": 44246.5
+            "value": 42508.7
           },
           {
             "date": "2026-05-08",
-            "value": 46119.4
+            "value": 44381.6
           },
           {
             "date": "2026-05-11",
-            "value": 39713.3
+            "value": 37975.5
+          },
+          {
+            "date": "2026-05-12",
+            "value": 38552.9
           }
         ],
         "label": "Cohort A"
       },
       "broadBase": {
-        "winRate": 48.3,
+        "winRate": 47.9,
         "sampleSize": 1977,
-        "tickerCount": 84,
-        "minDate": "2026-04-20",
-        "maxDate": "2026-05-11",
-        "avgReturnPct": 36.7,
-        "medianReturnPct": -2.4,
-        "lossRate": 51.1,
-        "largeLossRate": 30.6,
+        "tickerCount": 83,
+        "minDate": "2026-04-21",
+        "maxDate": "2026-05-12",
+        "avgReturnPct": 33.8,
+        "medianReturnPct": -2.5,
+        "lossRate": 51.4,
+        "largeLossRate": 30.8,
         "worstDrawdownProxy": null,
         "returnDistribution": [
           {
@@ -1380,89 +1285,89 @@
           },
           {
             "range": "-50%–0%",
-            "count": 648,
-            "percentage": 32.8
+            "count": 653,
+            "percentage": 33.0
           },
           {
             "range": "0–50%",
-            "count": 372,
-            "percentage": 18.8
+            "count": 387,
+            "percentage": 19.6
           },
           {
             "range": "50–150%",
-            "count": 288,
-            "percentage": 14.6
+            "count": 294,
+            "percentage": 14.9
           },
           {
             "range": ">150%",
-            "count": 306,
-            "percentage": 15.5
+            "count": 280,
+            "percentage": 14.2
           }
         ],
         "equityCurve": [
           {
-            "date": "2026-04-20",
-            "value": 4587.6
-          },
-          {
             "date": "2026-04-21",
-            "value": 9816.1
+            "value": 5228.5
           },
           {
             "date": "2026-04-22",
-            "value": 15281.1
+            "value": 10693.5
           },
           {
             "date": "2026-04-23",
-            "value": 21363.3
+            "value": 16775.7
           },
           {
             "date": "2026-04-24",
-            "value": 22410.7
+            "value": 17823.1
           },
           {
             "date": "2026-04-27",
-            "value": 27299.7
+            "value": 22712.1
           },
           {
             "date": "2026-04-28",
-            "value": 41757.7
+            "value": 37170.1
           },
           {
             "date": "2026-04-29",
-            "value": 53874.1
+            "value": 49286.5
           },
           {
             "date": "2026-04-30",
-            "value": 59717.7
+            "value": 55130.1
           },
           {
             "date": "2026-05-01",
-            "value": 68537.7
+            "value": 63950.1
           },
           {
             "date": "2026-05-04",
-            "value": 68757.9
+            "value": 64170.3
           },
           {
             "date": "2026-05-05",
-            "value": 74052.5
+            "value": 69464.9
           },
           {
             "date": "2026-05-06",
-            "value": 81694.5
+            "value": 77106.9
           },
           {
             "date": "2026-05-07",
-            "value": 81778.7
+            "value": 77191.1
           },
           {
             "date": "2026-05-08",
-            "value": 79816.0
+            "value": 75228.4
           },
           {
             "date": "2026-05-11",
-            "value": 72542.5
+            "value": 67954.9
+          },
+          {
+            "date": "2026-05-12",
+            "value": 66868.0
           }
         ],
         "label": "Cohort B"
@@ -1474,43 +1379,43 @@
         "sector": "Technology",
         "etf": "XLK",
         "bias": "No overlay",
-        "totalSignals": 12034,
-        "strongSignalCount": 225,
-        "aTierDensity": 1.9,
-        "netScore": 1272.05,
-        "convictionScore": 0.1057,
+        "totalSignals": 11201,
+        "strongSignalCount": 226,
+        "aTierDensity": 2.0,
+        "netScore": 1177.73,
+        "convictionScore": 0.1051,
         "flowSkew": "Call-led",
         "topTickers": [
-          {
-            "ticker": "MRVL",
-            "grade": "Hold",
-            "direction": "Neutral",
-            "aGradeCount": 22,
-            "signalCount": 163
-          },
           {
             "ticker": "ORCL",
             "grade": "Hold",
             "direction": "Neutral",
-            "aGradeCount": 22,
-            "signalCount": 120
+            "aGradeCount": 23,
+            "signalCount": 116
+          },
+          {
+            "ticker": "MRVL",
+            "grade": "Hold",
+            "direction": "Neutral",
+            "aGradeCount": 19,
+            "signalCount": 175
           },
           {
             "ticker": "INTC",
             "grade": "Hold",
             "direction": "Neutral",
             "aGradeCount": 16,
-            "signalCount": 215
+            "signalCount": 216
           }
         ],
-        "tickerCount": 456,
-        "aTierTickerCount": 37,
-        "top1Share": 9.8,
-        "top3Share": 26.7,
-        "avgBestScore": 0.1801,
-        "top5AvgScore": 1.42,
-        "sectorScore": 1.964,
-        "rawBreadth": 6.1247,
+        "tickerCount": 457,
+        "aTierTickerCount": 35,
+        "top1Share": 10.2,
+        "top3Share": 25.7,
+        "avgBestScore": 0.2059,
+        "top5AvgScore": 1.3605,
+        "sectorScore": 1.942,
+        "rawBreadth": 6.1269,
         "cappedBreadth": 6.0,
         "previousRank": 1
       },
@@ -1519,44 +1424,44 @@
         "sector": "Industrials",
         "etf": "XLI",
         "bias": "No overlay",
-        "totalSignals": 4564,
-        "strongSignalCount": 37,
-        "aTierDensity": 0.8,
-        "netScore": 116.73,
-        "convictionScore": 0.0256,
+        "totalSignals": 4326,
+        "strongSignalCount": 31,
+        "aTierDensity": 0.7,
+        "netScore": 180.83,
+        "convictionScore": 0.0418,
         "flowSkew": "Call-led",
         "topTickers": [
-          {
-            "ticker": "RKLB",
-            "grade": "Hold",
-            "direction": "Neutral",
-            "aGradeCount": 18,
-            "signalCount": 209
-          },
           {
             "ticker": "BA",
             "grade": "Hold",
             "direction": "Neutral",
-            "aGradeCount": 7,
-            "signalCount": 90
+            "aGradeCount": 10,
+            "signalCount": 97
           },
           {
-            "ticker": "VRT",
+            "ticker": "GE",
+            "grade": "Hold",
+            "direction": "Neutral",
+            "aGradeCount": 6,
+            "signalCount": 42
+          },
+          {
+            "ticker": "HON",
             "grade": "Hold",
             "direction": "Neutral",
             "aGradeCount": 3,
-            "signalCount": 121
+            "signalCount": 22
           }
         ],
-        "tickerCount": 336,
-        "aTierTickerCount": 9,
-        "top1Share": 48.6,
-        "top3Share": 75.7,
-        "avgBestScore": 0.1588,
-        "top5AvgScore": 1.322,
-        "sectorScore": 1.8727,
-        "rawBreadth": 5.8201,
-        "cappedBreadth": 5.8201,
+        "tickerCount": 333,
+        "aTierTickerCount": 12,
+        "top1Share": 32.3,
+        "top3Share": 61.3,
+        "avgBestScore": 0.2295,
+        "top5AvgScore": 1.3551,
+        "sectorScore": 1.9087,
+        "rawBreadth": 5.8111,
+        "cappedBreadth": 5.8111,
         "previousRank": 4
       },
       {
@@ -1564,56 +1469,56 @@
         "sector": "Healthcare",
         "etf": "XLV",
         "bias": "No overlay",
-        "totalSignals": 4475,
-        "strongSignalCount": 12,
-        "aTierDensity": 0.3,
-        "netScore": 134.43,
-        "convictionScore": 0.03,
+        "totalSignals": 4349,
+        "strongSignalCount": 9,
+        "aTierDensity": 0.2,
+        "netScore": 119.19,
+        "convictionScore": 0.0274,
         "flowSkew": "Call-led",
         "topTickers": [
           {
             "ticker": "ABBV",
             "grade": "Hold",
             "direction": "Neutral",
-            "aGradeCount": 5,
-            "signalCount": 21
+            "aGradeCount": 2,
+            "signalCount": 18
           },
           {
             "ticker": "RVMD",
             "grade": "Hold",
             "direction": "Neutral",
             "aGradeCount": 2,
-            "signalCount": 9
+            "signalCount": 11
           },
           {
             "ticker": "JNJ",
             "grade": "Hold",
             "direction": "Neutral",
             "aGradeCount": 2,
-            "signalCount": 25
+            "signalCount": 24
           }
         ],
-        "tickerCount": 541,
+        "tickerCount": 543,
         "aTierTickerCount": 6,
-        "top1Share": 41.7,
-        "top3Share": 75.0,
-        "avgBestScore": 0.0482,
-        "top5AvgScore": 1.2664,
-        "sectorScore": 1.8476,
-        "rawBreadth": 6.2953,
+        "top1Share": 22.2,
+        "top3Share": 66.7,
+        "avgBestScore": 0.1244,
+        "top5AvgScore": 1.213,
+        "sectorScore": 1.8438,
+        "rawBreadth": 6.2989,
         "cappedBreadth": 6.0,
-        "previousRank": 6
+        "previousRank": 7
       },
       {
         "rank": 4,
         "sector": "Energy",
         "etf": "XLE",
         "bias": "No overlay",
-        "totalSignals": 2217,
-        "strongSignalCount": 23,
+        "totalSignals": 2181,
+        "strongSignalCount": 22,
         "aTierDensity": 1.0,
-        "netScore": 256.59,
-        "convictionScore": 0.1157,
+        "netScore": 197.47,
+        "convictionScore": 0.0905,
         "flowSkew": "Call-led",
         "topTickers": [
           {
@@ -1621,175 +1526,156 @@
             "grade": "Strong Buy",
             "direction": "Neutral",
             "aGradeCount": 7,
-            "signalCount": 56
+            "signalCount": 52
           },
           {
             "ticker": "XOM",
             "grade": "Strong Buy",
             "direction": "Neutral",
-            "aGradeCount": 5,
-            "signalCount": 57
+            "aGradeCount": 6,
+            "signalCount": 60
           },
           {
-            "ticker": "MPC",
+            "ticker": "VLO",
             "grade": "Strong Buy",
-            "direction": "Bullish",
-            "aGradeCount": 3,
-            "signalCount": 12
+            "direction": "Neutral",
+            "aGradeCount": 4,
+            "signalCount": 37
           }
         ],
-        "tickerCount": 160,
-        "aTierTickerCount": 7,
-        "top1Share": 30.4,
-        "top3Share": 65.2,
-        "avgBestScore": 0.121,
-        "top5AvgScore": 1.1745,
-        "sectorScore": 1.6398,
-        "rawBreadth": 5.0814,
-        "cappedBreadth": 5.0814,
+        "tickerCount": 156,
+        "aTierTickerCount": 5,
+        "top1Share": 31.8,
+        "top3Share": 77.3,
+        "avgBestScore": 0.1947,
+        "top5AvgScore": 1.1951,
+        "sectorScore": 1.6672,
+        "rawBreadth": 5.0562,
+        "cappedBreadth": 5.0562,
         "previousRank": 2
       },
       {
         "rank": 5,
-        "sector": "Consumer Cyclical",
-        "etf": "XLY",
-        "bias": "Bearish",
-        "totalSignals": 4660,
-        "strongSignalCount": 15,
-        "aTierDensity": 0.3,
-        "netScore": 46.5,
-        "convictionScore": 0.01,
-        "flowSkew": "Balanced",
-        "topTickers": [
-          {
-            "ticker": "AMZN",
-            "grade": "Hold",
-            "direction": "Neutral",
-            "aGradeCount": 10,
-            "signalCount": 100
-          },
-          {
-            "ticker": "LULU",
-            "grade": "Sell",
-            "direction": "Neutral",
-            "aGradeCount": 3,
-            "signalCount": 72
-          },
-          {
-            "ticker": "BKNG",
-            "grade": "Hold",
-            "direction": "Neutral",
-            "aGradeCount": 1,
-            "signalCount": 53
-          }
-        ],
-        "tickerCount": 310,
-        "aTierTickerCount": 4,
-        "top1Share": 66.7,
-        "top3Share": 93.3,
-        "avgBestScore": 0.0262,
-        "top5AvgScore": 0.8727,
-        "sectorScore": 1.5922,
-        "rawBreadth": 5.7398,
-        "cappedBreadth": 5.7398,
-        "previousRank": 7
-      },
-      {
-        "rank": 6,
         "sector": "Financial Services",
         "etf": "XLF",
         "bias": "No overlay",
-        "totalSignals": 3546,
-        "strongSignalCount": 26,
-        "aTierDensity": 0.7,
-        "netScore": 13.37,
-        "convictionScore": 0.0038,
+        "totalSignals": 3398,
+        "strongSignalCount": 28,
+        "aTierDensity": 0.8,
+        "netScore": 26.57,
+        "convictionScore": 0.0078,
         "flowSkew": "Balanced",
         "topTickers": [
+          {
+            "ticker": "JPM",
+            "grade": "Hold",
+            "direction": "Neutral",
+            "aGradeCount": 11,
+            "signalCount": 60
+          },
           {
             "ticker": "COIN",
             "grade": "Sell",
             "direction": "Neutral",
-            "aGradeCount": 11,
-            "signalCount": 129
+            "aGradeCount": 10,
+            "signalCount": 106
           },
           {
             "ticker": "MS",
             "grade": "Hold",
             "direction": "Neutral",
             "aGradeCount": 6,
-            "signalCount": 24
-          },
-          {
-            "ticker": "V",
-            "grade": "Hold",
-            "direction": "Neutral",
-            "aGradeCount": 4,
-            "signalCount": 41
+            "signalCount": 38
           }
         ],
-        "tickerCount": 329,
-        "aTierTickerCount": 5,
-        "top1Share": 42.3,
-        "top3Share": 80.8,
-        "avgBestScore": -0.1398,
-        "top5AvgScore": 0.8754,
-        "sectorScore": 1.5556,
-        "rawBreadth": 5.7991,
-        "cappedBreadth": 5.7991,
-        "previousRank": 8
+        "tickerCount": 326,
+        "aTierTickerCount": 4,
+        "top1Share": 39.3,
+        "top3Share": 96.4,
+        "avgBestScore": -0.0633,
+        "top5AvgScore": 1.0501,
+        "sectorScore": 1.664,
+        "rawBreadth": 5.79,
+        "cappedBreadth": 5.79,
+        "previousRank": 6
+      },
+      {
+        "rank": 6,
+        "sector": "Consumer Cyclical",
+        "etf": "XLY",
+        "bias": "Bearish",
+        "totalSignals": 4602,
+        "strongSignalCount": 33,
+        "aTierDensity": 0.7,
+        "netScore": 37.68,
+        "convictionScore": 0.0082,
+        "flowSkew": "Balanced",
+        "topTickers": [
+          {
+            "ticker": "AMZN",
+            "grade": "Hold",
+            "direction": "Neutral",
+            "aGradeCount": 17,
+            "signalCount": 101
+          },
+          {
+            "ticker": "LULU",
+            "grade": "Sell",
+            "direction": "Neutral",
+            "aGradeCount": 6,
+            "signalCount": 90
+          },
+          {
+            "ticker": "HD",
+            "grade": "Hold",
+            "direction": "Neutral",
+            "aGradeCount": 3,
+            "signalCount": 57
+          }
+        ],
+        "tickerCount": 315,
+        "aTierTickerCount": 9,
+        "top1Share": 51.5,
+        "top3Share": 78.8,
+        "avgBestScore": 0.046,
+        "top5AvgScore": 0.8198,
+        "sectorScore": 1.5749,
+        "rawBreadth": 5.7557,
+        "cappedBreadth": 5.7557,
+        "previousRank": 5
       }
     ],
     "yesterdayStatus": [
       {
-        "ticker": "CRDO",
-        "grade": "A",
-        "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
-        "originalAction": "ENTER",
-        "todayAction": null,
-        "snapshotPrice": 172.17,
-        "yesterdayEntryPrice": 172.17,
-        "currentPrice": 168.99,
-        "priceChangePct": -1.8,
-        "typicalHoldDays": null,
-        "status": "Still valid",
-        "statusNote": null,
-        "rawFollowupAction": "ENTER",
-        "cappedFollowupAction": "ENTER",
-        "followupState": "STABLE",
-        "stillInTodayList": false
-      },
-      {
         "ticker": "DDOG",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WAIT",
         "todayAction": null,
         "snapshotPrice": 207.98,
         "yesterdayEntryPrice": 207.98,
-        "currentPrice": 208.82,
-        "priceChangePct": 0.4,
+        "currentPrice": 212.24,
+        "priceChangePct": 2.1,
         "typicalHoldDays": 8,
-        "status": "Still valid",
+        "status": "Extended - avoid new entries",
         "statusNote": null,
         "rawFollowupAction": "WAIT",
         "cappedFollowupAction": "WAIT",
-        "followupState": "STABLE",
+        "followupState": "EXTENDED",
         "stillInTodayList": false
       },
       {
         "ticker": "ON",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 118.37,
         "yesterdayEntryPrice": 118.37,
-        "currentPrice": 109.43,
-        "priceChangePct": -7.5,
+        "currentPrice": 106.02,
+        "priceChangePct": -10.4,
         "typicalHoldDays": 8,
         "status": "Weak - needs confirmation",
         "statusNote": null,
@@ -1802,32 +1688,32 @@
         "ticker": "MRVL",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 176.89,
         "yesterdayEntryPrice": 176.89,
-        "currentPrice": 168.93,
-        "priceChangePct": -4.5,
+        "currentPrice": 186.8,
+        "priceChangePct": 5.6,
         "typicalHoldDays": 8,
-        "status": "Weak - needs confirmation",
+        "status": "Extended - avoid new entries",
         "statusNote": null,
-        "rawFollowupAction": "WATCH (near entry)",
-        "cappedFollowupAction": "WATCH (near entry)",
-        "followupState": "PULLBACK",
+        "rawFollowupAction": "WAIT",
+        "cappedFollowupAction": "WAIT",
+        "followupState": "EXTENDED",
         "stillInTodayList": false
       },
       {
         "ticker": "NBIS",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 219.94,
         "yesterdayEntryPrice": 219.94,
-        "currentPrice": 199.86,
-        "priceChangePct": -9.1,
+        "currentPrice": 197.73,
+        "priceChangePct": -10.1,
         "typicalHoldDays": 8,
         "status": "Weak - needs confirmation",
         "statusNote": null,
@@ -1840,7 +1726,7 @@
         "ticker": "SMTC",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 137.64,
@@ -1859,13 +1745,13 @@
         "ticker": "MSTR",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 186.97,
         "yesterdayEntryPrice": 186.97,
-        "currentPrice": 166.63,
-        "priceChangePct": -10.9,
+        "currentPrice": 165.81,
+        "priceChangePct": -11.3,
         "typicalHoldDays": 8,
         "status": "Weak - needs confirmation",
         "statusNote": null,
@@ -1878,7 +1764,7 @@
         "ticker": "TXN",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 308.17,
@@ -1897,13 +1783,13 @@
         "ticker": "NTAP",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 119.93,
         "yesterdayEntryPrice": 119.93,
-        "currentPrice": 120.59,
-        "priceChangePct": 0.5,
+        "currentPrice": 118.97,
+        "priceChangePct": -0.8,
         "typicalHoldDays": 8,
         "status": "Still valid",
         "statusNote": null,
@@ -1913,29 +1799,10 @@
         "stillInTodayList": false
       },
       {
-        "ticker": "SNOW",
-        "grade": "A",
-        "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
-        "originalAction": "ENTER",
-        "todayAction": null,
-        "snapshotPrice": 157.47,
-        "yesterdayEntryPrice": 157.47,
-        "currentPrice": 164.24,
-        "priceChangePct": 4.3,
-        "typicalHoldDays": 8,
-        "status": "Extended - avoid new entries",
-        "statusNote": null,
-        "rawFollowupAction": "WAIT",
-        "cappedFollowupAction": "WAIT",
-        "followupState": "EXTENDED",
-        "stillInTodayList": false
-      },
-      {
         "ticker": "SATS",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 135.11,
@@ -1954,13 +1821,13 @@
         "ticker": "QCOM",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 201.49,
         "yesterdayEntryPrice": 201.49,
-        "currentPrice": 203.64,
-        "priceChangePct": 1.1,
+        "currentPrice": 202.51,
+        "priceChangePct": 0.5,
         "typicalHoldDays": 8,
         "status": "Still valid",
         "statusNote": null,
@@ -1973,32 +1840,32 @@
         "ticker": "TWLO",
         "grade": "A",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 198.04,
         "yesterdayEntryPrice": 198.04,
-        "currentPrice": 195.95,
-        "priceChangePct": -1.1,
+        "currentPrice": 189.33,
+        "priceChangePct": -4.4,
         "typicalHoldDays": 8,
-        "status": "Still valid",
+        "status": "Weak - needs confirmation",
         "statusNote": null,
-        "rawFollowupAction": "ENTER",
-        "cappedFollowupAction": "ENTER",
-        "followupState": "STABLE",
+        "rawFollowupAction": "ENTER (better price)",
+        "cappedFollowupAction": "ENTER (better price)",
+        "followupState": "PULLBACK",
         "stillInTodayList": false
       },
       {
         "ticker": "NVDA",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 225.32,
         "yesterdayEntryPrice": 225.32,
-        "currentPrice": 222.32,
-        "priceChangePct": -1.3,
+        "currentPrice": 223.47,
+        "priceChangePct": -0.8,
         "typicalHoldDays": 8,
         "status": "Still valid",
         "statusNote": null,
@@ -2011,13 +1878,13 @@
         "ticker": "SIMO",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 263.85,
         "yesterdayEntryPrice": 263.85,
-        "currentPrice": 239.76,
-        "priceChangePct": -9.1,
+        "currentPrice": 252.92,
+        "priceChangePct": -4.1,
         "typicalHoldDays": null,
         "status": "Weak - needs confirmation",
         "statusNote": null,
@@ -2030,32 +1897,32 @@
         "ticker": "WDAY",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 125.01,
         "yesterdayEntryPrice": 125.01,
-        "currentPrice": 129.34,
-        "priceChangePct": 3.5,
+        "currentPrice": 126.61,
+        "priceChangePct": 1.3,
         "typicalHoldDays": 8,
-        "status": "Extended - avoid new entries",
+        "status": "Still valid",
         "statusNote": null,
-        "rawFollowupAction": "WAIT",
-        "cappedFollowupAction": "WAIT",
-        "followupState": "EXTENDED",
+        "rawFollowupAction": "ENTER",
+        "cappedFollowupAction": "ENTER",
+        "followupState": "STABLE",
         "stillInTodayList": false
       },
       {
         "ticker": "NET",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 197.56,
         "yesterdayEntryPrice": 197.56,
-        "currentPrice": 201.75,
-        "priceChangePct": 2.1,
+        "currentPrice": 206.73,
+        "priceChangePct": 4.6,
         "typicalHoldDays": null,
         "status": "Extended - avoid new entries",
         "statusNote": null,
@@ -2068,7 +1935,7 @@
         "ticker": "INTC",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 108.77,
@@ -2087,7 +1954,7 @@
         "ticker": "DELL",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 241.99,
@@ -2106,7 +1973,7 @@
         "ticker": "PANW",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WAIT",
         "todayAction": null,
         "snapshotPrice": 242.83,
@@ -2122,48 +1989,29 @@
         "stillInTodayList": false
       },
       {
-        "ticker": "ARM",
-        "grade": "B",
-        "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
-        "originalAction": "ENTER",
-        "todayAction": null,
-        "snapshotPrice": 209.16,
-        "yesterdayEntryPrice": 209.16,
-        "currentPrice": 215.12,
-        "priceChangePct": 2.9,
-        "typicalHoldDays": 8,
-        "status": "Extended - avoid new entries",
-        "statusNote": null,
-        "rawFollowupAction": "WAIT",
-        "cappedFollowupAction": "WAIT",
-        "followupState": "EXTENDED",
-        "stillInTodayList": false
-      },
-      {
         "ticker": "FSLR",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 233.37,
         "yesterdayEntryPrice": 233.37,
-        "currentPrice": 233.64,
-        "priceChangePct": 0.1,
+        "currentPrice": 221.71,
+        "priceChangePct": -5.0,
         "typicalHoldDays": 8,
-        "status": "Still valid",
+        "status": "Weak - needs confirmation",
         "statusNote": null,
-        "rawFollowupAction": "ENTER",
-        "cappedFollowupAction": "ENTER",
-        "followupState": "STABLE",
+        "rawFollowupAction": "ENTER (better price)",
+        "cappedFollowupAction": "ENTER (better price)",
+        "followupState": "PULLBACK",
         "stillInTodayList": false
       },
       {
         "ticker": "TSEM",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 280.69,
@@ -2182,13 +2030,13 @@
         "ticker": "ANET",
         "grade": "B",
         "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 141.97,
         "yesterdayEntryPrice": 141.97,
-        "currentPrice": 141.71,
-        "priceChangePct": -0.2,
+        "currentPrice": 141.58,
+        "priceChangePct": -0.3,
         "typicalHoldDays": 8,
         "status": "Still valid",
         "statusNote": null,
@@ -2198,35 +2046,35 @@
         "stillInTodayList": false
       },
       {
-        "ticker": "ALAB",
-        "grade": "B",
-        "signalDate": "2026-05-15",
-        "currentDate": "2026-05-19",
+        "ticker": "CRDO",
+        "grade": "A",
+        "signalDate": "2026-05-14",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
-        "snapshotPrice": 232.68,
-        "yesterdayEntryPrice": 232.68,
-        "currentPrice": 244.26,
-        "priceChangePct": 5.0,
+        "snapshotPrice": 184.54,
+        "yesterdayEntryPrice": 184.54,
+        "currentPrice": 182.98,
+        "priceChangePct": -0.9,
         "typicalHoldDays": 8,
-        "status": "Extended - avoid new entries",
+        "status": "Still valid",
         "statusNote": null,
-        "rawFollowupAction": "WAIT",
-        "cappedFollowupAction": "WAIT",
-        "followupState": "EXTENDED",
+        "rawFollowupAction": "WATCH",
+        "cappedFollowupAction": "WATCH",
+        "followupState": "STABLE",
         "stillInTodayList": false
       },
       {
         "ticker": "BIDU",
         "grade": "A",
         "signalDate": "2026-05-14",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 150.5,
         "yesterdayEntryPrice": 150.5,
-        "currentPrice": 137.71,
-        "priceChangePct": -8.5,
+        "currentPrice": 135.22,
+        "priceChangePct": -10.2,
         "typicalHoldDays": 8,
         "status": "Weak - needs confirmation",
         "statusNote": null,
@@ -2239,26 +2087,26 @@
         "ticker": "RVMD",
         "grade": "A",
         "signalDate": "2026-05-14",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 149.94,
         "yesterdayEntryPrice": 149.94,
-        "currentPrice": 144.37,
-        "priceChangePct": -3.7,
+        "currentPrice": 150.33,
+        "priceChangePct": 0.3,
         "typicalHoldDays": 8,
-        "status": "Weak - needs confirmation",
+        "status": "Still valid",
         "statusNote": null,
-        "rawFollowupAction": "ENTER (better price)",
-        "cappedFollowupAction": "ENTER (better price)",
-        "followupState": "PULLBACK",
+        "rawFollowupAction": "ENTER",
+        "cappedFollowupAction": "ENTER",
+        "followupState": "STABLE",
         "stillInTodayList": false
       },
       {
         "ticker": "NEM",
         "grade": "A",
         "signalDate": "2026-05-14",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 118.96,
@@ -2277,13 +2125,13 @@
         "ticker": "AKAM",
         "grade": "A",
         "signalDate": "2026-05-14",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 155.67,
         "yesterdayEntryPrice": 155.67,
-        "currentPrice": 150.77,
-        "priceChangePct": -3.1,
+        "currentPrice": 141.34,
+        "priceChangePct": -9.2,
         "typicalHoldDays": 8,
         "status": "Weak - needs confirmation",
         "statusNote": null,
@@ -2296,13 +2144,13 @@
         "ticker": "LRCX",
         "grade": "B",
         "signalDate": "2026-05-14",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 295.44,
         "yesterdayEntryPrice": 295.44,
-        "currentPrice": 277.96,
-        "priceChangePct": -5.9,
+        "currentPrice": 273.38,
+        "priceChangePct": -7.5,
         "typicalHoldDays": 8,
         "status": "Weak - needs confirmation",
         "statusNote": null,
@@ -2315,7 +2163,7 @@
         "ticker": "ZBRA",
         "grade": "B",
         "signalDate": "2026-05-14",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 258.1,
@@ -2334,13 +2182,13 @@
         "ticker": "SCCO",
         "grade": "B",
         "signalDate": "2026-05-14",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 191.89,
         "yesterdayEntryPrice": 191.89,
-        "currentPrice": 171.9,
-        "priceChangePct": -10.4,
+        "currentPrice": 174.09,
+        "priceChangePct": -9.3,
         "typicalHoldDays": 8,
         "status": "Weak - needs confirmation",
         "statusNote": null,
@@ -2353,75 +2201,37 @@
         "ticker": "NXPI",
         "grade": "B",
         "signalDate": "2026-05-13",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "ENTER",
         "todayAction": null,
         "snapshotPrice": 298.41,
         "yesterdayEntryPrice": 298.41,
-        "currentPrice": 291.68,
-        "priceChangePct": -2.3,
+        "currentPrice": 310.15,
+        "priceChangePct": 3.9,
         "typicalHoldDays": 8,
-        "status": "Weak - needs confirmation",
+        "status": "Extended - avoid new entries",
         "statusNote": null,
-        "rawFollowupAction": "ENTER",
-        "cappedFollowupAction": "ENTER",
-        "followupState": "STABLE",
+        "rawFollowupAction": "WAIT",
+        "cappedFollowupAction": "WAIT",
+        "followupState": "EXTENDED",
         "stillInTodayList": false
       },
       {
         "ticker": "ORCL",
         "grade": "B",
         "signalDate": "2026-05-13",
-        "currentDate": "2026-05-19",
+        "currentDate": "2026-05-20",
         "originalAction": "WATCH",
         "todayAction": null,
         "snapshotPrice": 186.83,
         "yesterdayEntryPrice": 186.83,
-        "currentPrice": 186.61,
-        "priceChangePct": -0.1,
-        "typicalHoldDays": 8,
-        "status": "Still valid",
-        "statusNote": null,
-        "rawFollowupAction": "WATCH",
-        "cappedFollowupAction": "WATCH",
-        "followupState": "STABLE",
-        "stillInTodayList": false
-      },
-      {
-        "ticker": "WPM",
-        "grade": "B",
-        "signalDate": "2026-05-12",
-        "currentDate": "2026-05-19",
-        "originalAction": "ENTER",
-        "todayAction": null,
-        "snapshotPrice": 143.8,
-        "yesterdayEntryPrice": 143.8,
-        "currentPrice": 129.49,
-        "priceChangePct": -10.0,
+        "currentPrice": 181.46,
+        "priceChangePct": -2.9,
         "typicalHoldDays": 8,
         "status": "Weak - needs confirmation",
         "statusNote": null,
-        "rawFollowupAction": "ENTER (better price)",
-        "cappedFollowupAction": "ENTER (better price)",
-        "followupState": "PULLBACK",
-        "stillInTodayList": false
-      },
-      {
-        "ticker": "PLTR",
-        "grade": "B",
-        "signalDate": "2026-05-12",
-        "currentDate": "2026-05-19",
-        "originalAction": "ENTER",
-        "todayAction": null,
-        "snapshotPrice": 136.0,
-        "yesterdayEntryPrice": 136.0,
-        "currentPrice": 135.26,
-        "priceChangePct": -0.5,
-        "typicalHoldDays": 8,
-        "status": "Still valid",
-        "statusNote": null,
-        "rawFollowupAction": "ENTER",
-        "cappedFollowupAction": "ENTER",
+        "rawFollowupAction": "WATCH",
+        "cappedFollowupAction": "WATCH",
         "followupState": "STABLE",
         "stillInTodayList": false
       }

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Dashboard } from "@/components/dashboard/Dashboard";
-import { DashboardEmptyState, DashboardErrorState, DashboardLoadingState } from "@/components/dashboard/DashboardStates";
+import { DashboardErrorState, DashboardLoadingState } from "@/components/dashboard/DashboardStates";
 import { TradeDetailDrawer } from "@/components/dashboard/TradeDetailDrawer";
 import { applyTradeFilters, type TradeFiltersState } from "@/components/dashboard/TradeFilters";
 import { fetchDashboardData } from "@/lib/api/options-client";
@@ -196,32 +196,30 @@ export function DashboardClient() {
     return <DashboardErrorState message={state.error} onRetry={() => void loadDashboard(showExtended)} />;
   }
 
-  if (state.status === "empty") {
-    return <DashboardEmptyState data={state.data} onRefresh={() => void loadDashboard(showExtended)} />;
-  }
-
   return (
-      <DashboardWithState
-        data={state.data}
-        filters={filters}
-        showExtended={showExtended}
-        isRefreshing={isRefreshing}
-        watchlist={watchlist}
-        selectedTrade={selectedTrade}
-        onFiltersChange={setFilters}
-        onToggleExtended={() => setShowExtended((current) => !current)}
-        onToggleWatchlist={(trade) => setWatchlist((current) => toggleWatch(current, trade))}
-        onSelectTrade={setSelectedTrade}
-        onCloseTrade={() => setSelectedTrade(null)}
-        onRefresh={() => void loadDashboard(showExtended, undefined, { forceRefresh: true })}
-        userEmail={userEmail}
-        onLogout={() => void handleLogout()}
+    <DashboardWithState
+      data={state.data}
+      isEmptyDataset={state.status === "empty"}
+      filters={filters}
+      showExtended={showExtended}
+      isRefreshing={isRefreshing}
+      watchlist={watchlist}
+      selectedTrade={selectedTrade}
+      onFiltersChange={setFilters}
+      onToggleExtended={() => setShowExtended((current) => !current)}
+      onToggleWatchlist={(trade) => setWatchlist((current) => toggleWatch(current, trade))}
+      onSelectTrade={setSelectedTrade}
+      onCloseTrade={() => setSelectedTrade(null)}
+      onRefresh={() => void loadDashboard(showExtended, undefined, { forceRefresh: true })}
+      userEmail={userEmail}
+      onLogout={() => void handleLogout()}
     />
   );
 }
 
 function DashboardWithState({
   data,
+  isEmptyDataset,
   filters,
   showExtended,
   isRefreshing,
@@ -237,6 +235,7 @@ function DashboardWithState({
   onLogout
 }: {
   data: DashboardData;
+  isEmptyDataset: boolean;
   filters: TradeFiltersState;
   showExtended: boolean;
   isRefreshing: boolean;
@@ -279,7 +278,10 @@ function DashboardWithState({
       ) as Record<string, "ENTER" | "WATCH" | "WAIT">,
     [rankedTrades]
   );
-  const computedTradeEmptyState = useMemo(() => buildTradeEmptyState(filters, showExtended), [filters, showExtended]);
+  const computedTradeEmptyState = useMemo(
+    () => buildTradeEmptyState(filters, showExtended, data, rankedTrades.length, filteredTrades.length, isEmptyDataset),
+    [filters, showExtended, data, rankedTrades.length, filteredTrades.length, isEmptyDataset]
+  );
   const systemInsight = useMemo(() => buildSystemInsight(data.marketRegime, rankedTrades), [data.marketRegime, rankedTrades]);
 
   return (
@@ -346,7 +348,33 @@ function enrichSectorOutlook(outlook: SectorOutlook[], trades: TopTrade[]): Sect
   }));
 }
 
-function buildTradeEmptyState(filters: TradeFiltersState, showExtended: boolean): { title: string; message: string } {
+function buildTradeEmptyState(
+  filters: TradeFiltersState,
+  showExtended: boolean,
+  data: DashboardData,
+  totalTrades: number,
+  visibleTrades: number,
+  isEmptyDataset: boolean
+): { title: string; message: string } {
+  if (totalTrades === 0 || isEmptyDataset) {
+    const followUpCount = data.yesterdayStatus.length;
+    const sectorCount = data.sectorOutlook.length;
+    const signalDate = data.signalDate ?? data.marketRegime?.date ?? "the latest run";
+    const scopeLabel = showExtended ? "default and extended" : "default";
+
+    return {
+      title: "No qualified setups in the latest selector run.",
+      message: `The ${scopeLabel} selector output returned 0 setups for ${signalDate}. Recent follow-up still covers ${followUpCount} prior signals across ${sectorCount} sectors.`
+    };
+  }
+
+  if (visibleTrades === 0 && (filters.sector !== "ALL" || filters.query.trim() || filters.action !== "ALL")) {
+    return {
+      title: "No qualified setups match the current filters.",
+      message: "Try clearing Sector/Search filters or switching the action filter."
+    };
+  }
+
   if (filters.action === "ENTER") {
     return {
       title: "No ENTER setups match the current filters.",
